@@ -37,10 +37,10 @@ pipeline {
                     }
 
                     // ✅ Ajuste de rutas reales
-                    env.ENV_DIR = "taller/DevOps/${env.ENVIRONMENT}"
+                    env.ENV_DIR = "Merge_Back/taller/DevOps/${env.ENVIRONMENT}"
                     env.COMPOSE_FILE = "${env.ENV_DIR}/docker-compose.yml"
                     env.ENV_FILE = "${env.ENV_DIR}/.env"
-                    env.DB_COMPOSE_FILE = "taller/DevOps/docker-compose-db.yml"
+                    env.DB_COMPOSE_FILE = "Merge_Back/taller/DevOps/docker-compose-db.yml"
 
                     echo """
                     ✅ Rama detectada: ${env.BRANCH_NAME}
