@@ -1,4 +1,6 @@
-# Dockerfile corregido
+# ===========================================================
+# 🚀 Dockerfile corregido para estructura: Palermo-api/taller/Web
+# ===========================================================
 
 # Fase base
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
@@ -10,32 +12,31 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
-# Copiar los proyectos y la solución
-COPY Web/Web.csproj Web/
-COPY Business/Business.csproj Business/
-COPY Entity/Entity.csproj Entity/
-COPY Data/Data.csproj Data/
-COPY Helpers/Helpers.csproj Helpers/
-COPY Utilities/Utilities.csproj Utilities/
-COPY taller.sln .
+# Copiar proyectos con rutas correctas (desde raíz)
+COPY taller/Web/Web.csproj Web/
+COPY taller/Business/Business.csproj Business/
+COPY taller/Entity/Entity.csproj Entity/
+COPY taller/Data/Data.csproj Data/
+COPY taller/Helpers/Helpers.csproj Helpers/
+COPY taller/Utilities/Utilities.csproj Utilities/
+COPY taller/taller.sln .
 
-# Restaurar paquetes
-RUN dotnet restore "./Web/Web.csproj"
+# Restaurar dependencias
+RUN dotnet restore "Web/Web.csproj"
 
-# Copiar todo el código
-COPY . .
+# Copiar todo el código fuente
+COPY taller/. .
 
-# Construir el proyecto Web
-WORKDIR "/src/Web"
-RUN dotnet build "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# Compilar
+WORKDIR /src/Web
+RUN dotnet build "Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publicar
 FROM build AS publish
-RUN dotnet publish "./Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Fase final
+# Imagen final
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Web.dll"]
-
