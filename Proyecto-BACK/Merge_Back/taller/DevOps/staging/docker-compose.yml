@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  # 🌐 API principal - STAGING
+  alcaldiafetch-api-staging:
+    container_name: alcaldiafetch-api-staging
+    build:
+      context: ../..
+      dockerfile: WebGESCOMPH/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5102:8080"
+    networks:
+      - alcaldiafetch_network
+    labels:
+      - com.alcaldiafetch.environment=staging
+networks:
+  alcaldiafetch_network:
+    external: true

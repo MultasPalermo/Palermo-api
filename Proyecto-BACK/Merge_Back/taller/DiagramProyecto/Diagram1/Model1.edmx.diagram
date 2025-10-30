@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="f1a2ca59ddd7444da7f560a1e4042887" Name="Diagram1" ZoomLevel="93" >
+        <EntityTypeShape EntityType="Model1.User" Width="1.5" PointX="8.75" PointY="1.875" IsExpanded="true" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.Rol" Width="1.625" PointX="5.125" PointY="4.375" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.person" Width="1.5" PointX="5.25" PointY="0.625" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.TypeInfraction" Width="1.5" PointX="10.625" PointY="8.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="Model1.PaymentAgreement" Width="1.5" PointX="12.375" PointY="4.125" />
+        <EntityTypeShape EntityType="Model1.UserNotification" Width="1.5" PointX="7.5" PointY="5" />
+        <EntityTypeShape EntityType="Model1.AccessLog" Width="1.5" PointX="19.25" PointY="3.125" />
+        <EntityTypeShape EntityType="Model1.Module" Width="1.5" PointX="4.125" PointY="9.625" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.Permission" Width="1.5" PointX="8.125" PointY="7.5" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.Form" Width="1.5" PointX="2.375" PointY="7" IsExpanded="true" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.TypePayment" Width="1.5" PointX="14.375" PointY="4.25" />
+        <EntityTypeShape EntityType="Model1.ModuloForm" Width="1.5" PointX="8.875" PointY="10.875" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.RolUser" Width="1.5" PointX="7.125" PointY="2.5" FillColor="255, 128, 0" />
+        <EntityTypeShape EntityType="Model1.RolFormPermission" Width="1.5" PointX="5.375" PointY="6.875" FillColor="255, 128, 0" />
+        <AssociationConnector Association="Model1.FormRolFormPermission" />
+        <AssociationConnector Association="Model1.FormModuloForm" />
+        <AssociationConnector Association="Model1.RolRolFormPermission" />
+        <AssociationConnector Association="Model1.RolRolUser" />
+        <EntityTypeShape EntityType="Model1.FineCalculationDetail" Width="1.5" PointX="13.125" PointY="8.75" />
+        <EntityTypeShape EntityType="Model1.DocumentInfraction" Width="1.5" PointX="14.25" PointY="1.75" />
+        <EntityTypeShape EntityType="Model1.UserInfraction" Width="1.5" PointX="10.25" PointY="5" />
+        <EntityTypeShape EntityType="Model1.valueSmldv" Width="1.5" PointX="15.75" PointY="8.75" />
+        <AssociationConnector Association="Model1.PaymentAgreementTypePayment" />
+        <AssociationConnector Association="Model1.ModuleModuloForm" />
+        <AssociationConnector Association="Model1.PermissionRolFormPermission" />
+        <AssociationConnector Association="Model1.UserRolUser" />
+        <AssociationConnector Association="Model1.Userperson" ManuallyRouted="false" >
+        </AssociationConnector>
+        <AssociationConnector Association="Model1.UserUserInfraction" />
+        <AssociationConnector Association="Model1.TypeInfractionUserInfraction" />
+        <EntityTypeShape EntityType="Model1.InspectoraReport" Width="1.5" PointX="16.625" PointY="1.375" />
+        <AssociationConnector Association="Model1.HaciendaReportDocumentInfraction" />
+        <AssociationConnector Association="Model1.PaymentAgreementDocumentInfraction" />
+        <AssociationConnector Association="Model1.UserNotificationUserInfraction" />
+        <AssociationConnector Association="Model1.UserInfractionPaymentAgreement" />
+        <AssociationConnector Association="Model1.valueSmldvFineCalculationDetail" />
+        <AssociationConnector Association="Model1.TypeInfractionFineCalculationDetail" />
+        <EntityTypeShape EntityType="Model1.DocumentType" Width="1.5" PointX="5.875" PointY="12.5" />
+        <EntityTypeShape EntityType="Model1.PaymentFrequency" Width="1.5" PointX="14.875" PointY="6.625" FillColor="255, 128, 128" />
+        <EntityTypeShape EntityType="Model1.documentType" Width="1.5" PointX="3" PointY="1" FillColor="255, 128, 128" />
+        <EntityTypeShape EntityType="Model1.department" Width="1.5" PointX="10.5" PointY="0.625" FillColor="255, 128, 128" />
+        <EntityTypeShape EntityType="Model1.municipality" Width="1.5" PointX="12.5" PointY="0.625" FillColor="255, 128, 128" />
+        <AssociationConnector Association="Model1.PaymentAgreementPaymentFrequency" />
+        <AssociationConnector Association="Model1.departmentmunicipality" />
+        <AssociationConnector Association="Model1.municipalityUser" />
+        <AssociationConnector Association="Model1.documentTypeperson" />
+      </Diagram>
+      <Diagram DiagramId="64ec5b7e20c34c4fb29228f212f71622" Name="Diagram2" ZoomLevel="55" >
+        <EntityTypeShape EntityType="Model1.StateInfration" Width="1.5" PointX="0.75" PointY="0.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

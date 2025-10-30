@@ -1,0 +1,19 @@
+diff a/Merge_Back/taller/Web/Program.cs b/Merge_Back/taller/Web/Program.cs	(rejected hunks)
+@@ -5,7 +5,6 @@ using Web.Service;
+ using FluentValidation;
+ using FluentValidation.AspNetCore;
+ using Entity.Domain.Models.Implements.Entities;
+-using Business.validaciones;
+ 
+ 
+ var builder = WebApplication.CreateBuilder(args);
+@@ -24,8 +23,8 @@ builder.Services
+     .AddFluentValidationAutoValidation()          // activa la auto-validacin con [ApiController]
+     .AddFluentValidationClientsideAdapters();     // opcional (si usas clientes MVC/Razor)
+ 
+-builder.Services.AddValidatorsFromAssemblyContaining<InspectoraReportCreateValidator>();
+ 
++builder.Services.AddCustomValidators();
+ builder.Services.AddApplicationServices();
+ builder.Services.AddSwaggerWithJwt();
+ builder.Services.AddDatabase(builder.Configuration);

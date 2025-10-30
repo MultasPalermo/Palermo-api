@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  # 🌐 API principal - DEVELOP
+  alcaldiafetch-api-develop:
+    container_name: alcaldiafetch-api-develop
+    build:
+      context: ../..
+      dockerfile: Webtaller/Dockerfile
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5100:8080"
+    networks:
+      - alcaldiafetch_network
+    labels:
+      - com.alcaldiafetch.environment=develop
+
+networks:
+  alcaldiafetch_network:
+    external: true

@@ -1,0 +1,36 @@
+# Archivos de build
+bin/
+obj/
+
+# Archivos de usuario de VS/VSCode
+*.user
+*.suo
+.vs/
+*.vscode/
+
+# Archivos de compilación
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# Archivos de publicación
+publish/
+out/
+
+# Paquetes
+*.nupkg
+*.snupkg
+
+# Logs
+*.log
+
+# Configuración de NuGet
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Otros temporales
+*.swp
+*.tmp
+
