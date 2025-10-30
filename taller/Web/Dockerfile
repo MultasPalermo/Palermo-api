@@ -33,7 +33,7 @@ RUN dotnet build "Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publicar
 FROM build AS publish
-RUN dotnet publish "Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Web.csproj" -c "${BUILD_CONFIGURATION:-Release}" -o /app/publish /p:UseAppHost=false
 
 # Imagen final
 FROM base AS final
