@@ -88,7 +88,9 @@ pipeline {
                 sh """
                     echo "🐳 Construyendo imagen Docker para entorno: ${env.ENVIRONMENT}"
                     # 🔧 Cambiamos el contexto al directorio 'taller'
-                    docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f Web/Dockerfile taller
+                    docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f taller/Web/Dockerfile .
+
+
                 """
             }
         }
