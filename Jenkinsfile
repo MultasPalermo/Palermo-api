@@ -6,7 +6,7 @@ pipeline {
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
         DOTNET_NOLOGO = '1'
 
-        // ✅ Ruta del proyecto .NET dentro de la solución
+        // ✅ Ruta real del proyecto dentro de la solución
         PROJECT_PATH = 'taller/Web/Web.csproj'
     }
 
@@ -36,7 +36,6 @@ pipeline {
                         default: env.ENVIRONMENT = 'develop'; break
                     }
 
-                    // ✅ Ajuste de rutas reales
                     env.ENV_DIR = "taller/DevOps/${env.ENVIRONMENT}"
                     env.COMPOSE_FILE = "${env.ENV_DIR}/docker-compose.yml"
                     env.ENV_FILE = "${env.ENV_DIR}/.env"
@@ -88,13 +87,14 @@ pipeline {
             steps {
                 sh """
                     echo "🐳 Construyendo imagen Docker para entorno: ${env.ENVIRONMENT}"
-                    docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f taller/Web/Dockerfile .
+                    # 🔧 Cambiamos el contexto al directorio 'taller'
+                    docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f Web/Dockerfile taller
                 """
             }
         }
 
         // =======================================================
-        // 5️⃣ PREPARAR RED Y BASES DE DATOS
+        // 5️⃣ PREPARAR RED Y BASE DE DATOS
         // =======================================================
         stage('Preparar red y base de datos') {
             steps {
