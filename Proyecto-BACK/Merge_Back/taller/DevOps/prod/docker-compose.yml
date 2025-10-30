@@ -6,7 +6,7 @@ services:
     container_name: alcaldiafetch-api-prod
     build:
       context: ../..
-      dockerfile: WebGESCOMPH/Dockerfile
+      dockerfile: Web/Dockerfile
     restart: always
     env_file:
       - .env

@@ -6,7 +6,7 @@ services:
     container_name: alcaldiafetch-api-develop
     build:
       context: ../..
-      dockerfile: Webtaller/Dockerfile
+      dockerfile: Web/Dockerfile
     restart: always
     env_file:
       - .env
