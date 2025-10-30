@@ -6,7 +6,7 @@ pipeline {
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
         DOTNET_NOLOGO = '1'
 
-        # Ruta real del proyecto API según tu solución
+        // Ruta real del proyecto API según tu solución
         PROJECT_PATH = 'Web/Web.csproj'
     }
 
