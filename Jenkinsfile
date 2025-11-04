@@ -10,14 +10,20 @@ pipeline {
 
     stages {
 
+        // =======================================================
+        // 1️⃣ CHECKOUT
+        // =======================================================
         stage('Checkout código fuente') {
             steps {
                 echo "📥 Clonando repositorio desde GitHub..."
                 checkout scm
-                sh 'pwd && ls -R || true'
+                sh 'ls -R taller/DevOps || true'
             }
         }
 
+        // =======================================================
+        // 2️⃣ DETECTAR ENTORNO SEGÚN LA RAMA
+        // =======================================================
         stage('Detectar entorno') {
             steps {
                 script {
@@ -48,41 +54,43 @@ pipeline {
             }
         }
 
+        // =======================================================
+        // 3️⃣ COMPILAR Y PUBLICAR .NET
+        // =======================================================
         stage('Compilar .NET dentro de contenedor SDK') {
             steps {
                 script {
                     docker.image('mcr.microsoft.com/dotnet/sdk:9.0')
                         .inside('-v /var/run/docker.sock:/var/run/docker.sock -u root:root') {
-
-                        // 🔹 Ya no se instala docker.io (causaba conflicto con el binario montado)
-                        // Jenkins ya usa el Docker del host gracias al socket compartido.
-
-                        sh """
+                        sh '''
                             echo "🔧 Restaurando dependencias .NET..."
-                            dotnet restore ${PROJECT_PATH}
-
-                            echo "🏗 Compilando proyecto..."
-                            dotnet build ${PROJECT_PATH} --configuration Release
-
-                            echo "📦 Publicando artefactos..."
-                            dotnet publish ${PROJECT_PATH} -c Release -o ./publish
-                        """
-
-                        sh 'ls -R ./publish || true'
+                            cd taller
+                            dotnet restore Web/Web.csproj
+                            dotnet build Web/Web.csproj --configuration Release
+                            dotnet publish Web/Web.csproj -c Release -o ./publish
+                        '''
                     }
                 }
             }
         }
 
+        // =======================================================
+        // 4️⃣ CONSTRUIR IMAGEN DOCKER
+        // =======================================================
         stage('Construir imagen Docker') {
             steps {
-                sh """
-                    echo "🐳 Construyendo imagen Docker para entorno: ${env.ENVIRONMENT}"
-                    docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f taller/Web/Dockerfile .
-                """
+                dir('taller') {
+                    sh """
+                        echo "🐳 Construyendo imagen Docker para alcaldiafetch (${env.ENVIRONMENT})"
+                        docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f Web/Dockerfile .
+                    """
+                }
             }
         }
 
+        // =======================================================
+        // 5️⃣ PREPARAR RED Y BASE DE DATOS
+        // =======================================================
         stage('Preparar red y base de datos') {
             steps {
                 script {
@@ -97,9 +105,12 @@ pipeline {
             }
         }
 
+        // =======================================================
+        // 6️⃣ DESPLEGAR API CON DOCKER COMPOSE
+        // =======================================================
         stage('Desplegar API alcaldiafetch') {
             steps {
-                script {
+                dir('.') {
                     sh """
                         echo "🚀 Desplegando entorno: ${env.ENVIRONMENT}"
                         docker compose -f ${env.COMPOSE_FILE} --env-file ${env.ENV_FILE} up -d --build
