@@ -5,16 +5,11 @@ pipeline {
         DOTNET_CLI_HOME = '/var/jenkins_home/.dotnet'
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE = '1'
         DOTNET_NOLOGO = '1'
-
-        // ✅ Ruta real del proyecto dentro de la solución
         PROJECT_PATH = 'taller/Web/Web.csproj'
     }
 
     stages {
 
-        // =======================================================
-        // 1️⃣ CHECKOUT
-        // =======================================================
         stage('Checkout código fuente') {
             steps {
                 echo "📥 Clonando repositorio desde GitHub..."
@@ -23,9 +18,6 @@ pipeline {
             }
         }
 
-        // =======================================================
-        // 2️⃣ DETECTAR ENTORNO SEGÚN LA RAMA
-        // =======================================================
         stage('Detectar entorno') {
             steps {
                 script {
@@ -46,7 +38,7 @@ pipeline {
                     🌎 Entorno asignado: ${env.ENVIRONMENT}
                     📄 Compose file (API): ${env.COMPOSE_FILE}
                     📁 Env file (API): ${env.ENV_FILE}
-                    🗄️ Compose file (DB): ${env.DB_COMPOSE_FILE}
+                    🗄 Compose file (DB): ${env.DB_COMPOSE_FILE}
                     """
 
                     if (!fileExists(env.COMPOSE_FILE)) {
@@ -56,48 +48,41 @@ pipeline {
             }
         }
 
-        // =======================================================
-        // 3️⃣ COMPILAR Y PUBLICAR .NET
-        // =======================================================
         stage('Compilar .NET dentro de contenedor SDK') {
             steps {
                 script {
                     docker.image('mcr.microsoft.com/dotnet/sdk:9.0')
                         .inside('-v /var/run/docker.sock:/var/run/docker.sock -u root:root') {
+
+                        // 🔹 aquí se instala el docker CLI (solo cliente)
+                        sh 'apt-get update && apt-get install -y docker.io'
+
                         sh """
                             echo "🔧 Restaurando dependencias .NET..."
                             dotnet restore ${PROJECT_PATH}
 
-                            echo "🏗️ Compilando proyecto..."
+                            echo "🏗 Compilando proyecto..."
                             dotnet build ${PROJECT_PATH} --configuration Release
 
                             echo "📦 Publicando artefactos..."
                             dotnet publish ${PROJECT_PATH} -c Release -o ./publish
                         """
+
                         sh 'ls -R ./publish || true'
                     }
                 }
             }
         }
 
-        // =======================================================
-        // 4️⃣ CONSTRUIR IMAGEN DOCKER
-        // =======================================================
         stage('Construir imagen Docker') {
             steps {
                 sh """
                     echo "🐳 Construyendo imagen Docker para entorno: ${env.ENVIRONMENT}"
-                    # 🔧 Cambiamos el contexto al directorio 'taller'
                     docker build -t alcaldiafetch-api-${env.ENVIRONMENT}:latest -f taller/Web/Dockerfile .
-
-
                 """
             }
         }
 
-        // =======================================================
-        // 5️⃣ PREPARAR RED Y BASE DE DATOS
-        // =======================================================
         stage('Preparar red y base de datos') {
             steps {
                 script {
@@ -105,16 +90,13 @@ pipeline {
                         echo "🌐 Creando red externa compartida (si no existe)..."
                         docker network create alcaldiafetch_network || true
 
-                        echo "🗄️ Levantando stack de bases de datos..."
+                        echo "🗄 Levantando stack de bases de datos..."
                         docker compose -f ${env.DB_COMPOSE_FILE} up -d
                     """
                 }
             }
         }
 
-        // =======================================================
-        // 6️⃣ DESPLEGAR API CON DOCKER COMPOSE
-        // =======================================================
         stage('Desplegar API alcaldiafetch') {
             steps {
                 script {
@@ -136,6 +118,7 @@ pipeline {
         }
         always {
             echo "🧹 Limpieza final del pipeline completada."
-        }
-    }
+        }
+    }
 }
+
