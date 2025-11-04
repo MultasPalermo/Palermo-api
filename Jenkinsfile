@@ -54,8 +54,8 @@ pipeline {
                     docker.image('mcr.microsoft.com/dotnet/sdk:9.0')
                         .inside('-v /var/run/docker.sock:/var/run/docker.sock -u root:root') {
 
-                        // 🔹 aquí se instala el docker CLI (solo cliente)
-                        sh 'apt-get update && apt-get install -y docker.io'
+                        // 🔹 Ya no se instala docker.io (causaba conflicto con el binario montado)
+                        // Jenkins ya usa el Docker del host gracias al socket compartido.
 
                         sh """
                             echo "🔧 Restaurando dependencias .NET..."
@@ -118,7 +118,6 @@ pipeline {
         }
         always {
             echo "🧹 Limpieza final del pipeline completada."
-     }
+        }
+    }
 }
-}
-
