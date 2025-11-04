@@ -118,7 +118,7 @@ pipeline {
         }
         always {
             echo "🧹 Limpieza final del pipeline completada."
-        }
-    }
+     }
+}
 }
 
