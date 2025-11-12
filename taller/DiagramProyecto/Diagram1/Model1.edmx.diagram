@@ -4,14 +4,13 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="f1a2ca59ddd7444da7f560a1e4042887" Name="Diagram1" ZoomLevel="93" >
+      <Diagram DiagramId="f1a2ca59ddd7444da7f560a1e4042887" Name="Diagram1" ZoomLevel="45" >
         <EntityTypeShape EntityType="Model1.User" Width="1.5" PointX="8.75" PointY="1.875" IsExpanded="true" FillColor="255, 128, 0" />
         <EntityTypeShape EntityType="Model1.Rol" Width="1.625" PointX="5.125" PointY="4.375" FillColor="255, 128, 0" />
         <EntityTypeShape EntityType="Model1.person" Width="1.5" PointX="5.25" PointY="0.625" FillColor="255, 128, 0" />
         <EntityTypeShape EntityType="Model1.TypeInfraction" Width="1.5" PointX="10.625" PointY="8.375" IsExpanded="true" />
         <EntityTypeShape EntityType="Model1.PaymentAgreement" Width="1.5" PointX="12.375" PointY="4.125" />
         <EntityTypeShape EntityType="Model1.UserNotification" Width="1.5" PointX="7.5" PointY="5" />
-        <EntityTypeShape EntityType="Model1.AccessLog" Width="1.5" PointX="19.25" PointY="3.125" />
         <EntityTypeShape EntityType="Model1.Module" Width="1.5" PointX="4.125" PointY="9.625" FillColor="255, 128, 0" />
         <EntityTypeShape EntityType="Model1.Permission" Width="1.5" PointX="8.125" PointY="7.5" FillColor="255, 128, 0" />
         <EntityTypeShape EntityType="Model1.Form" Width="1.5" PointX="2.375" PointY="7" IsExpanded="true" FillColor="255, 128, 0" />

@@ -30,6 +30,40 @@ namespace Business.Services.PDF
                 });
         }
 
+        public async Task<byte[]> GenerateReminderPdfAsync(UserInfractionSelectDto dto, int dias)
+        {
+            var html = BuildReminderHtml(dto, dias); // ✅ se pasa "dias" explícitamente
+            await EnsureBrowserAsync();
+
+            var context = await _browser!.NewContextAsync(new() { ViewportSize = null });
+            try
+            {
+                var page = await context.NewPageAsync();
+                await page.EmulateMediaAsync(new() { Media = Media.Print });
+                await page.SetContentAsync(html, new PageSetContentOptions
+                {
+                    WaitUntil = WaitUntilState.NetworkIdle,
+                    Timeout = 10_000
+                });
+
+                return await page.PdfAsync(new PagePdfOptions
+                {
+                    Format = "A4",
+                    PrintBackground = true,
+                    Margin = new()
+                    {
+                        Top = "40px",
+                        Bottom = "40px",
+                        Left = "40px",
+                        Right = "40px"
+                    }
+                });
+            }
+            finally
+            {
+                await context.CloseAsync();
+            }
+        }
 
         public async Task<byte[]> GeneratePdfAsync(UserInfractionSelectDto dto)
         {
@@ -238,5 +272,48 @@ namespace Business.Services.PDF
 
             return html;
         }
+
+        private static string BuildReminderHtml(UserInfractionSelectDto dto, int dias)
+        {
+            var culture = new CultureInfo("es-ES");
+
+            // 🧩 Selecciona la plantilla directamente según el número de días
+            string template = dias switch
+            {
+                3 => ThreeDayReminderTemplate.Html,
+                15 => ForFifteenDaysReminderTemplate.Html,
+                25 => TwentyFiveDayReminderTemplate.Html,
+                _ => ThreeDayReminderTemplate.Html // valor por defecto (seguridad)
+            };
+
+            // 🖼️ Marca de agua en base64
+            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Template", "images", "marcaAgua.png");
+            imagePath = Path.GetFullPath(imagePath);
+
+            string imageBase64 = string.Empty;
+            if (File.Exists(imagePath))
+            {
+                byte[] imageBytes = File.ReadAllBytes(imagePath);
+                string base64String = Convert.ToBase64String(imageBytes);
+                imageBase64 = $"data:image/png;base64,{base64String}";
+            }
+
+            var fechaActual = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy", culture);
+
+            // 🧾 Reemplazo de variables dinámicas
+            var html = template
+                .Replace("@WatermarkBase64", imageBase64)
+                .Replace("@FechaActual", fechaActual)
+                .Replace("@NombreCompleto", $"{dto.firstName} {dto.lastName}")
+                .Replace("@Cedula", dto.documentNumber ?? "")
+                .Replace("@Correo", dto.userEmail ?? "No registrado")
+                .Replace("@NumeroResolucion", dto.id.ToString())
+                .Replace("@FechaResolucion", dto.dateInfraction.ToString("dd 'de' MMMM 'de' yyyy", culture))
+                .Replace("@TipoMulta", dto.typeInfractionName ?? "")
+                .Replace("@ValorMulta", dto.amountToPay.ToString("N0", culture));
+
+            return html;
+        }
+
     }
 }

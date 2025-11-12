@@ -32,6 +32,8 @@ public class UserInfractionServices
     private readonly EmailBackgroundQueue _emailQueue;      // Cola para enviar correos en background
     private readonly IServiceScopeFactory _scopeFactory;    // Permite crear servicios scoped en tareas background
     private readonly IPdfGeneratorService _pdfservices;     // Servicio para generar PDFs
+    private readonly ReminderEmailAppService _reminderEmailAppService;
+    private readonly IServiceEmail _emailService;
 
     public UserInfractionServices(
         IUserInfractionRepository repo,
@@ -43,7 +45,9 @@ public class UserInfractionServices
         EmailBackgroundQueue emailQueue,
         IServiceScopeFactory scopeFactory,
         Entity.Infrastructure.Contexts.ApplicationDbContext db,
-        IPdfGeneratorService pdfService
+        IPdfGeneratorService pdfService,
+        ReminderEmailAppService reminderEmailAppService,
+        IServiceEmail emailService
     ) : base(repo, mapper, db)
     {
         _repo = repo;
@@ -54,6 +58,8 @@ public class UserInfractionServices
         _emailQueue = emailQueue;
         _scopeFactory = scopeFactory;
         _pdfservices = pdfService;
+        _reminderEmailAppService = reminderEmailAppService;
+        _emailService = emailService;
     }
 
     // -------- Helpers FK --------
@@ -215,62 +221,64 @@ public class UserInfractionServices
         return result;
     }
 
-    // 🚨 Nuevo método: Crear multa con datos de persona (cuando no hay User todavía)
+    // Crear multa con datos de persona (cuando no hay User todavía)
     public async Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto)
     {
-        // Validar el DTO
+        // 1️⃣ validar el dto
         var validator = new CreateInfractionRequestValidator();
         var validationResult = validator.Validate(dto);
 
         if (!validationResult.IsValid)
-            throw new BusinessException(
-                string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage))
-            );
+            throw new BusinessException(string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
-        // 1. Buscar si ya existe el usuario por documento
+        // 2️⃣ buscar o crear usuario
         var user = await _users.FindByDocumentAsync(dto.DocumentTypeId, dto.DocumentNumber);
 
         if (user == null)
         {
-            // Crear Persona
             var person = new Person
             {
                 firstName = dto.FirstName,
                 lastName = dto.LastName,
-                municipalityId = null,
-                phoneNumber = null,
-                address = null,
                 tipoUsuario = TipoUsuario.PersonaNormal
             };
             await _context.persons.AddAsync(person);
             await _context.SaveChangesAsync();
 
-            // Crear Usuario asociado a la persona
             user = new User
             {
                 PersonId = person.id,
                 documentTypeId = dto.DocumentTypeId,
                 documentNumber = dto.DocumentNumber,
                 email = dto.Email,
-                PasswordHash = "DOC_LOGIN" // marcador para login por documento
+                PasswordHash = "DOC_LOGIN"
             };
             await _users.CreateAsync(user);
         }
+        else
+        {
+            // 🔹 actualizar correo si cambió
+            if (!string.IsNullOrWhiteSpace(dto.Email) && user.email != dto.Email)
+            {
+                user.email = dto.Email;
+                await _users.UpdateAsync(user);
+            }
+        }
 
-        // 2. Validar tipo de infracción
+        // 3️⃣ validar tipo de infracción
         var typeInfraction = await _types.GetByIdAsync(dto.TypeInfractionId)
             ?? throw new BusinessException("Tipo de infracción inválido.");
 
-        // 3. Buscar el último SMLDV vigente
+        // 4️⃣ obtener smldv vigente
         var smldv = await _context.valueSmldv
             .OrderByDescending(v => v.created_date)
             .FirstOrDefaultAsync()
             ?? throw new BusinessException("No hay SMLDV registrado.");
 
-        // 4. Calcular monto a pagar directamente
+        // 5️⃣ calcular monto
         var amount = dto.SmldvCount * smldv.value_smldv;
 
-        // 5. Crear notificación asociada
+        // 6️⃣ crear notificación
         var notification = new UserNotification
         {
             message = $"Nueva infracción registrada: {typeInfraction.description}. Monto a pagar: {amount:C}",
@@ -282,7 +290,7 @@ public class UserInfractionServices
         await _context.userNotification.AddAsync(notification);
         await _context.SaveChangesAsync();
 
-        // 6. Crear UserInfraction
+        // 7️⃣ crear infracción
         var infraction = new UserInfraction
         {
             UserId = user.id,
@@ -291,35 +299,54 @@ public class UserInfractionServices
             stateInfraction = EstadoMulta.Pendiente,
             InformationFine = typeInfraction.description,
             amountToPay = amount,
-            smldvValueAtCreation = smldv.value_smldv, // Guardamos el valor histórico
+            smldvValueAtCreation = smldv.value_smldv,
             UserNotificationId = notification.id
         };
-
         await _repo.CreateAsync(infraction);
 
-        // 🔄 Mapear a DTO completo (con los datos cargados)
+        // 8️⃣ mapear DTO
         var infractionDto = _mapper.Map<UserInfractionSelectDto>(infraction);
 
-        // 📄 Generar PDF
-        var pdfBytes = await _pdfservices.GeneratePdfAsync(infractionDto);
+        // 🔹 asegurarse de que el DTO tenga el correo actualizado
+        infractionDto.userEmail = user.email;
 
-        // 📨 Enviar correo en background con PDF adjunto
-        await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+        await _context.SaveChangesAsync();
+
+        // 9️⃣ enviar correos y recordatorios en background
+        _ = EnviarCorreoYRecordatoriosAsync(infractionDto);
+
+        // 🔟 devolver DTO inmediatamente
+        return infractionDto;
+    }
+
+    private async Task EnviarCorreoYRecordatoriosAsync(UserInfractionSelectDto dto)
+    {
+        try
         {
             using var scope = _scopeFactory.CreateScope();
             var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
+            var reminderService = scope.ServiceProvider.GetRequiredService<ReminderEmailAppService>();
+            var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
 
-            var builder = new InfraccionEmailBuilder(infractionDto, pdfBytes);
+            // Generar PDF
+            var pdfBytes = await pdfService.GeneratePdfAsync(dto);
 
+            // Construir correo
+            var builder = new InfraccionEmailBuilder(dto, pdfBytes);
             await emailService.SendEmailAsync(
-                user.email,
+                dto.userEmail,
                 builder.GetSubject(),
                 builder.GetBody(),
                 builder.GetAttachments()?.ToList()
             );
-        });
 
-        return infractionDto;
+            // Programar recordatorios
+            await reminderService.ProgramarRecordatoriosAsync(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al enviar correo o programar recordatorios en background");
+        }
     }
 
     public async Task<IEnumerable<UserInfractionSelectDto>> GetByTypeInfractionAsync(int typeInfractionId)

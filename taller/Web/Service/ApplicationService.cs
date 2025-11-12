@@ -115,6 +115,9 @@ namespace Web.Service
             services.AddSingleton<EmailBackgroundQueue>();
             services.AddScoped<IServiceEmail, ServiceEmails>();
             services.AddHostedService<PaymentAgreementBackgroundService>();
+            services.AddScoped<ReminderEmailAppService>();
+            services.AddScoped<EmailScheduler>();
+
 
             // Recaptcha
             services.Configure<RecaptchaOptions>(configuration.GetSection("Recaptcha"));

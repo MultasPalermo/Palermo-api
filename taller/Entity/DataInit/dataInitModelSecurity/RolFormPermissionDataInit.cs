@@ -22,7 +22,7 @@ namespace Entity.DataInit.dataInitModelSecurity
             // ===========================
             // Permisos para Administrador
             // ===========================
-            for (int formId = 1; formId <= 21; formId++) // todos los formularios
+            for (int formId = 1; formId <= 22; formId++) // todos los formularios
             {
                 for (int permissionId = 1; permissionId <= 6; permissionId++) // todos los permisos
                 {

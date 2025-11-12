@@ -26,7 +26,13 @@ namespace Entity.Domain.Models.Implements.Entities
 
         public List<PaymentAgreement> paymentAgreement { get; set; } = new();
         public decimal amountToPay { get; set; }           
-        public decimal? smldvValueAtCreation { get; set; }  
+        public decimal? smldvValueAtCreation { get; set; }
+
+        public DateTime? paymentDue3Days { get; set; }
+        public DateTime? paymentDue15Days { get; set; }
+        public DateTime? paymentDue25Days { get; set; }
+
+        public EstadoCobro StatusCollection { get; set; }
     }
 
 }

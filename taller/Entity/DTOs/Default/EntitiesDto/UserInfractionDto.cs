@@ -31,5 +31,9 @@ namespace Entity.Domain.Models.Implements.Entities
 
         public string? userEmail { get; set; }
 
+        public DateTime paymentDue3Days { get; set; }
+        public DateTime paymentDue15Days { get; set; }
+        public DateTime paymentDue25Days { get; set; }
+
     }
 }

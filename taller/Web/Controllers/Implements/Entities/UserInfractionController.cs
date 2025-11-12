@@ -25,18 +25,21 @@ namespace Web.Controllers.Implements.Entities
         private readonly IPdfGeneratorService _pdfService;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IUserService _users;
+        private readonly ReminderEmailAppService _reminderService;
 
         public UserInfractionController(
             IUserInfractionServices services,
             ILogger<UserInfractionController> logger,
             IPdfGeneratorService pdf,
             IServiceScopeFactory scopeFactory,
-            IUserService users
+            IUserService users,
+            ReminderEmailAppService reminderService
         ) : base(services, logger)
         {
             _pdfService = pdf;
             _scopeFactory = scopeFactory;
             _users = users;
+            _reminderService = reminderService;
         }
 
         protected override Task<IEnumerable<UserInfractionSelectDto>> GetAllAsync(GetAllType getAllType)
@@ -162,6 +165,67 @@ namespace Web.Controllers.Implements.Entities
             var pdfBytes = await _pdfService.GeneratePdfAsync(userInfractionSelectDto);
             return File(pdfBytes, "application/pdf", $"Contrato_{userInfractionSelectDto.firstName}.pdf");
         }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 3 días
+        // ===========================================================
+        [HttpGet("{id}/pdf/3dias")]
+        public async Task<IActionResult> DownloadReminder3DaysPdf(int id)
+        {
+            var userInfraction = await _service.GetByIdAsyncPdf(id);
+            if (userInfraction == null)
+                return NotFound(new { message = $"No se encontró una infracción con id {id}" });
+
+            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, 3);
+            return File(pdfBytes, "application/pdf", $"Recordatorio_3dias_{userInfraction.id}.pdf");
+        }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 15 días
+        // ===========================================================
+        [HttpGet("{id}/pdf/15dias")]
+        public async Task<IActionResult> DownloadReminder15DaysPdf(int id)
+        {
+            var userInfraction = await _service.GetByIdAsyncPdf(id);
+            if (userInfraction == null)
+                return NotFound(new { message = $"No se encontró una infracción con id {id}" });
+
+            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, 15);
+            return File(pdfBytes, "application/pdf", $"Recordatorio_15dias_{userInfraction.id}.pdf");
+        }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 25 días
+        // ===========================================================
+        [HttpGet("{id}/pdf/25dias")]
+        public async Task<IActionResult> DownloadReminder25DaysPdf(int id)
+        {
+            var userInfraction = await _service.GetByIdAsyncPdf(id);
+            if (userInfraction == null)
+                return NotFound(new { message = $"No se encontró una infracción con id {id}" });
+
+            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, 25);
+            return File(pdfBytes, "application/pdf", $"Recordatorio_25dias_{userInfraction.id}.pdf");
+        }
+
+
+        //[HttpPost("test-email")]
+        //public async Task<IActionResult> TestEmail([FromServices] ReminderEmailAppService service)
+        //{
+        //    var dto = new UserInfractionSelectDto
+        //    {
+        //        id = 12345,
+        //        firstName = "Camilo",
+        //        lastName = "Andrés",
+        //        userEmail = "camiloandreslosada801@gmail.com",
+        //        dateInfraction = DateTime.Now.AddDays(-5),
+        //        amountToPay = 250000
+        //    };
+
+        //    await service.ProgramarRecordatoriosAsync(dto);
+        //    return Ok("📨 Recordatorios programados (ver logs para el resultado).");
+        //}
+
 
         //[HttpPost("test-send-email")]
         //public async Task<IActionResult> TestSendEmail([FromBody] UserInfractionDto dto)

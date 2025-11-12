@@ -251,6 +251,17 @@ namespace Entity.DataInit.dataInitModelSecurity
                     Icon = "pi pi-fw pi-home",
                     is_deleted = false,
                     created_date = seedDate,
+                },
+                new Form
+                {
+                    id = 22,
+                    name = "Seguimiento de Multa",
+                    description = "Seguimiento de Multa",
+                    active = true,
+                    Route = "Seguimiento",
+                    Icon = "pi pi-fw pi-home",
+                    is_deleted = false,
+                    created_date = seedDate,
                 }
 
             );

@@ -193,8 +193,11 @@ namespace Web.AutoMapper
                 .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
                 .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
                 .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
-                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))  // ✅ Nuevo campo
+                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation)) 
                 .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId))
+                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.dateInfraction.AddDays(3).Date))
+                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.dateInfraction.AddDays(15).Date))
+                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.dateInfraction.AddDays(25).Date))
                 .ReverseMap();
 
             // UserInfraction -> UserInfractionSelectDto
@@ -210,7 +213,10 @@ namespace Web.AutoMapper
                 .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
                 .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
                 .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
-                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))  // ✅ Nuevo campo
+                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
+                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.dateInfraction.AddDays(3).Date))
+                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.dateInfraction.AddDays(15).Date))
+                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.dateInfraction.AddDays(25).Date))
                 .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId));
 
 

@@ -916,6 +916,9 @@ namespace Entity.Migrations
                     b.Property<int>("InfractionId")
                         .HasColumnType("int");
 
+                    b.Property<int>("StatusCollection")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -936,6 +939,15 @@ namespace Entity.Migrations
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("paymentDue15Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue25Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue3Days")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal?>("smldvValueAtCreation")
                         .HasColumnType("decimal(18,2)");
@@ -958,6 +970,7 @@ namespace Entity.Migrations
                         {
                             id = 1,
                             InfractionId = 1,
+                            StatusCollection = 0,
                             UserId = 1,
                             UserNotificationId = 1,
                             active = true,
@@ -965,6 +978,9 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         },
@@ -972,6 +988,7 @@ namespace Entity.Migrations
                         {
                             id = 2,
                             InfractionId = 14,
+                            StatusCollection = 1,
                             UserId = 1,
                             UserNotificationId = 2,
                             active = true,
@@ -979,6 +996,9 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         },
@@ -986,6 +1006,7 @@ namespace Entity.Migrations
                         {
                             id = 3,
                             InfractionId = 27,
+                            StatusCollection = 2,
                             UserId = 2,
                             UserNotificationId = 1,
                             active = true,
@@ -993,6 +1014,9 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         },
@@ -1000,6 +1024,7 @@ namespace Entity.Migrations
                         {
                             id = 4,
                             InfractionId = 40,
+                            StatusCollection = 0,
                             UserId = 2,
                             UserNotificationId = 2,
                             active = true,
@@ -1007,6 +1032,9 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         });
@@ -1431,6 +1459,17 @@ namespace Entity.Migrations
                             description = "valor de SMDLV ",
                             is_deleted = false,
                             name = "valor de SMDLV"
+                        },
+                        new
+                        {
+                            id = 22,
+                            Icon = "pi pi-fw pi-home",
+                            Route = "Seguimiento",
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            description = "Seguimiento de Multa",
+                            is_deleted = false,
+                            name = "Seguimiento de Multa"
                         });
                 });
 
@@ -1629,6 +1668,15 @@ namespace Entity.Migrations
                             formid = 21,
                             is_deleted = false,
                             moduleid = 5
+                        },
+                        new
+                        {
+                            id = 19,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            formid = 22,
+                            is_deleted = false,
+                            moduleid = 2
                         });
                 });
 
@@ -3897,6 +3945,66 @@ namespace Entity.Migrations
                         new
                         {
                             id = 127,
+                            FormId = 22,
+                            PermissionId = 1,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 128,
+                            FormId = 22,
+                            PermissionId = 2,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 129,
+                            FormId = 22,
+                            PermissionId = 3,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 130,
+                            FormId = 22,
+                            PermissionId = 4,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 131,
+                            FormId = 22,
+                            PermissionId = 5,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 132,
+                            FormId = 22,
+                            PermissionId = 6,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 133,
                             FormId = 4,
                             PermissionId = 1,
                             RolId = 2,
@@ -3906,7 +4014,7 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 128,
+                            id = 134,
                             FormId = 18,
                             PermissionId = 1,
                             RolId = 2,
@@ -3916,7 +4024,7 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 129,
+                            id = 135,
                             FormId = 19,
                             PermissionId = 1,
                             RolId = 2,
@@ -3926,7 +4034,7 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 130,
+                            id = 136,
                             FormId = 20,
                             PermissionId = 1,
                             RolId = 2,
