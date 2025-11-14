@@ -759,6 +759,73 @@ namespace Entity.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Entity.Domain.Models.Implements.Entities.Payment", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("MercadoPagoPaymentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("MercadoPagoStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MercadoPagoStatusDetail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PayerEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PayerIdentification")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PayerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreferenceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TransactionDetails")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserInfractionId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("is_deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("UserInfractionId");
+
+                    b.ToTable("Payment");
+                });
+
             modelBuilder.Entity("Entity.Domain.Models.Implements.Entities.TypeInfraction", b =>
                 {
                     b.Property<int>("id")
@@ -4141,6 +4208,17 @@ namespace Entity.Migrations
                         .HasConstraintName("FK_InstallmentSchedule_PaymentAgreement");
 
                     b.Navigation("PaymentAgreement");
+                });
+
+            modelBuilder.Entity("Entity.Domain.Models.Implements.Entities.Payment", b =>
+                {
+                    b.HasOne("Entity.Domain.Models.Implements.Entities.UserInfraction", "UserInfraction")
+                        .WithMany()
+                        .HasForeignKey("UserInfractionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserInfraction");
                 });
 
             modelBuilder.Entity("Entity.Domain.Models.Implements.Entities.UserInfraction", b =>

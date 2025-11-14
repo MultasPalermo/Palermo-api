@@ -73,7 +73,7 @@ namespace Entity.Infrastructure.Contexts
         public DbSet<UserInfraction> userInfraction { get; set; }
         public DbSet<FineCalculationDetail> fineCalculationDetail { get; set; }
         public DbSet<PaymentAgreement> paymentAgreement { get; set; }
-
+        public DbSet<Payment> Payment { get; set; }
         public DbSet<InstallmentSchedule> installmentSchedule { get; set; }
 
         //parametros
