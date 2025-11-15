@@ -20,11 +20,31 @@ namespace Business.Mensajeria.Email.implements
         /// </summary>
         public async Task ScheduleEmailAsync(Func<Task> sendEmailFunc, TimeSpan delay)
         {
-            await _queue.QueueBackgroundWorkItemAsync(async () =>
+            if (sendEmailFunc == null)
+                throw new ArgumentNullException(nameof(sendEmailFunc));
+
+            // Solo se encarga de AGENDAR
+            await _queue.QueueBackgroundWorkItemAsync(() =>
+                ExecuteScheduledEmailAsync(sendEmailFunc, delay)
+            );
+        }
+
+        /// <summary>
+        /// Ejecuta el envío real luego del delay.
+        /// Mantiene SRP: una sola responsabilidad = ejecutar el envío.
+        /// </summary>
+        private async Task ExecuteScheduledEmailAsync(Func<Task> sendEmailFunc, TimeSpan delay)
+        {
+            try
             {
                 await Task.Delay(delay);
                 await sendEmailFunc();
-            });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error ejecutando tarea programada: {ex.Message}");
+            }
         }
+
     }
 }

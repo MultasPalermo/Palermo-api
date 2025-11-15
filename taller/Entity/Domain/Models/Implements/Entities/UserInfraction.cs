@@ -31,6 +31,8 @@ namespace Entity.Domain.Models.Implements.Entities
         public DateTime? paymentDue3Days { get; set; }
         public DateTime? paymentDue15Days { get; set; }
         public DateTime? paymentDue25Days { get; set; }
+        public DateTime? paymentDue30Days { get; set; }
+        public DateTime? paymentDue40Days { get; set; }
 
         public EstadoCobro StatusCollection { get; set; }
     }

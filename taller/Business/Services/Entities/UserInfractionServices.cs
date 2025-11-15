@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Entities;
+using Business.Interfaces.IBusinessImplements.parameters;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
 using Business.Mensajeria.Email.@interface;
@@ -7,12 +8,14 @@ using Business.Repository;
 using Business.Strategy.StrategyGet.Implement;
 using Business.Validaciones.Entities.UserInfraction;
 using Data.Interfaces.IDataImplement.Entities;   // <- IUserInfractionRepository
+using Data.Interfaces.IDataImplement.parameters;
 using Data.Interfaces.IDataImplement.Security;   // <- IUserRepository
 using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.AnexarMulta;           // <- DTO especial para anexar multas con persona
 using Entity.DTOs.Default.EntitiesDto;
+using Entity.Infrastructure.Contexts;
 using Helpers.Business.Business.Helpers.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,15 +28,20 @@ public class UserInfractionServices
     : BusinessBasic<UserInfractionDto, UserInfractionSelectDto, UserInfraction>, IUserInfractionServices
 {
     private readonly ILogger<UserInfractionServices> _logger;
-    private readonly IUserInfractionRepository _repo;       // CRUD principal de infracciones
-    private readonly IUserRepository _users;                 // FK -> User
-    private readonly IInfractionRepository _types;      // FK -> Tipo de infracción
-    private readonly IUserNotificationRepository _notifs;   // FK -> Notificaciones de usuario
-    private readonly EmailBackgroundQueue _emailQueue;      // Cola para enviar correos en background
-    private readonly IServiceScopeFactory _scopeFactory;    // Permite crear servicios scoped en tareas background
-    private readonly IPdfGeneratorService _pdfservices;     // Servicio para generar PDFs
+    private readonly IUserInfractionRepository _repo;
+    private readonly IUserRepository _users;
+    private readonly IInfractionRepository _types;
+    private readonly IUserNotificationRepository _notifs;
+    private readonly EmailBackgroundQueue _emailQueue;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IPdfGeneratorService _pdfservices;
     private readonly ReminderEmailAppService _reminderEmailAppService;
     private readonly IServiceEmail _emailService;
+    private readonly IMapper _mapper;
+    private readonly ApplicationDbContext _context;
+    private readonly INotificationSettingRepository _notificationSettingService;
+    private readonly EmailOrchestrator _emailOrchestrator;
+    private readonly EmailScheduler _scheduler;
 
     public UserInfractionServices(
         IUserInfractionRepository repo,
@@ -44,22 +52,30 @@ public class UserInfractionServices
         ILogger<UserInfractionServices> logger,
         EmailBackgroundQueue emailQueue,
         IServiceScopeFactory scopeFactory,
-        Entity.Infrastructure.Contexts.ApplicationDbContext db,
+        ApplicationDbContext db,
         IPdfGeneratorService pdfService,
         ReminderEmailAppService reminderEmailAppService,
-        IServiceEmail emailService
+        IServiceEmail emailService,
+        INotificationSettingRepository notificationSettingService,
+        EmailOrchestrator emailOrchestrator,
+        EmailScheduler scheduler
     ) : base(repo, mapper, db)
     {
         _repo = repo;
         _users = users;
         _types = types;
         _notifs = notifs;
+        _mapper = mapper;
         _logger = logger;
         _emailQueue = emailQueue;
         _scopeFactory = scopeFactory;
         _pdfservices = pdfService;
         _reminderEmailAppService = reminderEmailAppService;
         _emailService = emailService;
+        _context = db;
+        _notificationSettingService = notificationSettingService;
+        _emailOrchestrator = emailOrchestrator;
+        _scheduler = scheduler;
     }
 
     // -------- Helpers FK --------
@@ -172,7 +188,6 @@ public class UserInfractionServices
     }
 
     // ➕ Crear infracción normal (con userId conocido) + enviar correo con PDF
-    // ➕ Crear infracción normal (con userId conocido) + enviar correo con PDF
     public override async Task<UserInfractionDto> CreateAsync(UserInfractionDto dto)
     {
         // 🔹 NUEVO: Buscar el último SMLDV vigente antes de crear
@@ -224,14 +239,14 @@ public class UserInfractionServices
     // Crear multa con datos de persona (cuando no hay User todavía)
     public async Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto)
     {
-        // 1️⃣ validar el dto
+        // 1️⃣ Validar DTO
         var validator = new CreateInfractionRequestValidator();
         var validationResult = validator.Validate(dto);
 
         if (!validationResult.IsValid)
             throw new BusinessException(string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
-        // 2️⃣ buscar o crear usuario
+        // 2️⃣ Buscar o crear usuario
         var user = await _users.FindByDocumentAsync(dto.DocumentTypeId, dto.DocumentNumber);
 
         if (user == null)
@@ -257,7 +272,7 @@ public class UserInfractionServices
         }
         else
         {
-            // 🔹 actualizar correo si cambió
+            // actualizar correo si cambió
             if (!string.IsNullOrWhiteSpace(dto.Email) && user.email != dto.Email)
             {
                 user.email = dto.Email;
@@ -265,20 +280,20 @@ public class UserInfractionServices
             }
         }
 
-        // 3️⃣ validar tipo de infracción
+        // 3️⃣ Validar tipo de infracción
         var typeInfraction = await _types.GetByIdAsync(dto.TypeInfractionId)
             ?? throw new BusinessException("Tipo de infracción inválido.");
 
-        // 4️⃣ obtener smldv vigente
+        // 4️⃣ Obtener SMLDV vigente
         var smldv = await _context.valueSmldv
             .OrderByDescending(v => v.created_date)
             .FirstOrDefaultAsync()
             ?? throw new BusinessException("No hay SMLDV registrado.");
 
-        // 5️⃣ calcular monto
+        // 5️⃣ Calcular monto
         var amount = dto.SmldvCount * smldv.value_smldv;
 
-        // 6️⃣ crear notificación
+        // 6️⃣ Crear notificación inicial
         var notification = new UserNotification
         {
             message = $"Nueva infracción registrada: {typeInfraction.description}. Monto a pagar: {amount:C}",
@@ -290,7 +305,7 @@ public class UserInfractionServices
         await _context.userNotification.AddAsync(notification);
         await _context.SaveChangesAsync();
 
-        // 7️⃣ crear infracción
+        // 7️⃣ Crear infracción
         var infraction = new UserInfraction
         {
             UserId = user.id,
@@ -302,52 +317,56 @@ public class UserInfractionServices
             smldvValueAtCreation = smldv.value_smldv,
             UserNotificationId = notification.id
         };
+        // ---------------------------------------------
+        // ⭐ 8️⃣ Lógica dinámica de días/segundos con 5 recordatorios
+        // ---------------------------------------------
+        using var scope = _scopeFactory.CreateScope();
+        var settingsService = scope.ServiceProvider.GetRequiredService<INotificationSettingServices>();
+        var settings = (await settingsService.GetAllAsync()).ToList();
+
+        // Unidad de tiempo: DAYS o SECONDS
+        string timeUnit = settings.First().TimeUnit?.ToUpper() ?? "DAYS";
+        bool usarSegundos = timeUnit == "SECONDS";
+
+        // RANGOS DINÁMICOS
+        int r1 = settings.Where(s => s.Days <= 10).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 3;
+        int r2 = settings.Where(s => s.Days > 10 && s.Days <= 20).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 15;
+        int r3 = settings.Where(s => s.Days > 20 && s.Days <= 30).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 25;
+        int r4 = settings.Where(s => s.Days > 30 && s.Days <= 40).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 35;
+        int r5 = settings.Where(s => s.Days > 40).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 45;
+
+        DateTime fechaInf = infraction.dateInfraction;
+
+        // Función dinámica para calcular fechas
+        DateTime Calc(int v) => usarSegundos ? fechaInf.AddSeconds(v) : fechaInf.AddDays(v);
+
+        // Guardar en la entidad
+        infraction.paymentDue3Days = Calc(r1);
+        infraction.paymentDue15Days = Calc(r2);
+        infraction.paymentDue25Days = Calc(r3);
+        infraction.paymentDue30Days = Calc(r4);
+        infraction.paymentDue40Days = Calc(r5);
+
+        // ---------------------------------------------
+
         await _repo.CreateAsync(infraction);
 
-        // 8️⃣ mapear DTO
+        // 9️⃣ Mapear DTO
         var infractionDto = _mapper.Map<UserInfractionSelectDto>(infraction);
-
-        // 🔹 asegurarse de que el DTO tenga el correo actualizado
         infractionDto.userEmail = user.email;
 
         await _context.SaveChangesAsync();
 
-        // 9️⃣ enviar correos y recordatorios en background
-        _ = EnviarCorreoYRecordatoriosAsync(infractionDto);
+        // 🔟 Enviar correos en background (no bloqueante)
+        await _scheduler.ScheduleEmailAsync(
+             () => _emailOrchestrator.ProcesarNotificacionInicialAsync(infractionDto),
+             TimeSpan.Zero
+        );
 
-        // 🔟 devolver DTO inmediatamente
+
         return infractionDto;
     }
 
-    private async Task EnviarCorreoYRecordatoriosAsync(UserInfractionSelectDto dto)
-    {
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
-            var reminderService = scope.ServiceProvider.GetRequiredService<ReminderEmailAppService>();
-            var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
-
-            // Generar PDF
-            var pdfBytes = await pdfService.GeneratePdfAsync(dto);
-
-            // Construir correo
-            var builder = new InfraccionEmailBuilder(dto, pdfBytes);
-            await emailService.SendEmailAsync(
-                dto.userEmail,
-                builder.GetSubject(),
-                builder.GetBody(),
-                builder.GetAttachments()?.ToList()
-            );
-
-            // Programar recordatorios
-            await reminderService.ProgramarRecordatoriosAsync(dto);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al enviar correo o programar recordatorios en background");
-        }
-    }
 
     public async Task<IEnumerable<UserInfractionSelectDto>> GetByTypeInfractionAsync(int typeInfractionId)
     {

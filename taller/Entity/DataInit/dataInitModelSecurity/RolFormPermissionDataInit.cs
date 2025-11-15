@@ -45,8 +45,8 @@ namespace Entity.DataInit.dataInitModelSecurity
             rolFormPermissions.Add(new RolFormPermission
             {
                 id = id++,
-                RolId = 2, 
-                FormId = 4, 
+                RolId = 2,
+                FormId = 4,
                 PermissionId = 1,
                 is_deleted = false,
                 created_date = seedDate
@@ -55,18 +55,18 @@ namespace Entity.DataInit.dataInitModelSecurity
             rolFormPermissions.Add(new RolFormPermission
             {
                 id = id++,
-                RolId = 2, 
+                RolId = 2,
                 FormId = 18,
-                PermissionId = 1, 
+                PermissionId = 1,
                 is_deleted = false,
                 created_date = seedDate
-            });         
+            });
             rolFormPermissions.Add(new RolFormPermission
             {
                 id = id++,
-                RolId = 2, 
+                RolId = 2,
                 FormId = 19,
-                PermissionId = 1, 
+                PermissionId = 1,
                 is_deleted = false,
                 created_date = seedDate
             });
