@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Entity.Domain.Enums;
 using Entity.Domain.Models;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
@@ -16,6 +17,7 @@ using Entity.DTOs.Select;
 using Entity.DTOs.Select.Entities;
 using Entity.DTOs.Select.EntitiesSelectDto;
 using Entity.DTOs.Select.ModelSecuritySelectDto;
+using Entity.DTOs.Select.parameters;
 using FormDto = Entity.DTOs.Default.ModelSecurityDto.FormDto;
 using RolUserDto = Entity.DTOs.Default.ModelSecurityDto.RolUserDto;
 
@@ -185,7 +187,9 @@ namespace Web.AutoMapper
                 .ForMember(d => d.description, o => o.MapFrom(s => s.description))
                 .ReverseMap();
 
-            // UserInfraction -> UserInfractionDto
+            // -------------------------------------------------------------
+            // UserInfraction <-> UserInfractionDto
+            // -------------------------------------------------------------
             CreateMap<UserInfraction, UserInfractionDto>()
                 .ForMember(d => d.userId, o => o.MapFrom(s => s.UserId))
                 .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null && s.User.email != null ? s.User.email : string.Empty))
@@ -195,14 +199,19 @@ namespace Web.AutoMapper
                 .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
                 .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
                 .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
-                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation)) 
+                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
                 .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId))
-                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.dateInfraction.AddDays(3).Date))
-                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.dateInfraction.AddDays(15).Date))
-                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.dateInfraction.AddDays(25).Date))
-                .ReverseMap();
+                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
+                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
+                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
+                .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
+                .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
+                .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()));
 
+
+            // -------------------------------------------------------------
             // UserInfraction -> UserInfractionSelectDto
+            // -------------------------------------------------------------
             CreateMap<UserInfraction, UserInfractionSelectDto>()
                 .ForMember(d => d.userId, o => o.MapFrom(s => s.UserId))
                 .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null ? s.User.email : string.Empty))
@@ -216,21 +225,55 @@ namespace Web.AutoMapper
                 .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
                 .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
                 .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
-                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.dateInfraction.AddDays(3).Date))
-                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.dateInfraction.AddDays(15).Date))
-                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.dateInfraction.AddDays(25).Date))
+                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
+                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
+                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
+                .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
+                .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
+
+                // 🔥 Aquí también enum -> string
+                .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()))
+
                 .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId));
+
+
+            // -------------------------------------------------------------
+            // UserInfractionSelectDto -> UserInfraction (para UPDATE)
+            // -------------------------------------------------------------
+            CreateMap<UserInfractionSelectDto, UserInfraction>()
+                .AfterMap((src, dest) =>
+                {
+                    if (!string.IsNullOrEmpty(src.StatusCollection) &&
+                        Enum.TryParse<EstadoCobro>(src.StatusCollection, out var result))
+                    {
+                        dest.StatusCollection = result;
+                    }
+                });
+
 
 
             // Parameters
             CreateMap<department, departmentDto>().ReverseMap();
             CreateMap<department, departmentSelectDto>().ReverseMap();
+
             CreateMap<municipality, municipalityDto>().ReverseMap();
             CreateMap<municipality, municipalitySelectDto>().ReverseMap();
+
             CreateMap<PaymentFrequency, PaymentFrequencyDto>().ReverseMap();
             CreateMap<PaymentFrequency, PaymentFrequencySelectDto>().ReverseMap();
+
             CreateMap<documentType, documentTypeDto>().ReverseMap();
             CreateMap<documentType, documentTypeSelectDto>().ReverseMap();
+
+            CreateMap<NotificationSetting, NotificationSettingDto>()
+              .ForMember(x => x.Active, opt => opt.MapFrom(src => src.active))
+              .ForMember(x => x.id, opt => opt.MapFrom(src => src.id))
+              .ForMember(x => x.Days, opt => opt.MapFrom(src => src.Days))
+              .ForMember(x => x.Description, opt => opt.MapFrom(src => src.Description))
+              .ForMember(x => x.Name, opt => opt.MapFrom(src => src.Name))
+              .ReverseMap();
+
+            CreateMap<NotificationSetting, NotificationSettingSelect>().ReverseMap();
 
             // Me
             CreateMap<User, UserMeDto>()

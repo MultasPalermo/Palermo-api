@@ -1,4 +1,5 @@
 ﻿using Business.Interfaces.PDF;
+using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.DTOs.Default.EntitiesDto;
 using Entity.DTOs.Default.InstallmentSchedule;
@@ -10,6 +11,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using Template.Templates;
+using Template.Templates.Template.Templates;
 
 namespace Business.Services.PDF
 {
@@ -30,16 +32,24 @@ namespace Business.Services.PDF
                 });
         }
 
-        public async Task<byte[]> GenerateReminderPdfAsync(UserInfractionSelectDto dto, int dias)
+        public async Task<byte[]> GenerateReminderPdfAsync(UserInfractionSelectDto dto, int reminderId)
         {
-            var html = BuildReminderHtml(dto, dias); // ✅ se pasa "dias" explícitamente
+            // Construir HTML según recordatorio
+            var html = BuildReminderHtml(dto, reminderId);
+
+            // Si el template es null → este recordatorio NO genera PDF
+            if (html == null)
+                return null;
+
             await EnsureBrowserAsync();
 
             var context = await _browser!.NewContextAsync(new() { ViewportSize = null });
+
             try
             {
                 var page = await context.NewPageAsync();
                 await page.EmulateMediaAsync(new() { Media = Media.Print });
+
                 await page.SetContentAsync(html, new PageSetContentOptions
                 {
                     WaitUntil = WaitUntilState.NetworkIdle,
@@ -64,6 +74,7 @@ namespace Business.Services.PDF
                 await context.CloseAsync();
             }
         }
+
 
         public async Task<byte[]> GeneratePdfAsync(UserInfractionSelectDto dto)
         {
@@ -273,47 +284,57 @@ namespace Business.Services.PDF
             return html;
         }
 
-        private static string BuildReminderHtml(UserInfractionSelectDto dto, int dias)
+            private static string? GetReminderTemplateById(int reminderId)
+            {
+                var templates = new Dictionary<int, string?>
         {
-            var culture = new CultureInfo("es-ES");
+            { 1, ThreeDayReminderTemplate.Html },
+            { 2, ForFifteenDaysReminderTemplate.Html },
+            { 3, TwentyFiveDayReminderTemplate.Html },
+            { 4, LegalCollection.Html },
+            { 5, null } // Solo correo, sin PDF
+        };
 
-            // 🧩 Selecciona la plantilla directamente según el número de días
-            string template = dias switch
-            {
-                3 => ThreeDayReminderTemplate.Html,
-                15 => ForFifteenDaysReminderTemplate.Html,
-                25 => TwentyFiveDayReminderTemplate.Html,
-                _ => ThreeDayReminderTemplate.Html // valor por defecto (seguridad)
-            };
-
-            // 🖼️ Marca de agua en base64
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Template", "images", "marcaAgua.png");
-            imagePath = Path.GetFullPath(imagePath);
-
-            string imageBase64 = string.Empty;
-            if (File.Exists(imagePath))
-            {
-                byte[] imageBytes = File.ReadAllBytes(imagePath);
-                string base64String = Convert.ToBase64String(imageBytes);
-                imageBase64 = $"data:image/png;base64,{base64String}";
+                return templates.ContainsKey(reminderId)
+                    ? templates[reminderId]
+                    : null;
             }
 
-            var fechaActual = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy", culture);
 
-            // 🧾 Reemplazo de variables dinámicas
-            var html = template
-                .Replace("@WatermarkBase64", imageBase64)
-                .Replace("@FechaActual", fechaActual)
-                .Replace("@NombreCompleto", $"{dto.firstName} {dto.lastName}")
-                .Replace("@Cedula", dto.documentNumber ?? "")
-                .Replace("@Correo", dto.userEmail ?? "No registrado")
-                .Replace("@NumeroResolucion", dto.id.ToString())
-                .Replace("@FechaResolucion", dto.dateInfraction.ToString("dd 'de' MMMM 'de' yyyy", culture))
-                .Replace("@TipoMulta", dto.typeInfractionName ?? "")
-                .Replace("@ValorMulta", dto.amountToPay.ToString("N0", culture));
+            private static string? BuildReminderHtml(UserInfractionSelectDto dto, int reminderId)
+            {
+                var template = GetReminderTemplateById(reminderId);
 
-            return html;
-        }
+                if (template == null)
+                    return null; // No generar PDF
 
+                var culture = new CultureInfo("es-ES");
+
+                // Marca de agua
+                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Template", "images", "marcaAgua.png");
+                imagePath = Path.GetFullPath(imagePath);
+
+                string imageBase64 = string.Empty;
+                if (File.Exists(imagePath))
+                {
+                    byte[] imageBytes = File.ReadAllBytes(imagePath);
+                    imageBase64 = $"data:image/png;base64,{Convert.ToBase64String(imageBytes)}";
+                }
+
+                var fechaActual = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy", culture);
+
+                decimal totalAdeudado = dto.amountToPay;
+
+                return template
+                    .Replace("@WatermarkBase64", imageBase64)
+                    .Replace("{{expediente}}", dto.id.ToString())
+                    .Replace("{{nombre_completo}}", $"{dto.firstName} {dto.lastName}")
+                    .Replace("{{cedula}}", dto.documentNumber ?? "")
+                    .Replace("{{correo}}", dto.userEmail ?? "")
+                    .Replace("{{fecha_emision}}", fechaActual)
+                    .Replace("{{tipo_multa}}", dto.typeInfractionName ?? "")
+                    .Replace("{{valor_multa}}", dto.amountToPay.ToString("N0", culture))
+                    .Replace("{{total}}", totalAdeudado.ToString("N0", culture));
+            }
     }
 }

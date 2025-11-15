@@ -79,15 +79,15 @@ namespace Template.Templates
     <div class='content'>
       <p><strong>Municipio de Palermo - Huila</strong><br/>
       <strong>Secretaría de Hacienda Municipal</strong><br/>
-      <strong>Fecha:</strong> @FechaActual</p>
+      <strong>Fecha:</strong> {{fecha_emision}}</p>
 
-      <p><strong>ASUNTO:</strong> Segundo aviso de cobro persuasivo - Resolución N.° <strong>@NumeroResolucion</strong></p>
+      <p><strong>ASUNTO:</strong> Segundo aviso de cobro persuasivo </p>
 
-      <p><strong>Respetado(a):</strong> @NombreCompleto</p>
+      <p><strong>Respetado(a):</strong> {{nombre_completo}}</p>
 
       <p>
-        Transcurridos quince (15) días desde la firmeza de la Resolución N.° <strong>@NumeroResolucion</strong>, 
-        no se registra pago de la multa impuesta.
+        Transcurridos quince (15) días desde la firmeza del Código Nacional de Seguridad y Convivencia 
+        Ciudadana (Ley 1801 de 2016), no se registra pago de la multa impuesta.
       </p>
 
       <p>

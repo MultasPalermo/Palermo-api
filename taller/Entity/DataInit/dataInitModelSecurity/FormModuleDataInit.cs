@@ -185,14 +185,6 @@ namespace Entity.DataInit.dataInitModelSecurity
                  },
                  new FormModule
                  {
-                     id = 18,
-                     formid = 21,
-                     moduleid = 5,
-                     is_deleted = false,
-                     created_date = seedDate,
-                 },
-                 new FormModule
-                 {
                      id = 19,
                      formid = 22,
                      moduleid = 2,
