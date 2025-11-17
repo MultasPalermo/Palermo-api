@@ -79,31 +79,31 @@ public class MySqlApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        //// ========== Configurations ==========
-        //modelBuilder.ApplyConfiguration(new RelacionDocumentType());
-        //modelBuilder.ApplyConfiguration(new RelacionDepartment());
-        //modelBuilder.ApplyConfiguration(new RelacionMunicipality());
-        //modelBuilder.ApplyConfiguration(new RelacionPaymentFrequency());
+        // ========== Configurations ==========
+        modelBuilder.ApplyConfiguration(new RelacionDocumentType());
+        modelBuilder.ApplyConfiguration(new RelacionDepartment());
+        modelBuilder.ApplyConfiguration(new RelacionMunicipality());
+        modelBuilder.ApplyConfiguration(new RelacionPaymentFrequency());
 
-        //modelBuilder.ApplyConfiguration(new RelacionPerson());
-        //modelBuilder.ApplyConfiguration(new RelacionUser());
-        //modelBuilder.ApplyConfiguration(new RelacionesRol());
-        //modelBuilder.ApplyConfiguration(new RelacionModule());
-        //modelBuilder.ApplyConfiguration(new RelacionPermission());
-        //modelBuilder.ApplyConfiguration(new RelacionForm());
-        //modelBuilder.ApplyConfiguration(new RelacionRolUser());
-        //modelBuilder.ApplyConfiguration(new RelacionFormModule());
-        //modelBuilder.ApplyConfiguration(new RelacionRolFormPermission());
+        modelBuilder.ApplyConfiguration(new RelacionPerson());
+        modelBuilder.ApplyConfiguration(new RelacionUser());
+        modelBuilder.ApplyConfiguration(new RelacionesRol());
+        modelBuilder.ApplyConfiguration(new RelacionModule());
+        modelBuilder.ApplyConfiguration(new RelacionPermission());
+        modelBuilder.ApplyConfiguration(new RelacionForm());
+        modelBuilder.ApplyConfiguration(new RelacionRolUser());
+        modelBuilder.ApplyConfiguration(new RelacionFormModule());
+        modelBuilder.ApplyConfiguration(new RelacionRolFormPermission());
 
-        //modelBuilder.ApplyConfiguration(new RelacionesTypeInfraction());
-        //modelBuilder.ApplyConfiguration(new RelacionesInspectoraReport());
-        //modelBuilder.ApplyConfiguration(new RelacionesValueSmldv());
-        //modelBuilder.ApplyConfiguration(new RelacionesUserNotification());
-        //modelBuilder.ApplyConfiguration(new RelacionesDocumentInfraction());
-        //modelBuilder.ApplyConfiguration(new RelacionesTypePayment());
-        //modelBuilder.ApplyConfiguration(new RelacionesUserInfraction());
-        //modelBuilder.ApplyConfiguration(new RelacionesFineCalculationDetail());
-        //modelBuilder.ApplyConfiguration(new RelacionesPaymentAgreement());
+        modelBuilder.ApplyConfiguration(new RelacionesTypeInfraction());
+        modelBuilder.ApplyConfiguration(new RelacionesInspectoraReport());
+        modelBuilder.ApplyConfiguration(new RelacionesValueSmldv());
+        modelBuilder.ApplyConfiguration(new RelacionesUserNotification());
+        modelBuilder.ApplyConfiguration(new RelacionesDocumentInfraction());
+        modelBuilder.ApplyConfiguration(new RelacionesTypePayment());
+        modelBuilder.ApplyConfiguration(new RelacionesUserInfraction());
+        modelBuilder.ApplyConfiguration(new RelacionesFineCalculationDetail());
+        modelBuilder.ApplyConfiguration(new RelacionesPaymentAgreement());
 
         // ========== Seeds ==========
         modelBuilder.SeedDocumentType();

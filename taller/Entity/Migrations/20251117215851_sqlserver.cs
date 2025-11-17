@@ -13,8 +13,18 @@ namespace Entity.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "ModelSecurity");
+
+            migrationBuilder.EnsureSchema(
+                name: "Parameters");
+
+            migrationBuilder.EnsureSchema(
+                name: "Entities");
+
             migrationBuilder.CreateTable(
-                name: "AuthSessions",
+                name: "AuthSession",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -25,24 +35,25 @@ namespace Entity.Migrations
                     LastActivityAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AbsoluteExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
-                    Ip = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserAgent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ip = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
+                    UserAgent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuthSessions", x => x.id);
+                    table.PrimaryKey("PK_AuthSession", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Departments",
+                name: "department",
+                schema: "Parameters",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "varchar(120)", maxLength: 120, nullable: false),
                     daneCode = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
@@ -50,28 +61,30 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Departments", x => x.id);
+                    table.PrimaryKey("PK_department", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "documentTypes",
+                name: "documentType",
+                schema: "Parameters",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    abbreviation = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "varchar(80)", maxLength: 80, nullable: false),
+                    abbreviation = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_documentTypes", x => x.id);
+                    table.PrimaryKey("PK_documentType", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "forms",
+                name: "form",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -81,22 +94,23 @@ namespace Entity.Migrations
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_forms", x => x.id);
+                    table.PrimaryKey("PK_form", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "inspectoraReport",
+                name: "InspectoraReport",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     report_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    total_fines = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    total_fines = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     message = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
@@ -104,11 +118,12 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_inspectoraReport", x => x.id);
+                    table.PrimaryKey("PK_InspectoraReport", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "modules",
+                name: "module",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -116,12 +131,12 @@ namespace Entity.Migrations
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_modules", x => x.id);
+                    table.PrimaryKey("PK_module", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -146,11 +161,12 @@ namespace Entity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "paymentFrequency",
+                schema: "Parameters",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    intervalPage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    intervalPage = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     dueDayOfMonth = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
@@ -162,7 +178,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "permissions",
+                name: "permission",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -170,12 +187,12 @@ namespace Entity.Migrations
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_permissions", x => x.id);
+                    table.PrimaryKey("PK_permission", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -197,7 +214,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "rols",
+                name: "rol",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -205,21 +223,22 @@ namespace Entity.Migrations
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    description = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    description = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_rols", x => x.id);
+                    table.PrimaryKey("PK_rol", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "TypeInfraction",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -231,11 +250,12 @@ namespace Entity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "typePayment",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     paymentAgreementId = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
@@ -248,6 +268,7 @@ namespace Entity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "userNotification",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -265,13 +286,14 @@ namespace Entity.Migrations
 
             migrationBuilder.CreateTable(
                 name: "valueSmldv",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    value_smldv = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    value_smldv = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Current_Year = table.Column<int>(type: "int", nullable: false),
-                    minimunWage = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    minimunWage = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -282,12 +304,13 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Municipality",
+                name: "municipality",
+                schema: "Parameters",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    name = table.Column<string>(type: "varchar(120)", maxLength: 120, nullable: false),
                     daneCode = table.Column<int>(type: "int", nullable: false),
                     departmentId = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
@@ -296,17 +319,19 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Municipality", x => x.id);
+                    table.PrimaryKey("PK_municipality", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Municipality_Departments_departmentId",
+                        name: "FK_municipality_department_departmentId",
                         column: x => x.departmentId,
-                        principalTable: "Departments",
+                        principalSchema: "Parameters",
+                        principalTable: "department",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "form_modules",
+                name: "formmodule",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -319,55 +344,61 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_form_modules", x => x.id);
+                    table.PrimaryKey("PK_formmodule", x => x.id);
                     table.ForeignKey(
-                        name: "FK_form_modules_forms_formid",
+                        name: "FK_FormModule_Form",
                         column: x => x.formid,
-                        principalTable: "forms",
+                        principalSchema: "ModelSecurity",
+                        principalTable: "form",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_form_modules_modules_moduleid",
+                        name: "FK_FormModule_Module",
                         column: x => x.moduleid,
-                        principalTable: "modules",
+                        principalSchema: "ModelSecurity",
+                        principalTable: "module",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "rol_form_permissions",
+                name: "rolformpermission",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RolId = table.Column<int>(type: "int", nullable: false),
-                    FormId = table.Column<int>(type: "int", nullable: false),
-                    PermissionId = table.Column<int>(type: "int", nullable: false),
+                    rolid = table.Column<int>(type: "int", nullable: false),
+                    formid = table.Column<int>(type: "int", nullable: false),
+                    permissionid = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_rol_form_permissions", x => x.id);
+                    table.PrimaryKey("PK_rolformpermission", x => x.id);
                     table.ForeignKey(
-                        name: "FK_rol_form_permissions_forms_FormId",
-                        column: x => x.FormId,
-                        principalTable: "forms",
+                        name: "FK_RolFormPermission_Form",
+                        column: x => x.formid,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "form",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_rol_form_permissions_permissions_PermissionId",
-                        column: x => x.PermissionId,
-                        principalTable: "permissions",
+                        name: "FK_RolFormPermission_Permission",
+                        column: x => x.permissionid,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "permission",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_rol_form_permissions_rols_RolId",
-                        column: x => x.RolId,
-                        principalTable: "rols",
+                        name: "FK_RolFormPermission_Rol",
+                        column: x => x.rolid,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "rol",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -387,21 +418,23 @@ namespace Entity.Migrations
                 {
                     table.PrimaryKey("PK_Infraction", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Infraction_TypeInfraction_TypeInfractionId",
+                        name: "FK_TypeInfraction_Infraction",
                         column: x => x.TypeInfractionId,
+                        principalSchema: "Entities",
                         principalTable: "TypeInfraction",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "persons",
+                name: "person",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    firstName = table.Column<string>(type: "varchar(100)", nullable: false),
-                    lastName = table.Column<string>(type: "varchar(100)", nullable: false),
+                    firstName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    lastName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     phoneNumber = table.Column<string>(type: "varchar(20)", nullable: true),
                     address = table.Column<string>(type: "varchar(100)", nullable: true),
                     tipoUsuario = table.Column<int>(type: "int", nullable: false),
@@ -412,25 +445,27 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_persons", x => x.id);
+                    table.PrimaryKey("PK_person", x => x.id);
                     table.ForeignKey(
-                        name: "FK_persons_Municipality_municipalityId",
+                        name: "FK_person_municipality_municipalityId",
                         column: x => x.municipalityId,
-                        principalTable: "Municipality",
-                        principalColumn: "id");
+                        principalSchema: "Parameters",
+                        principalTable: "municipality",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "fineCalculationDetail",
+                name: "FineCalculationDetail",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    formula = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    totalCalculation = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    formula = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    totalCalculation = table.Column<decimal>(type: "decimal(12,2)", nullable: false),
                     valueSmldvId = table.Column<int>(type: "int", nullable: false),
                     typeInfractionId = table.Column<int>(type: "int", nullable: false),
-                    Infractionid = table.Column<int>(type: "int", nullable: false),
                     SmldvValueAtCreation = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
@@ -438,34 +473,34 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_fineCalculationDetail", x => x.id);
+                    table.PrimaryKey("PK_FineCalculationDetail", x => x.id);
                     table.ForeignKey(
-                        name: "FK_fineCalculationDetail_Infraction_Infractionid",
-                        column: x => x.Infractionid,
+                        name: "FK_TypeInfraction_FineCalculationDetail",
+                        column: x => x.typeInfractionId,
                         principalTable: "Infraction",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                     table.ForeignKey(
-                        name: "FK_fineCalculationDetail_valueSmldv_valueSmldvId",
+                        name: "FK_ValueSmldv_FineCalculationDetail",
                         column: x => x.valueSmldvId,
+                        principalSchema: "Entities",
                         principalTable: "valueSmldv",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "users",
+                name: "user",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PasswordHash = table.Column<string>(type: "varchar(100)", nullable: true),
-                    email = table.Column<string>(type: "varchar(150)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: true),
+                    email = table.Column<string>(type: "varchar(150)", unicode: false, maxLength: 150, nullable: true),
                     PersonId = table.Column<int>(type: "int", nullable: true),
                     documentTypeId = table.Column<int>(type: "int", nullable: true),
                     documentNumber = table.Column<string>(type: "varchar(30)", nullable: true),
-                    EmailVerified = table.Column<bool>(type: "bit", nullable: false),
-                    EmailVerificationCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    EmailVerified = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    EmailVerificationCode = table.Column<string>(type: "varchar(6)", unicode: false, maxLength: 6, nullable: true),
                     EmailVerificationExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     EmailVerifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     active = table.Column<bool>(type: "bit", nullable: false),
@@ -474,50 +509,58 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_users", x => x.id);
+                    table.PrimaryKey("PK_user", x => x.id);
                     table.ForeignKey(
-                        name: "FK_users_documentTypes_documentTypeId",
-                        column: x => x.documentTypeId,
-                        principalTable: "documentTypes",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_users_persons_PersonId",
+                        name: "FK_User_Person",
                         column: x => x.PersonId,
-                        principalTable: "persons",
-                        principalColumn: "id");
+                        principalSchema: "ModelSecurity",
+                        principalTable: "person",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_user_documentType_documentTypeId",
+                        column: x => x.documentTypeId,
+                        principalSchema: "Parameters",
+                        principalTable: "documentType",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "rolUsers",
+                name: "roluser",
+                schema: "ModelSecurity",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    RolId = table.Column<int>(type: "int", nullable: false),
+                    userId = table.Column<int>(type: "int", nullable: false),
+                    rolId = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_rolUsers", x => x.id);
+                    table.PrimaryKey("PK_roluser", x => x.id);
                     table.ForeignKey(
-                        name: "FK_rolUsers_rols_RolId",
-                        column: x => x.RolId,
-                        principalTable: "rols",
+                        name: "FK_RolUser_Rol",
+                        column: x => x.rolId,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "rol",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_rolUsers_users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "users",
+                        name: "FK_RolUser_User",
+                        column: x => x.userId,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "user",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "userInfraction",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -560,41 +603,44 @@ namespace Entity.Migrations
                     table.ForeignKey(
                         name: "FK_userInfraction_userNotification_UserNotificationId",
                         column: x => x.UserNotificationId,
+                        principalSchema: "Entities",
                         principalTable: "userNotification",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_userInfraction_users_UserId",
+                        name: "FK_userInfraction_user_UserId",
                         column: x => x.UserId,
-                        principalTable: "users",
+                        principalSchema: "ModelSecurity",
+                        principalTable: "user",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
                 name: "paymentAgreement",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    neighborhood = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AgreementDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    address = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    neighborhood = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
+                    AgreementDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     expeditionCedula = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     AgreementStart = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AgreementEnd = table.Column<DateTime>(type: "datetime2", nullable: false),
                     userInfractionId = table.Column<int>(type: "int", nullable: false),
                     paymentFrequencyId = table.Column<int>(type: "int", nullable: false),
                     typePaymentId = table.Column<int>(type: "int", nullable: false),
                     BaseAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    AccruedInterest = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    AccruedInterest = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
                     OutstandingAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     Installments = table.Column<int>(type: "int", nullable: true),
                     MonthlyFee = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
-                    IsCoactive = table.Column<bool>(type: "bit", nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    IsCoactive = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CoactiveActivatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     LastInterestAppliedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
                     active = table.Column<bool>(type: "bit", nullable: false),
@@ -605,27 +651,31 @@ namespace Entity.Migrations
                 {
                     table.PrimaryKey("PK_paymentAgreement", x => x.id);
                     table.ForeignKey(
-                        name: "FK_paymentAgreement_paymentFrequency_paymentFrequencyId",
-                        column: x => x.paymentFrequencyId,
-                        principalTable: "paymentFrequency",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_paymentAgreement_typePayment_typePaymentId",
+                        name: "FK_PaymentAgreement_TypePayment",
                         column: x => x.typePaymentId,
+                        principalSchema: "Entities",
                         principalTable: "typePayment",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_paymentAgreement_userInfraction_userInfractionId",
+                        name: "FK_PaymentAgreement_UserInfraction",
                         column: x => x.userInfractionId,
+                        principalSchema: "Entities",
                         principalTable: "userInfraction",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_paymentAgreement_paymentFrequency_paymentFrequencyId",
+                        column: x => x.paymentFrequencyId,
+                        principalSchema: "Parameters",
+                        principalTable: "paymentFrequency",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "documenInfraction",
+                name: "DocumentInfraction",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -638,23 +688,26 @@ namespace Entity.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_documenInfraction", x => x.id);
+                    table.PrimaryKey("PK_DocumentInfraction", x => x.id);
                     table.ForeignKey(
-                        name: "FK_documenInfraction_inspectoraReport_inspectoraReportId",
+                        name: "FK_DocumentInfraction_InspectoraReport",
                         column: x => x.inspectoraReportId,
-                        principalTable: "inspectoraReport",
+                        principalSchema: "Entities",
+                        principalTable: "InspectoraReport",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_documenInfraction_paymentAgreement_PaymentAgreementId",
+                        name: "FK_DocumentInfraction_PaymentAgreement",
                         column: x => x.PaymentAgreementId,
+                        principalSchema: "Entities",
                         principalTable: "paymentAgreement",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "installmentSchedule",
+                schema: "Entities",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "int", nullable: false)
@@ -663,7 +716,7 @@ namespace Entity.Migrations
                     PaymentDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     RemainingBalance = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    IsPaid = table.Column<bool>(type: "bit", nullable: false),
+                    IsPaid = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     PaymentAgreementId = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
@@ -673,25 +726,26 @@ namespace Entity.Migrations
                 {
                     table.PrimaryKey("PK_installmentSchedule", x => x.id);
                     table.ForeignKey(
-                        name: "FK_installmentSchedule_paymentAgreement_PaymentAgreementId",
+                        name: "FK_InstallmentSchedule_PaymentAgreement",
                         column: x => x.PaymentAgreementId,
+                        principalSchema: "Entities",
                         principalTable: "paymentAgreement",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
-                table: "Departments",
-                columns: new[] { "id", "active", "created_date", "daneCode", "is_deleted", "name" },
+                schema: "Entities",
+                table: "InspectoraReport",
+                columns: new[] { "id", "active", "created_date", "is_deleted", "message", "report_date", "total_fines" },
                 values: new object[,]
                 {
-                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 5, false, "Antioquia" },
-                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 25, false, "Cundinamarca" },
-                    { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 76, false, "Valle del Cauca" },
-                    { 4, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 11, false, "Bogotá, D.C." }
+                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "se integra una nueva multa", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2m },
+                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "se integra una nueva multa", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3m }
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "TypeInfraction",
                 columns: new[] { "id", "Name", "active", "created_date", "is_deleted" },
                 values: new object[,]
@@ -703,7 +757,20 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "documentTypes",
+                schema: "Parameters",
+                table: "department",
+                columns: new[] { "id", "active", "created_date", "daneCode", "is_deleted", "name" },
+                values: new object[,]
+                {
+                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 5, false, "Antioquia" },
+                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 25, false, "Cundinamarca" },
+                    { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 76, false, "Valle del Cauca" },
+                    { 4, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 11, false, "Bogotá, D.C." }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "Parameters",
+                table: "documentType",
                 columns: new[] { "id", "abbreviation", "active", "created_date", "is_deleted", "name" },
                 values: new object[,]
                 {
@@ -714,7 +781,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "forms",
+                schema: "ModelSecurity",
+                table: "form",
                 columns: new[] { "id", "Icon", "Route", "active", "created_date", "description", "is_deleted", "name" },
                 values: new object[,]
                 {
@@ -744,16 +812,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "inspectoraReport",
-                columns: new[] { "id", "active", "created_date", "is_deleted", "message", "report_date", "total_fines" },
-                values: new object[,]
-                {
-                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "se integra una nueva multa", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2m },
-                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "se integra una nueva multa", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 3m }
-                });
-
-            migrationBuilder.InsertData(
-                table: "modules",
+                schema: "ModelSecurity",
+                table: "module",
                 columns: new[] { "id", "active", "created_date", "description", "is_deleted", "name" },
                 values: new object[,]
                 {
@@ -777,6 +837,7 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Parameters",
                 table: "paymentFrequency",
                 columns: new[] { "id", "active", "created_date", "dueDayOfMonth", "intervalPage", "is_deleted" },
                 values: new object[,]
@@ -787,7 +848,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "permissions",
+                schema: "ModelSecurity",
+                table: "permission",
                 columns: new[] { "id", "active", "created_date", "description", "is_deleted", "name" },
                 values: new object[,]
                 {
@@ -800,7 +862,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "rols",
+                schema: "ModelSecurity",
+                table: "rol",
                 columns: new[] { "id", "active", "created_date", "description", "is_deleted", "name" },
                 values: new object[,]
                 {
@@ -809,6 +872,7 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "typePayment",
                 columns: new[] { "id", "active", "created_date", "is_deleted", "name", "paymentAgreementId" },
                 values: new object[,]
@@ -821,6 +885,7 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "userNotification",
                 columns: new[] { "id", "active", "created_date", "is_deleted", "message", "shippingDate" },
                 values: new object[,]
@@ -830,6 +895,7 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "valueSmldv",
                 columns: new[] { "id", "Current_Year", "active", "created_date", "is_deleted", "minimunWage", "value_smldv" },
                 values: new object[] { 1, 2024, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 1425000m, 43500m });
@@ -894,18 +960,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Municipality",
-                columns: new[] { "id", "active", "created_date", "daneCode", "departmentId", "is_deleted", "name" },
-                values: new object[,]
-                {
-                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 5001, 1, false, "Medellín" },
-                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 76001, 3, false, "Cali" },
-                    { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 11001, 4, false, "Bogotá" },
-                    { 4, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 25754, 2, false, "Soacha" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "form_modules",
+                schema: "ModelSecurity",
+                table: "formmodule",
                 columns: new[] { "id", "active", "created_date", "formid", "is_deleted", "moduleid" },
                 values: new object[,]
                 {
@@ -931,8 +987,21 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "rol_form_permissions",
-                columns: new[] { "id", "FormId", "PermissionId", "RolId", "active", "created_date", "is_deleted" },
+                schema: "Parameters",
+                table: "municipality",
+                columns: new[] { "id", "active", "created_date", "daneCode", "departmentId", "is_deleted", "name" },
+                values: new object[,]
+                {
+                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 5001, 1, false, "Medellín" },
+                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 76001, 3, false, "Cali" },
+                    { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 11001, 4, false, "Bogotá" },
+                    { 4, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 25754, 2, false, "Soacha" }
+                });
+
+            migrationBuilder.InsertData(
+                schema: "ModelSecurity",
+                table: "rolformpermission",
+                columns: new[] { "id", "formid", "permissionid", "rolid", "active", "created_date", "is_deleted" },
                 values: new object[,]
                 {
                     { 1, 1, 1, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
@@ -1080,7 +1149,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "persons",
+                schema: "ModelSecurity",
+                table: "person",
                 columns: new[] { "id", "active", "address", "created_date", "firstName", "is_deleted", "lastName", "municipalityId", "phoneNumber", "tipoUsuario" },
                 values: new object[,]
                 {
@@ -1089,7 +1159,8 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "users",
+                schema: "ModelSecurity",
+                table: "user",
                 columns: new[] { "id", "EmailVerificationCode", "EmailVerificationExpiresAt", "EmailVerified", "EmailVerifiedAt", "PasswordHash", "PersonId", "active", "created_date", "documentNumber", "documentTypeId", "email", "is_deleted" },
                 values: new object[,]
                 {
@@ -1098,8 +1169,9 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "rolUsers",
-                columns: new[] { "id", "RolId", "UserId", "active", "created_date", "is_deleted" },
+                schema: "ModelSecurity",
+                table: "roluser",
+                columns: new[] { "id", "rolId", "userId", "active", "created_date", "is_deleted" },
                 values: new object[,]
                 {
                     { 1, 1, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
@@ -1107,6 +1179,7 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "userInfraction",
                 columns: new[] { "id", "AccruedInterest", "CoactiveActivatedOn", "DaysOfDelay", "InformationFine", "InfractionId", "InitialAmount", "IsCoactive", "LastInterestAppliedOn", "StatusCollection", "TotalToPay", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "numer_smldv", "paymentDue15Days", "paymentDue25Days", "paymentDue30Days", "paymentDue3Days", "paymentDue40Days", "smldvValueAtCreation", "stateInfraction" },
                 values: new object[,]
@@ -1118,18 +1191,20 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "paymentAgreement",
-                columns: new[] { "id", "AccruedInterest", "AgreementDescription", "AgreementEnd", "AgreementStart", "BaseAmount", "CoactiveActivatedOn", "Email", "Installments", "IsCoactive", "IsPaid", "LastInterestAppliedOn", "MonthlyFee", "OutstandingAmount", "PhoneNumber", "active", "address", "created_date", "expeditionCedula", "is_deleted", "neighborhood", "paymentFrequencyId", "typePaymentId", "userInfractionId" },
+                columns: new[] { "id", "AgreementDescription", "AgreementEnd", "AgreementStart", "BaseAmount", "CoactiveActivatedOn", "Email", "Installments", "LastInterestAppliedOn", "MonthlyFee", "OutstandingAmount", "PhoneNumber", "active", "address", "created_date", "expeditionCedula", "is_deleted", "neighborhood", "paymentFrequencyId", "typePaymentId", "userInfractionId" },
                 values: new object[,]
                 {
-                    { 1, 0m, "Acuerdo a 4 cuotas iguales.", new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 130500m, null, "user1@example.com", 4, false, false, null, 32625m, 130500m, "3101234567", true, "Carrera 10 #45-20", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2020, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Eduardo Santos", 1, 1, 1 },
-                    { 2, 0m, "Acuerdo a 2 cuotas iguales.", new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 174000m, null, "user2@example.com", 2, false, false, null, 87000m, 174000m, "3009876543", true, "Carrera 1 #23-18", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2017, 1, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Panamá", 2, 2, 2 },
-                    { 3, 0m, "Acuerdo a 8 cuotas iguales.", new DateTime(2025, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 348000m, null, "user3@example.com", 8, false, false, null, 43500m, 348000m, "3015558888", true, "Calle 20 #15-40", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2018, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "La Merced", 2, 3, 3 },
-                    { 4, 0m, "Acuerdo a 12 cuotas iguales.", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 835200m, null, "user4@example.com", 12, false, false, null, 69600m, 835200m, "3024449999", true, "Avenida 5 #45-12", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2019, 5, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "San Martín", 3, 1, 4 }
+                    { 1, "Acuerdo a 4 cuotas iguales.", new DateTime(2025, 5, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 130500m, null, "user1@example.com", 4, null, 32625m, 130500m, "3101234567", true, "Carrera 10 #45-20", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2020, 5, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Eduardo Santos", 1, 1, 1 },
+                    { 2, "Acuerdo a 2 cuotas iguales.", new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 174000m, null, "user2@example.com", 2, null, 87000m, 174000m, "3009876543", true, "Carrera 1 #23-18", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2017, 1, 12, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Panamá", 2, 2, 2 },
+                    { 3, "Acuerdo a 8 cuotas iguales.", new DateTime(2025, 9, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 348000m, null, "user3@example.com", 8, null, 43500m, 348000m, "3015558888", true, "Calle 20 #15-40", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2018, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "La Merced", 2, 3, 3 },
+                    { 4, "Acuerdo a 12 cuotas iguales.", new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 835200m, null, "user4@example.com", 12, null, 69600m, 835200m, "3024449999", true, "Avenida 5 #45-12", new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2019, 5, 22, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "San Martín", 3, 1, 4 }
                 });
 
             migrationBuilder.InsertData(
-                table: "documenInfraction",
+                schema: "Entities",
+                table: "DocumentInfraction",
                 columns: new[] { "id", "PaymentAgreementId", "active", "created_date", "inspectoraReportId", "is_deleted" },
                 values: new object[,]
                 {
@@ -1138,42 +1213,89 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
+                schema: "Entities",
                 table: "installmentSchedule",
-                columns: new[] { "id", "Amount", "IsPaid", "Number", "PaymentAgreementId", "PaymentDate", "RemainingBalance", "active", "created_date", "is_deleted" },
+                columns: new[] { "id", "Amount", "Number", "PaymentAgreementId", "PaymentDate", "RemainingBalance", "active", "created_date", "is_deleted" },
                 values: new object[,]
                 {
-                    { 1, 32625m, false, 1, 1, new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc), 97900m, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 2, 32625m, false, 2, 1, new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc), 65275m, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
+                    { 1, 32625m, 1, 1, new DateTime(2025, 3, 1, 0, 0, 0, 0, DateTimeKind.Utc), 97900m, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 2, 32625m, 2, 1, new DateTime(2025, 4, 1, 0, 0, 0, 0, DateTimeKind.Utc), 65275m, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_documenInfraction_inspectoraReportId",
-                table: "documenInfraction",
+                name: "IX_AuthSession_SessionId",
+                schema: "ModelSecurity",
+                table: "AuthSession",
+                column: "SessionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_department_daneCode",
+                schema: "Parameters",
+                table: "department",
+                column: "daneCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_department_name",
+                schema: "Parameters",
+                table: "department",
+                column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DocumentInfraction_inspectoraReportId",
+                schema: "Entities",
+                table: "DocumentInfraction",
                 column: "inspectoraReportId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_documenInfraction_PaymentAgreementId",
-                table: "documenInfraction",
+                name: "IX_DocumentInfraction_PaymentAgreementId",
+                schema: "Entities",
+                table: "DocumentInfraction",
                 column: "PaymentAgreementId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_fineCalculationDetail_Infractionid",
-                table: "fineCalculationDetail",
-                column: "Infractionid");
+                name: "IX_documentType_abbreviation",
+                schema: "Parameters",
+                table: "documentType",
+                column: "abbreviation",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_fineCalculationDetail_valueSmldvId",
-                table: "fineCalculationDetail",
+                name: "IX_documentType_name",
+                schema: "Parameters",
+                table: "documentType",
+                column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FineCalculationDetail_typeInfractionId",
+                schema: "Entities",
+                table: "FineCalculationDetail",
+                column: "typeInfractionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FineCalculationDetail_valueSmldvId",
+                schema: "Entities",
+                table: "FineCalculationDetail",
                 column: "valueSmldvId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_form_modules_formid",
-                table: "form_modules",
+                name: "IX_form_name",
+                schema: "ModelSecurity",
+                table: "form",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_formmodule_formid",
+                schema: "ModelSecurity",
+                table: "formmodule",
                 column: "formid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_form_modules_moduleid",
-                table: "form_modules",
+                name: "IX_formmodule_moduleid",
+                schema: "ModelSecurity",
+                table: "formmodule",
                 column: "moduleid");
 
             migrationBuilder.CreateIndex(
@@ -1183,104 +1305,188 @@ namespace Entity.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_installmentSchedule_PaymentAgreementId",
+                schema: "Entities",
                 table: "installmentSchedule",
                 column: "PaymentAgreementId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Municipality_departmentId",
-                table: "Municipality",
-                column: "departmentId");
+                name: "IX_module_name",
+                schema: "ModelSecurity",
+                table: "module",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_municipality_daneCode",
+                schema: "Parameters",
+                table: "municipality",
+                column: "daneCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_municipality_departmentId_name",
+                schema: "Parameters",
+                table: "municipality",
+                columns: new[] { "departmentId", "name" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_municipality_name",
+                schema: "Parameters",
+                table: "municipality",
+                column: "name");
 
             migrationBuilder.CreateIndex(
                 name: "IX_paymentAgreement_paymentFrequencyId",
+                schema: "Entities",
                 table: "paymentAgreement",
                 column: "paymentFrequencyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_paymentAgreement_typePaymentId",
+                schema: "Entities",
                 table: "paymentAgreement",
                 column: "typePaymentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_paymentAgreement_userInfractionId",
+                schema: "Entities",
                 table: "paymentAgreement",
                 column: "userInfractionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_persons_municipalityId",
-                table: "persons",
+                name: "IX_paymentFrequency_intervalPage",
+                schema: "Parameters",
+                table: "paymentFrequency",
+                column: "intervalPage");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_permission_name",
+                schema: "ModelSecurity",
+                table: "permission",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_person_municipalityId",
+                schema: "ModelSecurity",
+                table: "person",
                 column: "municipalityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_rol_form_permissions_FormId",
-                table: "rol_form_permissions",
-                column: "FormId");
+                name: "IX_rol_name",
+                schema: "ModelSecurity",
+                table: "rol",
+                column: "name",
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_rol_form_permissions_PermissionId",
-                table: "rol_form_permissions",
-                column: "PermissionId");
+                name: "IX_rolformpermission_formid",
+                schema: "ModelSecurity",
+                table: "rolformpermission",
+                column: "formid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_rol_form_permissions_RolId",
-                table: "rol_form_permissions",
-                column: "RolId");
+                name: "IX_rolformpermission_permissionid",
+                schema: "ModelSecurity",
+                table: "rolformpermission",
+                column: "permissionid");
 
             migrationBuilder.CreateIndex(
-                name: "IX_rolUsers_RolId",
-                table: "rolUsers",
-                column: "RolId");
+                name: "IX_RolFormPermission_Unique",
+                schema: "ModelSecurity",
+                table: "rolformpermission",
+                columns: new[] { "rolid", "formid", "permissionid" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_rolUsers_UserId",
-                table: "rolUsers",
-                column: "UserId");
+                name: "IX_roluser_rolId",
+                schema: "ModelSecurity",
+                table: "roluser",
+                column: "rolId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_roluser_userId",
+                schema: "ModelSecurity",
+                table: "roluser",
+                column: "userId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TypeInfraction_Name",
+                schema: "Entities",
+                table: "TypeInfraction",
+                column: "Name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_typePayment_name",
+                schema: "Entities",
+                table: "typePayment",
+                column: "name",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_documentTypeId",
+                schema: "ModelSecurity",
+                table: "user",
+                column: "documentTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_user_PersonId",
+                schema: "ModelSecurity",
+                table: "user",
+                column: "PersonId",
+                unique: true,
+                filter: "[PersonId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_userInfraction_InfractionId",
+                schema: "Entities",
                 table: "userInfraction",
                 column: "InfractionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_userInfraction_UserId",
+                schema: "Entities",
                 table: "userInfraction",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_userInfraction_UserNotificationId",
+                schema: "Entities",
                 table: "userInfraction",
                 column: "UserNotificationId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_users_documentTypeId",
-                table: "users",
-                column: "documentTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_users_PersonId",
-                table: "users",
-                column: "PersonId",
-                unique: true,
-                filter: "[PersonId] IS NOT NULL");
+                name: "IX_valueSmldv_Current_Year",
+                schema: "Entities",
+                table: "valueSmldv",
+                column: "Current_Year",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AuthSessions");
+                name: "AuthSession",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "documenInfraction");
+                name: "DocumentInfraction",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "fineCalculationDetail");
+                name: "FineCalculationDetail",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "form_modules");
+                name: "formmodule",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "installmentSchedule");
+                name: "installmentSchedule",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
                 name: "notificationSetting");
@@ -1289,64 +1495,83 @@ namespace Entity.Migrations
                 name: "refreshTokens");
 
             migrationBuilder.DropTable(
-                name: "rol_form_permissions");
+                name: "rolformpermission",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "rolUsers");
+                name: "roluser",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "inspectoraReport");
+                name: "InspectoraReport",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "valueSmldv");
+                name: "valueSmldv",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "modules");
+                name: "module",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "paymentAgreement");
+                name: "paymentAgreement",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "forms");
+                name: "form",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "permissions");
+                name: "permission",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "rols");
+                name: "rol",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "paymentFrequency");
+                name: "typePayment",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "typePayment");
+                name: "userInfraction",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "userInfraction");
+                name: "paymentFrequency",
+                schema: "Parameters");
 
             migrationBuilder.DropTable(
                 name: "Infraction");
 
             migrationBuilder.DropTable(
-                name: "userNotification");
+                name: "userNotification",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "user",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "TypeInfraction");
+                name: "TypeInfraction",
+                schema: "Entities");
 
             migrationBuilder.DropTable(
-                name: "documentTypes");
+                name: "person",
+                schema: "ModelSecurity");
 
             migrationBuilder.DropTable(
-                name: "persons");
+                name: "documentType",
+                schema: "Parameters");
 
             migrationBuilder.DropTable(
-                name: "Municipality");
+                name: "municipality",
+                schema: "Parameters");
 
             migrationBuilder.DropTable(
-                name: "Departments");
+                name: "department",
+                schema: "Parameters");
         }
     }
 }

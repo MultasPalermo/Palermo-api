@@ -78,37 +78,37 @@ public class PostgresDbContext : DbContext
 
 
 
-        //    // ============ CONFIGURACIONES ============
-        //    // Parameters
-        //    modelBuilder.ApplyConfiguration(new RelacionDocumentType());
-        //    modelBuilder.ApplyConfiguration(new RelacionDepartment());
-        //    modelBuilder.ApplyConfiguration(new RelacionMunicipality());
-        //    modelBuilder.ApplyConfiguration(new RelacionPaymentFrequency());
+        // ============ CONFIGURACIONES ============
+        // Parameters
+        modelBuilder.ApplyConfiguration(new RelacionDocumentType());
+        modelBuilder.ApplyConfiguration(new RelacionDepartment());
+        modelBuilder.ApplyConfiguration(new RelacionMunicipality());
+        modelBuilder.ApplyConfiguration(new RelacionPaymentFrequency());
 
-        //    // Model / Security
-        //    modelBuilder.ApplyConfiguration(new RelacionPerson());
-        //    modelBuilder.ApplyConfiguration(new RelacionUser());
-        //    modelBuilder.ApplyConfiguration(new RelacionesRol());
-        //    modelBuilder.ApplyConfiguration(new RelacionModule());
-        //    modelBuilder.ApplyConfiguration(new RelacionPermission());
-        //    modelBuilder.ApplyConfiguration(new RelacionForm());
-        //    modelBuilder.ApplyConfiguration(new RelacionRolUser());
-        //    modelBuilder.ApplyConfiguration(new RelacionFormModule());
-        //    modelBuilder.ApplyConfiguration(new RelacionRolFormPermission());
+        // Model / Security
+        modelBuilder.ApplyConfiguration(new RelacionPerson());
+        modelBuilder.ApplyConfiguration(new RelacionUser());
+        modelBuilder.ApplyConfiguration(new RelacionesRol());
+        modelBuilder.ApplyConfiguration(new RelacionModule());
+        modelBuilder.ApplyConfiguration(new RelacionPermission());
+        modelBuilder.ApplyConfiguration(new RelacionForm());
+        modelBuilder.ApplyConfiguration(new RelacionRolUser());
+        modelBuilder.ApplyConfiguration(new RelacionFormModule());
+        modelBuilder.ApplyConfiguration(new RelacionRolFormPermission());
 
-        //    // Entities
-        //    modelBuilder.ApplyConfiguration(new RelacionesTypeInfraction());
-        //    modelBuilder.ApplyConfiguration(new RelacionesInspectoraReport());
-        //    modelBuilder.ApplyConfiguration(new RelacionesValueSmldv());
-        //    modelBuilder.ApplyConfiguration(new RelacionesUserNotification());
-        //    modelBuilder.ApplyConfiguration(new RelacionesDocumentInfraction());
-        //    modelBuilder.ApplyConfiguration(new RelacionesTypePayment());
-        //    modelBuilder.ApplyConfiguration(new RelacionesUserInfraction());
-        //modelBuilder.ApplyConfiguration(new RelacionesFineCalculationDetail());
-        //    modelBuilder.ApplyConfiguration(new RelacionesPaymentAgreement());
+        // Entities
+        modelBuilder.ApplyConfiguration(new RelacionesTypeInfraction());
+        modelBuilder.ApplyConfiguration(new RelacionesInspectoraReport());
+        modelBuilder.ApplyConfiguration(new RelacionesValueSmldv());
+        modelBuilder.ApplyConfiguration(new RelacionesUserNotification());
+        modelBuilder.ApplyConfiguration(new RelacionesDocumentInfraction());
+        modelBuilder.ApplyConfiguration(new RelacionesTypePayment());
+        modelBuilder.ApplyConfiguration(new RelacionesUserInfraction());
+        modelBuilder.ApplyConfiguration(new RelacionesFineCalculationDetail());
+        modelBuilder.ApplyConfiguration(new RelacionesPaymentAgreement());
 
-            // ============ SEEDS ============
-            modelBuilder.SeedDocumentType();
+        // ============ SEEDS ============
+        modelBuilder.SeedDocumentType();
             modelBuilder.SeedDepartment();
             modelBuilder.seedMunicipality();
             modelBuilder.SeedPaymentFrequency();

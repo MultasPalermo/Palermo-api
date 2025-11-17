@@ -58,29 +58,40 @@ namespace Business.Services.Security
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto)
         {
-            // 1. verificar código primero
-            var isValidCode = _verificationService.ValidateCode(dto.email, dto.verificationCode);
+            // 1. verificar código
+            var isValidCode =  _verificationService.ValidateCode(dto.email, dto.verificationCode);
             if (!isValidCode)
-                throw new BusinessException("Código de verificación incorrecto o expirado.");
+                throw new BusinessException("código de verificación incorrecto o expirado.");
 
-            // 2. validar si ya existe
+            // 2. verificar si ya existe
             var existing = await _userRepository.FindEmail(dto.email);
             if (existing != null)
-                throw new BusinessException("El correo ya está registrado.");
+                throw new BusinessException("el correo ya está registrado.");
 
-            // 3. crear persona y usuario
+            // 3. mapear
             var person = _mapper.Map<Person>(dto);
             var user = _mapper.Map<User>(dto);
 
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.password);
             user.Person = person;
 
+            // logs para verificar qué llega null
+            _logger.LogInformation("registrando user: {@user}", user);
+            _logger.LogInformation("registrando persona: {@person}", person);
+
+            // 4. crear
             await _userRepository.CreateAsync(user);
 
+            // validar id generado
+            if (user.id <= 0)
+                throw new BusinessException("no se pudo crear el usuario.");
+
+            // 5. asignar rol
             await _rolUserRepository.AsignateUserRTo(user);
 
+            // 6. obtener creado
             var createdUser = await _userRepository.GetByIdAsync(user.id)
-                                 ?? throw new BusinessException("Error interno.");
+                                 ?? throw new BusinessException("error interno al obtener usuario.");
 
             InvalidateUserCache(user.id);
             return _mapper.Map<UserDto>(createdUser);

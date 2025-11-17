@@ -31,7 +31,8 @@ namespace Entity.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<int>("PaymentAgreementId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("PaymentAgreementId");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -40,7 +41,8 @@ namespace Entity.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("inspectoraReportId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("inspectoraReportId");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
@@ -51,7 +53,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("inspectoraReportId");
 
-                    b.ToTable("documenInfraction");
+                    b.ToTable("DocumentInfraction", "Entities");
 
                     b.HasData(
                         new
@@ -655,11 +657,12 @@ namespace Entity.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("total_fines")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("id");
 
-                    b.ToTable("inspectoraReport");
+                    b.ToTable("InspectoraReport", "Entities");
 
                     b.HasData(
                         new
@@ -696,7 +699,9 @@ namespace Entity.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("Number")
                         .HasColumnType("int");
@@ -723,7 +728,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("PaymentAgreementId");
 
-                    b.ToTable("installmentSchedule");
+                    b.ToTable("installmentSchedule", "Entities");
 
                     b.HasData(
                         new
@@ -764,7 +769,8 @@ namespace Entity.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -777,7 +783,10 @@ namespace Entity.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("TypeInfraction");
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("TypeInfraction", "Entities");
 
                     b.HasData(
                         new
@@ -833,14 +842,17 @@ namespace Entity.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("paymentAgreementId")
                         .HasColumnType("int");
 
                     b.HasKey("id");
 
-                    b.ToTable("typePayment");
+                    b.HasIndex("name")
+                        .IsUnique();
+
+                    b.ToTable("typePayment", "Entities");
 
                     b.HasData(
                         new
@@ -981,7 +993,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("UserNotificationId");
 
-                    b.ToTable("userInfraction");
+                    b.ToTable("userInfraction", "Entities");
 
                     b.HasData(
                         new
@@ -1116,7 +1128,7 @@ namespace Entity.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("userNotification");
+                    b.ToTable("userNotification", "Entities");
 
                     b.HasData(
                         new
@@ -1160,14 +1172,19 @@ namespace Entity.Migrations
                         .HasColumnType("bit");
 
                     b.Property<decimal>("minimunWage")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("value_smldv")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("id");
 
-                    b.ToTable("valueSmldv");
+                    b.HasIndex("Current_Year")
+                        .IsUnique();
+
+                    b.ToTable("valueSmldv", "Entities");
 
                     b.HasData(
                         new
@@ -1197,7 +1214,8 @@ namespace Entity.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Ip")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<bool>("IsRevoked")
                         .HasColumnType("bit");
@@ -1212,7 +1230,8 @@ namespace Entity.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("UserAgent")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -1225,7 +1244,10 @@ namespace Entity.Migrations
 
                     b.HasKey("id");
 
-                    b.ToTable("AuthSessions");
+                    b.HasIndex("SessionId")
+                        .IsUnique();
+
+                    b.ToTable("AuthSession", "ModelSecurity");
                 });
 
             modelBuilder.Entity("Entity.Domain.Models.Implements.ModelSecurity.Form", b =>
@@ -1250,18 +1272,23 @@ namespace Entity.Migrations
 
                     b.Property<string>("description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("id");
 
-                    b.ToTable("forms");
+                    b.HasIndex("name")
+                        .IsUnique();
+
+                    b.ToTable("form", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -1534,13 +1561,15 @@ namespace Entity.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("formid")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("formid");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.Property<int>("moduleid")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("moduleid");
 
                     b.HasKey("id");
 
@@ -1548,7 +1577,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("moduleid");
 
-                    b.ToTable("form_modules");
+                    b.ToTable("formmodule", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -1740,18 +1769,23 @@ namespace Entity.Migrations
 
                     b.Property<string>("description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("id");
 
-                    b.ToTable("modules");
+                    b.HasIndex("name")
+                        .IsUnique();
+
+                    b.ToTable("module", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -1817,18 +1851,23 @@ namespace Entity.Migrations
 
                     b.Property<string>("description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("id");
 
-                    b.ToTable("permissions");
+                    b.HasIndex("name")
+                        .IsUnique();
+
+                    b.ToTable("permission", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -1906,6 +1945,7 @@ namespace Entity.Migrations
 
                     b.Property<string>("firstName")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
                     b.Property<bool>("is_deleted")
@@ -1913,6 +1953,7 @@ namespace Entity.Migrations
 
                     b.Property<string>("lastName")
                         .IsRequired()
+                        .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
                     b.Property<int?>("municipalityId")
@@ -1928,7 +1969,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("municipalityId");
 
-                    b.ToTable("persons");
+                    b.ToTable("person", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -2003,18 +2044,23 @@ namespace Entity.Migrations
 
                     b.Property<string>("description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("id");
 
-                    b.ToTable("rols");
+                    b.HasIndex("name")
+                        .IsUnique();
+
+                    b.ToTable("rol", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -2046,18 +2092,24 @@ namespace Entity.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<string>("EmailVerificationCode")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(6)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(6)");
 
                     b.Property<DateTime?>("EmailVerificationExpiresAt")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("EmailVerified")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("EmailVerifiedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
+                        .HasMaxLength(100)
+                        .IsUnicode(false)
                         .HasColumnType("varchar(100)");
 
                     b.Property<int?>("PersonId")
@@ -2076,6 +2128,8 @@ namespace Entity.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("email")
+                        .HasMaxLength(150)
+                        .IsUnicode(false)
                         .HasColumnType("varchar(150)");
 
                     b.Property<bool>("is_deleted")
@@ -2089,7 +2143,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("documentTypeId");
 
-                    b.ToTable("users");
+                    b.ToTable("user", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -2237,14 +2291,17 @@ namespace Entity.Migrations
 
                     b.Property<string>("intervalPage")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.HasKey("id");
 
-                    b.ToTable("paymentFrequency");
+                    b.HasIndex("intervalPage");
+
+                    b.ToTable("paymentFrequency", "Parameters");
 
                     b.HasData(
                         new
@@ -2298,11 +2355,17 @@ namespace Entity.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
 
                     b.HasKey("id");
 
-                    b.ToTable("Departments");
+                    b.HasIndex("daneCode")
+                        .IsUnique();
+
+                    b.HasIndex("name");
+
+                    b.ToTable("department", "Parameters");
 
                     b.HasData(
                         new
@@ -2353,7 +2416,8 @@ namespace Entity.Migrations
 
                     b.Property<string>("abbreviation")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -2366,11 +2430,17 @@ namespace Entity.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(80)
+                        .HasColumnType("varchar(80)");
 
                     b.HasKey("id");
 
-                    b.ToTable("documentTypes");
+                    b.HasIndex("abbreviation")
+                        .IsUnique();
+
+                    b.HasIndex("name");
+
+                    b.ToTable("documentType", "Parameters");
 
                     b.HasData(
                         new
@@ -2436,13 +2506,20 @@ namespace Entity.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(120)
+                        .HasColumnType("varchar(120)");
 
                     b.HasKey("id");
 
-                    b.HasIndex("departmentId");
+                    b.HasIndex("daneCode")
+                        .IsUnique();
 
-                    b.ToTable("Municipality");
+                    b.HasIndex("name");
+
+                    b.HasIndex("departmentId", "name")
+                        .IsUnique();
+
+                    b.ToTable("municipality", "Parameters");
 
                     b.HasData(
                         new
@@ -2495,9 +2572,6 @@ namespace Entity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
-                    b.Property<int>("Infractionid")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("SmldvValueAtCreation")
                         .HasColumnType("decimal(18,2)");
 
@@ -2509,13 +2583,14 @@ namespace Entity.Migrations
 
                     b.Property<string>("formula")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
                     b.Property<decimal>("totalCalculation")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(12,2)");
 
                     b.Property<int>("typeInfractionId")
                         .HasColumnType("int");
@@ -2525,11 +2600,11 @@ namespace Entity.Migrations
 
                     b.HasKey("id");
 
-                    b.HasIndex("Infractionid");
+                    b.HasIndex("typeInfractionId");
 
                     b.HasIndex("valueSmldvId");
 
-                    b.ToTable("fineCalculationDetail");
+                    b.ToTable("FineCalculationDetail", "Entities");
                 });
 
             modelBuilder.Entity("PaymentAgreement", b =>
@@ -2541,10 +2616,13 @@ namespace Entity.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<decimal>("AccruedInterest")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("AgreementDescription")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("AgreementEnd")
                         .HasColumnType("datetime2");
@@ -2559,16 +2637,21 @@ namespace Entity.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<int?>("Installments")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsCoactive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsPaid")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("LastInterestAppliedOn")
                         .HasColumnType("datetime2");
@@ -2580,14 +2663,16 @@ namespace Entity.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
 
                     b.Property<string>("address")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("created_date")
                         .HasColumnType("datetime2");
@@ -2599,7 +2684,8 @@ namespace Entity.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("neighborhood")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<int>("paymentFrequencyId")
                         .HasColumnType("int");
@@ -2618,7 +2704,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("userInfractionId");
 
-                    b.ToTable("paymentAgreement");
+                    b.ToTable("paymentAgreement", "Entities");
 
                     b.HasData(
                         new
@@ -2732,13 +2818,16 @@ namespace Entity.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<int>("FormId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("formid");
 
                     b.Property<int>("PermissionId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("permissionid");
 
                     b.Property<int>("RolId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("rolid");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -2755,9 +2844,11 @@ namespace Entity.Migrations
 
                     b.HasIndex("PermissionId");
 
-                    b.HasIndex("RolId");
+                    b.HasIndex("RolId", "FormId", "PermissionId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_RolFormPermission_Unique");
 
-                    b.ToTable("rol_form_permissions");
+                    b.ToTable("rolformpermission", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -4191,10 +4282,12 @@ namespace Entity.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
                     b.Property<int>("RolId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("rolId");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("userId");
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -4211,7 +4304,7 @@ namespace Entity.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("rolUsers");
+                    b.ToTable("roluser", "ModelSecurity");
 
                     b.HasData(
                         new
@@ -4239,14 +4332,16 @@ namespace Entity.Migrations
                     b.HasOne("PaymentAgreement", "paymentAgreement")
                         .WithMany("documentInfraction")
                         .HasForeignKey("PaymentAgreementId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_DocumentInfraction_PaymentAgreement");
 
                     b.HasOne("Entity.Domain.Models.Implements.Entities.InspectoraReport", "inspectoraReport")
                         .WithMany("documentInfraction")
                         .HasForeignKey("inspectoraReportId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_DocumentInfraction_InspectoraReport");
 
                     b.Navigation("inspectoraReport");
 
@@ -4258,8 +4353,9 @@ namespace Entity.Migrations
                     b.HasOne("Entity.Domain.Models.Implements.Entities.TypeInfraction", "TypeInfraction")
                         .WithMany("Infractions")
                         .HasForeignKey("TypeInfractionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_TypeInfraction_Infraction");
 
                     b.Navigation("TypeInfraction");
                 });
@@ -4270,7 +4366,8 @@ namespace Entity.Migrations
                         .WithMany("InstallmentSchedule")
                         .HasForeignKey("PaymentAgreementId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_InstallmentSchedule_PaymentAgreement");
 
                     b.Navigation("PaymentAgreement");
                 });
@@ -4307,14 +4404,16 @@ namespace Entity.Migrations
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Form", "form")
                         .WithMany("FormModules")
                         .HasForeignKey("formid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FormModule_Form");
 
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Module", "module")
                         .WithMany("FormModules")
                         .HasForeignKey("moduleid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_FormModule_Module");
 
                     b.Navigation("form");
 
@@ -4325,7 +4424,8 @@ namespace Entity.Migrations
                 {
                     b.HasOne("Entity.Domain.Models.Implements.parameters.municipality", "municipality")
                         .WithMany("person")
-                        .HasForeignKey("municipalityId");
+                        .HasForeignKey("municipalityId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("municipality");
                 });
@@ -4334,11 +4434,14 @@ namespace Entity.Migrations
                 {
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Person", "Person")
                         .WithOne("User")
-                        .HasForeignKey("Entity.Domain.Models.Implements.ModelSecurity.User", "PersonId");
+                        .HasForeignKey("Entity.Domain.Models.Implements.ModelSecurity.User", "PersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_User_Person");
 
                     b.HasOne("Entity.Domain.Models.Implements.parameters.documentType", "documentType")
                         .WithMany("person")
-                        .HasForeignKey("documentTypeId");
+                        .HasForeignKey("documentTypeId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Person");
 
@@ -4350,7 +4453,7 @@ namespace Entity.Migrations
                     b.HasOne("Entity.Domain.Models.Implements.parameters.department", "department")
                         .WithMany("Municipality")
                         .HasForeignKey("departmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("department");
@@ -4360,15 +4463,17 @@ namespace Entity.Migrations
                 {
                     b.HasOne("Entity.Domain.Models.Implements.Entities.Infraction", "Infraction")
                         .WithMany("fineCalculationDetail")
-                        .HasForeignKey("Infractionid")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("typeInfractionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_TypeInfraction_FineCalculationDetail");
 
                     b.HasOne("Entity.Domain.Models.Implements.Entities.ValueSmldv", "valueSmldv")
                         .WithMany("fineCalculationDetail")
                         .HasForeignKey("valueSmldvId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired()
+                        .HasConstraintName("FK_ValueSmldv_FineCalculationDetail");
 
                     b.Navigation("Infraction");
 
@@ -4380,20 +4485,22 @@ namespace Entity.Migrations
                     b.HasOne("Entity.Domain.Models.Implements.parameters.PaymentFrequency", "paymentFrequency")
                         .WithMany("paymentAgreement")
                         .HasForeignKey("paymentFrequencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Entity.Domain.Models.Implements.Entities.TypePayment", "TypePayment")
                         .WithMany("PaymentAgreements")
                         .HasForeignKey("typePaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_PaymentAgreement_TypePayment");
 
                     b.HasOne("Entity.Domain.Models.Implements.Entities.UserInfraction", "userInfraction")
                         .WithMany("paymentAgreement")
                         .HasForeignKey("userInfractionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_PaymentAgreement_UserInfraction");
 
                     b.Navigation("TypePayment");
 
@@ -4407,20 +4514,23 @@ namespace Entity.Migrations
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Form", "Form")
                         .WithMany("rol_form_permission")
                         .HasForeignKey("FormId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RolFormPermission_Form");
 
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Permission", "Permission")
                         .WithMany("rol_form_permission")
                         .HasForeignKey("PermissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RolFormPermission_Permission");
 
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Rol", "Rol")
                         .WithMany("rol_form_permission")
                         .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RolFormPermission_Rol");
 
                     b.Navigation("Form");
 
@@ -4434,14 +4544,16 @@ namespace Entity.Migrations
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.Rol", "Rol")
                         .WithMany("rolUsers")
                         .HasForeignKey("RolId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RolUser_Rol");
 
                     b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.User", "User")
                         .WithMany("rolUsers")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RolUser_User");
 
                     b.Navigation("Rol");
 
