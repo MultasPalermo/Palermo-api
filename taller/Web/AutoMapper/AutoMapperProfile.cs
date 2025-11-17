@@ -188,65 +188,81 @@ namespace Web.AutoMapper
             // -------------------------------------------------------------
             // UserInfraction <-> UserInfractionDto
             // -------------------------------------------------------------
-            CreateMap<UserInfraction, UserInfractionDto>()
-                .ForMember(d => d.userId, o => o.MapFrom(s => s.UserId))
-                .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null && s.User.email != null ? s.User.email : string.Empty))
-                .ForMember(d => d.documentNumber, o => o.MapFrom(s => s.User != null && s.User.documentNumber != null ? s.User.documentNumber : string.Empty))
-                .ForMember(d => d.typeInfractionId, o => o.MapFrom(s => s.InfractionId))
-                .ForMember(d => d.stateInfraction, o => o.MapFrom(s => s.stateInfraction))
-                .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
-                .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
-                .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
-                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
-                .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId))
-                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
-                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
-                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
-                .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
-                .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
-                .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()));
+                CreateMap<UserInfraction, UserInfractionDto>()
+                  .ForMember(d => d.userId, o => o.MapFrom(s => s.UserId))
+                  .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null ? s.User.email : string.Empty))
+                  .ForMember(d => d.documentNumber, o => o.MapFrom(s => s.User != null ? s.User.documentNumber : string.Empty))
+                  .ForMember(d => d.typeInfractionId, o => o.MapFrom(s => s.InfractionId))
+                  .ForMember(d => d.stateInfraction, o => o.MapFrom(s => s.stateInfraction))
+                  .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
+                  .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
+                  .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
+                  .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
+                  .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
+                  .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
+                  .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
+                  .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
+                  .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
+                  .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId))
+                  .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()))
+
+                  // NUEVOS CAMPOS 
+                  .ForMember(d => d.IsCoactive, o => o.MapFrom(s => s.IsCoactive))
+                  .ForMember(d => d.CoactiveActivatedOn, o => o.MapFrom(s => s.CoactiveActivatedOn))
+                  .ForMember(d => d.LastInterestAppliedOn, o => o.MapFrom(s => s.LastInterestAppliedOn))
+                  .ForMember(d => d.AccruedInterest, o => o.MapFrom(s => s.AccruedInterest))
+                  .ForMember(d => d.InitialAmount, o => o.MapFrom(s => s.InitialAmount))
+                  .ForMember(d => d.DaysOfDelay, o => o.MapFrom(s => s.DaysOfDelay))
+                  .ForMember(d => d.TotalToPay, o => o.MapFrom(s => s.TotalToPay));
+
+
 
 
             // -------------------------------------------------------------
             // UserInfraction -> UserInfractionSelectDto
             // -------------------------------------------------------------
             CreateMap<UserInfraction, UserInfractionSelectDto>()
-                .ForMember(d => d.userId, o => o.MapFrom(s => s.UserId))
-                .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null ? s.User.email : string.Empty))
-                .ForMember(d => d.firstName, o => o.MapFrom(s => s.User != null && s.User.Person != null ? s.User.Person.firstName : string.Empty))
-                .ForMember(d => d.lastName, o => o.MapFrom(s => s.User != null && s.User.Person != null ? s.User.Person.lastName : string.Empty))
-                .ForMember(d => d.documentNumber, o => o.MapFrom(s => s.User != null ? s.User.documentNumber : string.Empty))
-                .ForMember(d => d.typeInfractionId, o => o.MapFrom(s => s.InfractionId))
-                .ForMember(d => d.typeInfractionName, o => o.MapFrom(s => s.Infraction != null && s.Infraction.TypeInfraction != null ? s.Infraction.TypeInfraction.Name : string.Empty))
-                .ForMember(d => d.stateInfraction, o => o.MapFrom(s => s.stateInfraction))
-                .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
-                .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
-                .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
-                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
-                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
-                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
-                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
-                .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
-                .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
+                  .ForMember(d => d.userId, o => o.MapFrom(s => s.UserId))
+                  .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null ? s.User.email : string.Empty))
+                  .ForMember(d => d.firstName, o => o.MapFrom(s => s.User != null && s.User.Person != null ? s.User.Person.firstName : string.Empty))
+                  .ForMember(d => d.lastName, o => o.MapFrom(s => s.User != null && s.User.Person != null ? s.User.Person.lastName : string.Empty))
+                  .ForMember(d => d.documentNumber, o => o.MapFrom(s => s.User != null ? s.User.documentNumber : string.Empty))
+                  .ForMember(d => d.typeInfractionId, o => o.MapFrom(s => s.InfractionId))
+                  .ForMember(d => d.typeInfractionName, o => o.MapFrom(s =>
+                      s.Infraction != null && s.Infraction.TypeInfraction != null
+                          ? s.Infraction.TypeInfraction.Name
+                          : string.Empty))
+                  .ForMember(d => d.stateInfraction, o => o.MapFrom(s => s.stateInfraction))
+                  .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
+                  .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
+                  .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
+                  .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
+                  .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId))
 
-                // 🔥 Aquí también enum -> string
-                .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()))
+                      // ---------------- Nuevos campos -----------------------
+                  .ForMember(d => d.IsCoactive, o => o.MapFrom(s => s.IsCoactive))
+                  .ForMember(d => d.CoactiveActivatedOn, o => o.MapFrom(s => s.CoactiveActivatedOn))
+                  .ForMember(d => d.LastInterestAppliedOn, o => o.MapFrom(s => s.LastInterestAppliedOn))
+                  .ForMember(d => d.AccruedInterest, o => o.MapFrom(s => s.AccruedInterest))
+                  .ForMember(d => d.InitialAmount, o => o.MapFrom(s => s.InitialAmount))
+                  .ForMember(d => d.DaysOfDelay, o => o.MapFrom(s => s.DaysOfDelay))
+                  .ForMember(d => d.TotalToPay, o => o.MapFrom(s => s.TotalToPay))
 
-                .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId));
+                  // ---------------- Otros campos existentes -----------------------
+                  .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
+                  .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
+                  .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
+                  .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
+                  .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
+
+                  .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()));
+
 
 
             // -------------------------------------------------------------
             // UserInfractionSelectDto -> UserInfraction (para UPDATE)
             // -------------------------------------------------------------
-            CreateMap<UserInfractionSelectDto, UserInfraction>()
-                .AfterMap((src, dest) =>
-                {
-                    if (!string.IsNullOrEmpty(src.StatusCollection) &&
-                        Enum.TryParse<EstadoCobro>(src.StatusCollection, out var result))
-                    {
-                        dest.StatusCollection = result;
-                    }
-                });
+            CreateMap<UserInfractionSelectDto, UserInfraction>();
 
 
 

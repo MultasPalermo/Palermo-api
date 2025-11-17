@@ -26,6 +26,8 @@ namespace Web.Controllers.Implements.Entities
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IUserService _users;
         private readonly ReminderEmailAppService _reminderService;
+        private readonly IUserInfractionServices _userInfractionServices;
+        
 
         public UserInfractionController(
             IUserInfractionServices services,
@@ -40,6 +42,8 @@ namespace Web.Controllers.Implements.Entities
             _scopeFactory = scopeFactory;
             _users = users;
             _reminderService = reminderService;
+            _userInfractionServices = services;
+
         }
 
         protected override Task<IEnumerable<UserInfractionSelectDto>> GetAllAsync(GetAllType getAllType)
@@ -223,6 +227,27 @@ namespace Web.Controllers.Implements.Entities
 
             return File(pdfBytes, "application/pdf", fileName);
         }
+
+        [HttpPost("simulate-interest")]
+        public async Task<IActionResult> SimulateInterest([FromQuery] int days)
+        {
+            if (days < 0)
+                return BadRequest("Los días deben ser positivos.");
+
+            // Simular fecha avanzando días
+            var simulatedDate = DateTime.UtcNow.AddDays(days);
+
+            // Llamar al servicio que aplica intereses
+            int updated = await _userInfractionServices.ApplyInterestToInfractionsAsync(simulatedDate);
+
+            return Ok(new
+            {
+                isSuccess = true,
+                simulatedDate,
+                updatedRecords = updated
+            });
+        }
+
 
 
 

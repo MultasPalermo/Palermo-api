@@ -28,6 +28,16 @@ namespace Entity.Domain.Models.Implements.Entities
         public decimal amountToPay { get; set; }           
         public decimal? smldvValueAtCreation { get; set; }
 
+        public bool IsCoactive { get; set; }
+        public DateTime? CoactiveActivatedOn { get; set; }
+        public DateTime? LastInterestAppliedOn { get; set; }
+        public decimal AccruedInterest { get; set; }
+        public decimal InitialAmount { get; set; }
+        public int DaysOfDelay { get; set; }
+        public decimal TotalToPay { get; set; }
+
+
+
         public DateTime? paymentDue3Days { get; set; }
         public DateTime? paymentDue15Days { get; set; }
         public DateTime? paymentDue25Days { get; set; }

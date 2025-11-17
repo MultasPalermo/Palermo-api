@@ -239,14 +239,14 @@ public class UserInfractionServices
     // Crear multa con datos de persona (cuando no hay User todavía)
     public async Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto)
     {
-        // 1️⃣ Validar DTO
+        // 1. Validación inicial
         var validator = new CreateInfractionRequestValidator();
         var validationResult = validator.Validate(dto);
 
         if (!validationResult.IsValid)
             throw new BusinessException(string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
-        // 2️⃣ Buscar o crear usuario
+        // 2. Buscar o crear usuario
         var user = await _users.FindByDocumentAsync(dto.DocumentTypeId, dto.DocumentNumber);
 
         if (user == null)
@@ -257,6 +257,7 @@ public class UserInfractionServices
                 lastName = dto.LastName,
                 tipoUsuario = TipoUsuario.PersonaNormal
             };
+
             await _context.persons.AddAsync(person);
             await _context.SaveChangesAsync();
 
@@ -268,11 +269,11 @@ public class UserInfractionServices
                 email = dto.Email,
                 PasswordHash = "DOC_LOGIN"
             };
+
             await _users.CreateAsync(user);
         }
         else
         {
-            // actualizar correo si cambió
             if (!string.IsNullOrWhiteSpace(dto.Email) && user.email != dto.Email)
             {
                 user.email = dto.Email;
@@ -280,20 +281,20 @@ public class UserInfractionServices
             }
         }
 
-        // 3️⃣ Validar tipo de infracción
+        // 3. Validar tipo infracción
         var typeInfraction = await _types.GetByIdAsync(dto.TypeInfractionId)
             ?? throw new BusinessException("Tipo de infracción inválido.");
 
-        // 4️⃣ Obtener SMLDV vigente
+        // 4. Obtener SMLDV vigente
         var smldv = await _context.valueSmldv
             .OrderByDescending(v => v.created_date)
             .FirstOrDefaultAsync()
             ?? throw new BusinessException("No hay SMLDV registrado.");
 
-        // 5️⃣ Calcular monto
+        // 5. Calcular monto inicial
         var amount = dto.SmldvCount * smldv.value_smldv;
 
-        // 6️⃣ Crear notificación inicial
+        // 6. Crear notificación inicial
         var notification = new UserNotification
         {
             message = $"Nueva infracción registrada: {typeInfraction.description}. Monto a pagar: {amount:C}",
@@ -302,33 +303,42 @@ public class UserInfractionServices
             is_deleted = false,
             created_date = DateTime.UtcNow
         };
+
         await _context.userNotification.AddAsync(notification);
         await _context.SaveChangesAsync();
 
-        // 7️⃣ Crear infracción
+        // 7. Crear infracción
+        var now = DateTime.UtcNow;
+
         var infraction = new UserInfraction
         {
             UserId = user.id,
             InfractionId = dto.TypeInfractionId,
-            dateInfraction = DateTime.UtcNow,
+            dateInfraction = now,
             stateInfraction = EstadoMulta.Pendiente,
             InformationFine = typeInfraction.description,
             amountToPay = amount,
+            InitialAmount = amount,
             smldvValueAtCreation = smldv.value_smldv,
-            UserNotificationId = notification.id
+            UserNotificationId = notification.id,
+
+            // NUEVOS CAMPOS
+            IsCoactive = false,
+            CoactiveActivatedOn = null,
+            LastInterestAppliedOn = null,
+            AccruedInterest = 0,
+            DaysOfDelay = 0,
+            TotalToPay = amount
         };
-        // ---------------------------------------------
-        // ⭐ 8️⃣ Lógica dinámica de días/segundos con 5 recordatorios
-        // ---------------------------------------------
+
+        // 8. Calcular recordatorios dinámicos 
         using var scope = _scopeFactory.CreateScope();
         var settingsService = scope.ServiceProvider.GetRequiredService<INotificationSettingServices>();
         var settings = (await settingsService.GetAllAsync()).ToList();
 
-        // Unidad de tiempo: DAYS o SECONDS
         string timeUnit = settings.First().TimeUnit?.ToUpper() ?? "DAYS";
         bool usarSegundos = timeUnit == "SECONDS";
 
-        // RANGOS DINÁMICOS
         int r1 = settings.Where(s => s.Days <= 10).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 3;
         int r2 = settings.Where(s => s.Days > 10 && s.Days <= 20).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 15;
         int r3 = settings.Where(s => s.Days > 20 && s.Days <= 30).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 25;
@@ -337,36 +347,88 @@ public class UserInfractionServices
 
         DateTime fechaInf = infraction.dateInfraction;
 
-        // Función dinámica para calcular fechas
         DateTime Calc(int v) => usarSegundos ? fechaInf.AddSeconds(v) : fechaInf.AddDays(v);
 
-        // Guardar en la entidad
         infraction.paymentDue3Days = Calc(r1);
         infraction.paymentDue15Days = Calc(r2);
         infraction.paymentDue25Days = Calc(r3);
         infraction.paymentDue30Days = Calc(r4);
         infraction.paymentDue40Days = Calc(r5);
 
-        // ---------------------------------------------
-
+        // 9. Guardar infracción
         await _repo.CreateAsync(infraction);
+        await _context.SaveChangesAsync();
 
-        // 9️⃣ Mapear DTO
+        // 10. Mapear DTO SIN recalcular en frontend
         var infractionDto = _mapper.Map<UserInfractionSelectDto>(infraction);
         infractionDto.userEmail = user.email;
 
-        await _context.SaveChangesAsync();
-
-        // 🔟 Enviar correos en background (no bloqueante)
+        // 11. Enviar correos en background
         await _scheduler.ScheduleEmailAsync(
              () => _emailOrchestrator.ProcesarNotificacionInicialAsync(infractionDto),
              TimeSpan.Zero
         );
 
-
         return infractionDto;
     }
+    public async Task<int> ApplyInterestToInfractionsAsync(DateTime nowUtc, CancellationToken ct = default)
+    {
+        int updated = 0;
+        DateTime today = nowUtc.Date;
 
+        var infractions = await _context.userInfraction
+            .Where(i => !i.is_deleted && i.stateInfraction == EstadoMulta.Pendiente)
+            .ToListAsync(ct);
+
+        foreach (var i in infractions)
+        {
+            // Calcular días de mora siempre
+            i.DaysOfDelay = (today - i.dateInfraction.Date).Days;
+            if (i.DaysOfDelay < 0) i.DaysOfDelay = 0;
+
+            // Activar coactivo día 30
+            DateTime coactiveDate = i.dateInfraction.Date.AddDays(30);
+
+            if (today >= coactiveDate && !i.IsCoactive)
+            {
+                i.IsCoactive = true;
+                i.CoactiveActivatedOn = coactiveDate;
+                i.LastInterestAppliedOn = coactiveDate.AddDays(-1);
+            }
+
+            if (i.IsCoactive)
+            {
+                DateTime lastApplied = i.LastInterestAppliedOn?.Date
+                    ?? i.CoactiveActivatedOn!.Value.AddDays(-1);
+
+                int daysToAccrue = (today - lastApplied).Days;
+
+                if (daysToAccrue > 0)
+                {
+                    decimal monthlyRate = 0.02m;
+                    decimal dailyRate = monthlyRate / 30;
+
+                    decimal interestToAdd = i.InitialAmount * dailyRate * daysToAccrue;
+
+                    i.AccruedInterest += interestToAdd;
+                    i.LastInterestAppliedOn = today;
+
+                    updated++;
+                }
+            }
+
+            // Calcular total
+            i.TotalToPay = i.InitialAmount + i.AccruedInterest;
+
+            // Mantener sincronizado con amountToPay
+            i.amountToPay = i.TotalToPay;
+        }
+
+        if (updated > 0)
+            await _context.SaveChangesAsync(ct);
+
+        return updated;
+    }
 
     public async Task<IEnumerable<UserInfractionSelectDto>> GetByTypeInfractionAsync(int typeInfractionId)
     {

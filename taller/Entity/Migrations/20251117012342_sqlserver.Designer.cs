@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251115175530_sqlserver")]
+    [Migration("20251117012342_sqlserver")]
     partial class sqlserver
     {
         /// <inheritdoc />
@@ -913,14 +913,35 @@ namespace Entity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+                    b.Property<decimal>("AccruedInterest")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("CoactiveActivatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DaysOfDelay")
+                        .HasColumnType("int");
+
                     b.Property<string>("InformationFine")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("InfractionId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("InitialAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsCoactive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastInterestAppliedOn")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("StatusCollection")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("TotalToPay")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -978,8 +999,15 @@ namespace Entity.Migrations
                         new
                         {
                             id = 1,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 1,
+                            InitialAmount = 174000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             StatusCollection = 0,
+                            TotalToPay = 174000m,
                             UserId = 1,
                             UserNotificationId = 1,
                             active = true,
@@ -996,8 +1024,15 @@ namespace Entity.Migrations
                         new
                         {
                             id = 2,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 14,
+                            InitialAmount = 348000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             StatusCollection = 1,
+                            TotalToPay = 348000m,
                             UserId = 1,
                             UserNotificationId = 2,
                             active = true,
@@ -1014,8 +1049,15 @@ namespace Entity.Migrations
                         new
                         {
                             id = 3,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 27,
+                            InitialAmount = 696000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             StatusCollection = 2,
+                            TotalToPay = 696000m,
                             UserId = 2,
                             UserNotificationId = 1,
                             active = true,
@@ -1032,8 +1074,15 @@ namespace Entity.Migrations
                         new
                         {
                             id = 4,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 40,
+                            InitialAmount = 1392000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
                             StatusCollection = 0,
+                            TotalToPay = 1392000m,
                             UserId = 2,
                             UserNotificationId = 2,
                             active = true,

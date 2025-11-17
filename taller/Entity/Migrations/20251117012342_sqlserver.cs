@@ -573,6 +573,13 @@ namespace Entity.Migrations
                     UserNotificationId = table.Column<int>(type: "int", nullable: false),
                     amountToPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     smldvValueAtCreation = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    IsCoactive = table.Column<bool>(type: "bit", nullable: false),
+                    CoactiveActivatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastInterestAppliedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AccruedInterest = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    InitialAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DaysOfDelay = table.Column<int>(type: "int", nullable: false),
+                    TotalToPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     paymentDue3Days = table.Column<DateTime>(type: "datetime2", nullable: true),
                     paymentDue15Days = table.Column<DateTime>(type: "datetime2", nullable: true),
                     paymentDue25Days = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -1165,13 +1172,13 @@ namespace Entity.Migrations
             migrationBuilder.InsertData(
                 schema: "Entities",
                 table: "userInfraction",
-                columns: new[] { "id", "InformationFine", "InfractionId", "StatusCollection", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "paymentDue15Days", "paymentDue25Days", "paymentDue30Days", "paymentDue3Days", "paymentDue40Days", "smldvValueAtCreation", "stateInfraction" },
+                columns: new[] { "id", "AccruedInterest", "CoactiveActivatedOn", "DaysOfDelay", "InformationFine", "InfractionId", "InitialAmount", "IsCoactive", "LastInterestAppliedOn", "StatusCollection", "TotalToPay", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "paymentDue15Days", "paymentDue25Days", "paymentDue30Days", "paymentDue3Days", "paymentDue40Days", "smldvValueAtCreation", "stateInfraction" },
                 values: new object[,]
                 {
-                    { 1, null, 1, 0, 1, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
-                    { 2, null, 14, 1, 1, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
-                    { 3, null, 27, 2, 2, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
-                    { 4, null, 40, 0, 2, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 }
+                    { 1, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 1, 174000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 0, 174000m, 1, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 2, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 14, 348000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 1, 348000m, 1, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 3, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 27, 696000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 2, 696000m, 2, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 4, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 40, 1392000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 0, 1392000m, 2, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 }
                 });
 
             migrationBuilder.InsertData(

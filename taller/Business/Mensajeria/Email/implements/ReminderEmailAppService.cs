@@ -199,7 +199,7 @@ namespace Business.Mensajeria.Email.implements
 
                     await repoScoped.UpdateAsync(entity);
 
-                    dto.StatusCollection = entity.StatusCollection.ToString();
+                    dto.StatusCollection = entity.StatusCollection.ToString(); ;
                     var estado = entity.StatusCollection;
 
                     _logger.LogInformation($"📌 Estado actualizado → {estado}");
