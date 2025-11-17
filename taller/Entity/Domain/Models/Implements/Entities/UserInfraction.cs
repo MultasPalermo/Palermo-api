@@ -16,9 +16,10 @@ namespace Entity.Domain.Models.Implements.Entities
         public string? InformationFine { get; set; }
         public int UserId { get; set; }          // FK
         public User User { get; set; } = null!;  // Navegación
-        // requerido
+        
 
         public int InfractionId { get; set; }
+        public int numer_smldv { get; set; }
         public Infraction Infraction { get; set; } = null!;
 
         public int UserNotificationId { get; set; }

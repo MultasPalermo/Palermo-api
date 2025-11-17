@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Entities;
 using Business.Interfaces.IBusinessImplements.parameters;
+using Business.Interfaces.IBusinessImplements.Security;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
 using Business.Mensajeria.Email.@interface;
@@ -215,14 +216,18 @@ public class UserInfractionServices
             using var scope = _scopeFactory.CreateScope();
             var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
             var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
+            var userRepo = scope.ServiceProvider.GetRequiredService<IUserService>();
+            var infractionRepo = scope.ServiceProvider.GetRequiredService<IUserInfractionServices>();
 
-            var user = await _users.GetByIdAsync(dto.userId);
+            // Traer el usuario y la infracción desde el SCOPE CORRECTO
+            var user = await userRepo.GetByIdAsync(dto.userId);
+            var infraction = await infractionRepo.GetByIdAsync(result.id);
 
-            // Generamos el PDF con los datos de la infracción recién creada
-            var pdfBytes = await pdfService.GeneratePdfAsync(await GetByIdAsync(result.id));
+            // Generar el PDF dentro del scope
+            var pdfBytes = await pdfService.GeneratePdfAsync(infraction);
 
             var builder = new InfraccionEmailBuilder(
-                await GetByIdAsync(result.id),
+                infraction,
                 pdfBytes
             );
 
@@ -232,6 +237,7 @@ public class UserInfractionServices
                 builder.GetBody()
             );
         });
+
 
         return result;
     }

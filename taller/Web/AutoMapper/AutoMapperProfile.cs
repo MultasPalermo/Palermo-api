@@ -193,6 +193,7 @@ namespace Web.AutoMapper
                   .ForMember(d => d.userEmail, o => o.MapFrom(s => s.User != null ? s.User.email : string.Empty))
                   .ForMember(d => d.documentNumber, o => o.MapFrom(s => s.User != null ? s.User.documentNumber : string.Empty))
                   .ForMember(d => d.typeInfractionId, o => o.MapFrom(s => s.InfractionId))
+                   .ForMember(d => d.numer_smldv, o => o.MapFrom(s => s.Infraction.numer_smldv))
                   .ForMember(d => d.stateInfraction, o => o.MapFrom(s => s.stateInfraction))
                   .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
                   .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
@@ -233,6 +234,7 @@ namespace Web.AutoMapper
                           ? s.Infraction.TypeInfraction.Name
                           : string.Empty))
                   .ForMember(d => d.stateInfraction, o => o.MapFrom(s => s.stateInfraction))
+                   .ForMember(d => d.numer_smldv, o => o.MapFrom(s => s.Infraction.numer_smldv))
                   .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
                   .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
                   .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))

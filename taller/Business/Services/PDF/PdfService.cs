@@ -182,7 +182,8 @@ namespace Business.Services.PDF
                 .Replace("@InfractorNombre", HttpUtility.HtmlEncode($"{dto.firstName} {dto.lastName}"))
                 .Replace("@InfractorCedula", HttpUtility.HtmlEncode(dto.documentNumber ?? ""))
                 .Replace("@TipoInfraccion", HttpUtility.HtmlEncode(dto.typeInfractionName))
-                .Replace("@DescripcionInfraccion", HttpUtility.HtmlEncode(dto.observations));
+                .Replace("@DescripcionInfraccion", HttpUtility.HtmlEncode(dto.observations))
+                .Replace("@numer_smldv", HttpUtility.HtmlEncode(dto.numer_smldv));
 
             // 🧪 Guardar HTML temporal para verificar si se ve la imagen
             var debugPath = Path.Combine(Directory.GetCurrentDirectory(), "debug_inspectora.html");

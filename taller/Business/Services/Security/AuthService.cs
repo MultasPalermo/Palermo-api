@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Security;
 using Business.Mensajeria;
+using Business.Mensajeria.Email.@interface;
 using Data.Interfaces.IDataImplement.Security;
 using Data.Interfaces.Security;
 using Entity.Domain.Models.Implements.ModelSecurity;
@@ -27,6 +28,7 @@ namespace Business.Services.Security
         private readonly IPasswordResetCodeRepository _passwordResetRepo;
         private readonly IMemoryCache _cache;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly IVerificationService _verificationService;
 
         public AuthService(
             IUserRepository userData,
@@ -37,7 +39,8 @@ namespace Business.Services.Security
             IPasswordResetCodeRepository passwordResetRepo,
             IUserMeRepository userMeRepository,
             IMemoryCache memoryCache,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IVerificationService verificationService)
         {
             _userRepository = userData;
             _logger = logger;
@@ -48,37 +51,41 @@ namespace Business.Services.Security
             _userMeRepository = userMeRepository;
             _cache = memoryCache;
             _passwordHasher = passwordHasher;
+            _verificationService = verificationService;
         }
 
         private static string MeKey(int userId) => $"me:{userId}";
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto)
         {
+            // 1. verificar código primero
+            var isValidCode = _verificationService.ValidateCode(dto.email, dto.verificationCode);
+            if (!isValidCode)
+                throw new BusinessException("Código de verificación incorrecto o expirado.");
 
-            // tu repo NO tiene ExistsByEmailAsync -> usa FindEmail
+            // 2. validar si ya existe
             var existing = await _userRepository.FindEmail(dto.email);
             if (existing != null)
                 throw new BusinessException("El correo ya está registrado.");
 
+            // 3. crear persona y usuario
             var person = _mapper.Map<Person>(dto);
             var user = _mapper.Map<User>(dto);
 
-            // tu entidad usa "password" en minúscula
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.password);
             user.Person = person;
 
             await _userRepository.CreateAsync(user);
 
-            // tu repo de roles expone AsignateUserRTo (no AsignateRolDefault)
             await _rolUserRepository.AsignateUserRTo(user);
 
-            // en tu modelo, la PK es "id"
             var createdUser = await _userRepository.GetByIdAsync(user.id)
-                               ?? throw new BusinessException("Error interno: no se pudo recuperar el usuario tras registrarlo.");
+                                 ?? throw new BusinessException("Error interno.");
 
             InvalidateUserCache(user.id);
             return _mapper.Map<UserDto>(createdUser);
         }
+
 
         public async Task RequestPasswordResetAsync(string email)
         {

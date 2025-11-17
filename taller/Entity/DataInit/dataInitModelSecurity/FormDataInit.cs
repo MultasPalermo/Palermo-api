@@ -262,7 +262,18 @@ namespace Entity.DataInit.dataInitModelSecurity
                     Icon = "pi pi-fw pi-home",
                     is_deleted = false,
                     created_date = seedDate,
-                }
+                },
+                 new Form
+                 {
+                     id = 23,
+                     name = "Parametro de recordatorios",
+                     description = "Parametro de fechas",
+                     active = true,
+                     Route = "parameters/recordatorios",
+                     Icon = "pi pi-fw pi-home",
+                     is_deleted = false,
+                     created_date = seedDate,
+                 }
 
             );
         }

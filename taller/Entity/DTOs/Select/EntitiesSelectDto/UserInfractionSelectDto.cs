@@ -22,6 +22,8 @@
         public int typeInfractionId { get; set; }
         public int UserNotificationId { get; set; }
 
+        public int numer_smldv { get; set; }
+
         public string firstName { get; set; }
         public string lastName { get; set; }
         public string typeInfractionName { get; set; }
