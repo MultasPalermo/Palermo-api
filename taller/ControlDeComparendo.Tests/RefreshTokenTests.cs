@@ -15,7 +15,7 @@ namespace ControlDeComparendo.Tests
                 Id = 1,
                 UserId = 10,
                 TokenHash = "abc123",
-                CreatedAt = DateTime.UtcNow,
+                created_date = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(7)
             };
 

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Web.Service;
 using Web.Infrastructure;
 using Business.Mensajeria.Email.implements;
-using Business.Mensajeria.Email.SignalR;
+using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +61,7 @@ var app = builder.Build();
 
 app.MapHub<MultasHub>("/multasHub");
 app.MapHub<Web.Hubs.InfractionHub>("/infractionHub");
+app.MapHub<NotificationsHub>("/Hubs/notifications");
 
 
 // --------------------

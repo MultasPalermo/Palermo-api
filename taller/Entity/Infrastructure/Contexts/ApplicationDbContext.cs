@@ -7,6 +7,7 @@ using Entity.Domain.Interfaces;
 using Entity.Domain.Models;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
+using Entity.Domain.Models.Implements.Notificacion;
 using Entity.Domain.Models.Implements.parameters;
 using Entity.relacionesModel;
 using Entity.relacionesModel.RelacionesEntities;
@@ -58,6 +59,7 @@ namespace Entity.Infrastructure.Contexts
         public DbSet<Permission> permissions { get; set; }
         public DbSet<RolFormPermission> rol_form_permissions { get; set; }
         public DbSet<FormModule> form_modules { get; set; }
+        public DbSet<Notification> notifications { get; set; }
         //public DbSet<TouristicAttraction> TouristicAttraction { get; set; }
 
         ///<summary>

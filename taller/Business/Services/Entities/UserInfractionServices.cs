@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Entities;
-using Business.Interfaces.IBusinessImplements.parameters;
-using Business.Interfaces.IBusinessImplements.Security;
+using Business.Interfaces.Notificacion;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
 using Business.Mensajeria.Email.@interface;
 using Business.Repository;
+using Business.Services.Notificacion;
 using Business.Strategy.StrategyGet.Implement;
 using Business.Validaciones.Entities.UserInfraction;
 using Data.Interfaces.IDataImplement.Entities;   // <- IUserInfractionRepository
@@ -16,7 +16,7 @@ using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.AnexarMulta;           // <- DTO especial para anexar multas con persona
 using Entity.DTOs.Default.EntitiesDto;
-using Entity.Infrastructure.Contexts;
+using Entity.DTOs.Default.Notificacion;
 using Helpers.Business.Business.Helpers.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,26 +24,20 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 using SendGrid.Helpers.Errors.Model;
 using Utilities.Exceptions;
+using static Entity.Domain.Enums.Notification.NotificationEnums;
 
 public class UserInfractionServices
     : BusinessBasic<UserInfractionDto, UserInfractionSelectDto, UserInfraction>, IUserInfractionServices
 {
     private readonly ILogger<UserInfractionServices> _logger;
-    private readonly IUserInfractionRepository _repo;
-    private readonly IUserRepository _users;
-    private readonly IInfractionRepository _types;
-    private readonly IUserNotificationRepository _notifs;
-    private readonly EmailBackgroundQueue _emailQueue;
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly IPdfGeneratorService _pdfservices;
-    private readonly ReminderEmailAppService _reminderEmailAppService;
-    private readonly IServiceEmail _emailService;
-    private readonly IMapper _mapper;
-    private readonly ApplicationDbContext _context;
-    private readonly INotificationSettingRepository _notificationSettingService;
-    private readonly EmailOrchestrator _emailOrchestrator;
-    private readonly EmailScheduler _scheduler;
-
+    private readonly IUserInfractionRepository _repo;       // CRUD principal de infracciones
+    private readonly IUserRepository _users;                 // FK -> User
+    private readonly IInfractionRepository _types;      // FK -> Tipo de infracción
+    private readonly IUserNotificationRepository _notifs;   // FK -> Notificaciones de usuario
+    private readonly EmailBackgroundQueue _emailQueue;      // Cola para enviar correos en background
+    private readonly IServiceScopeFactory _scopeFactory;    // Permite crear servicios scoped en tareas background
+    private readonly IPdfGeneratorService _pdfservices;     // Servicio para generar PDFs
+    private readonly INotificationService _notificationService;
     public UserInfractionServices(
         IUserInfractionRepository repo,
         IUserRepository users,
@@ -53,13 +47,10 @@ public class UserInfractionServices
         ILogger<UserInfractionServices> logger,
         EmailBackgroundQueue emailQueue,
         IServiceScopeFactory scopeFactory,
-        ApplicationDbContext db,
+        Entity.Infrastructure.Contexts.ApplicationDbContext db,
         IPdfGeneratorService pdfService,
-        ReminderEmailAppService reminderEmailAppService,
-        IServiceEmail emailService,
-        INotificationSettingRepository notificationSettingService,
-        EmailOrchestrator emailOrchestrator,
-        EmailScheduler scheduler
+         INotificationService notificationService
+
     ) : base(repo, mapper, db)
     {
         _repo = repo;
@@ -71,12 +62,7 @@ public class UserInfractionServices
         _emailQueue = emailQueue;
         _scopeFactory = scopeFactory;
         _pdfservices = pdfService;
-        _reminderEmailAppService = reminderEmailAppService;
-        _emailService = emailService;
-        _context = db;
-        _notificationSettingService = notificationSettingService;
-        _emailOrchestrator = emailOrchestrator;
-        _scheduler = scheduler;
+        _notificationService = notificationService;
     }
 
     // -------- Helpers FK --------
@@ -207,10 +193,46 @@ public class UserInfractionServices
 
         dto.amountToPay = typeInfraction.numer_smldv * dto.smldvValueAtCreation;
 
-        // Crear la infracción
-        var result = await base.CreateAsync(dto);
+        // Resultado de la creación
+        UserInfractionDto result = null!;
 
-        // 📨 Enviar correo con PDF de la multa
+        // ----------------------------------------------------------------
+        // Ejecutar la transacción DENTRO de la ExecutionStrategy (reintentos)
+        // ----------------------------------------------------------------
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            // Abrimos la transacción dentro del ExecuteAsync para que EF Core pueda reintentar todo el bloque.
+            await using (var trx = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Crear la infracción dentro de la transacción (mantengo tu llamada original)
+                    result = await base.CreateAsync(dto);
+
+                    // Confirmar la transacción
+                    await trx.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        await trx.RollbackAsync();
+                    }
+                    catch (Exception rbEx)
+                    {
+                        _logger.LogError(rbEx, "Error al hacer rollback de la transacción para la creación de infracción.");
+                    }
+
+                    throw; // propaga la excepción para que la estrategia la pueda manejar/reintentar si aplica
+                }
+            }
+        });
+
+        // ---------------------
+        // Post-commit: encolar correo con PDF (mantengo exactamente tu lógica)
+        // ---------------------
         await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
         {
             using var scope = _scopeFactory.CreateScope();
@@ -238,11 +260,44 @@ public class UserInfractionServices
             );
         });
 
+        // Post-commit: crear notificación del sistema y push realtime (en background) con scope propio
+        _ = Task.Run(async () =>
+        {
+            _logger.LogInformation("NotificationTask: iniciando creación de notificación para infracción {InfractionId}", result.id);
 
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var notifService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+                var notificationDto = new NotificationCreateDto
+                {
+                    Title = "Multa creada",
+                    Message = $"Hola, tu multa #{result.id:D6} fue registrada correctamente. Valor a pagar: {result.amountToPay:C}.",
+                    Type = NotificationType.InfractionCreated,
+                    Priority = NotificationPriority.Info,
+                    RecipientUserId = dto.userId,
+                    ActionRoute = "/infractions"
+                };
+
+                await notifService.CreateAsync(notificationDto);
+
+                _logger.LogInformation("NotificationTask: notificación creada OK para infracción {InfractionId}", result.id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NotificationTask: error creando notificación para infracción {InfractionId}", result.id);
+            }
+        });
+
+        // 🔹 🔹 🔹 ¡Esta línea faltaba!
         return result;
     }
 
-    // Crear multa con datos de persona (cuando no hay User todavía)
+
+
+
+    // 🚨 Nuevo método: Crear multa con datos de persona (cuando no hay User todavía)
     public async Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto)
     {
         // 1. Validación inicial

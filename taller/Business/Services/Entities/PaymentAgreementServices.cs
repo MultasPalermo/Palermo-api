@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Entities;
+using Business.Interfaces.Notificacion;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
 using Business.Mensajeria.Email.@interface;
@@ -10,6 +11,7 @@ using Data.Interfaces.IDataImplement.Entities;
 using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.DTOs.Default.InstallmentSchedule;
+using Entity.DTOs.Default.Notificacion;
 using Entity.DTOs.Select.Entities;
 using Entity.Infrastructure.Contexts;
 using Entity.Init;
@@ -20,6 +22,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using Utilities.Exceptions;
+using static Entity.Domain.Enums.Notification.NotificationEnums;
+
 // 👇 alias para evitar ambigüedad
 using FVValidationException = FluentValidation.ValidationException;
 
@@ -160,7 +164,6 @@ namespace Business.Services.Entities
             return scheduleEntities;
         }
 
-
         public async Task<PaymentAgreementSelectDto> CreateAsync(PaymentAgreementDto dto)
         {
             // Crear el acuerdo en BD (ahora incluye el cronograma guardado)
@@ -173,7 +176,9 @@ namespace Business.Services.Entities
             _logger.LogInformation("Acuerdo {Id} creado con {Count} cuotas",
                 resultDto.Id, resultDto.InstallmentSchedule?.Count ?? 0);
 
-            // Envío de PDF y correo (background)
+            // -------------------------------------------------------------------
+            // 📨 Envío de PDF y correo (background)
+            // -------------------------------------------------------------------
             await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
             {
                 try
@@ -215,6 +220,49 @@ namespace Business.Services.Entities
                 }
             });
 
+            // -------------------------------------------------------------------
+            // 🔔 Crear notificación del sistema (realtime + registro) en background
+            // -------------------------------------------------------------------
+            _ = Task.Run(async () =>
+            {
+                _logger.LogInformation("NotificationTask: iniciando creación de notificación para acuerdo {AgreementId}", entity.id);
+
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var notifService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+                    // Obtener el usuario receptor desde la relación (acuerdo -> infracción -> usuario)
+                    var recipientUserId = agreementWithSchedule?.userInfraction?.UserId;
+
+                    if (recipientUserId == null || recipientUserId <= 0)
+                    {
+                        _logger.LogWarning("No se encontró usuario asociado al acuerdo {AgreementId}, no se enviará notificación.", entity.id);
+                        return;
+                    }
+
+                    // Crear DTO de notificación
+                    var notificationDto = new NotificationCreateDto
+                    {
+                        Title = "Acuerdo de pago creado",
+                        Message = $"Hola, tu acuerdo de pago #{entity.id:D6} fue registrado correctamente con {resultDto.InstallmentSchedule?.Count ?? 0} cuotas.",
+                        Type = NotificationType.System, // o NotificationType.Reminder si lo prefieres más semántico
+                        Priority = NotificationPriority.Info,
+                        RecipientUserId = recipientUserId.Value,
+                        ActionRoute = "/agreements"
+                    };
+
+                    await notifService.CreateAsync(notificationDto);
+
+                    _logger.LogInformation("NotificationTask: notificación creada OK para acuerdo {AgreementId}", entity.id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "NotificationTask: error creando notificación para acuerdo {AgreementId}", entity.id);
+                }
+            });
+
+            // ✅ Retornar el DTO final
             return resultDto;
         }
 
