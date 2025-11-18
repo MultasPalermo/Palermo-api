@@ -5,23 +5,27 @@ using Business.Interfaces.IBusinessImplements.Entities;
 using Business.Interfaces.IBusinessImplements.parameters;
 using Business.Interfaces.IBusinessImplements.Security;
 using Business.Interfaces.IJWT;
+using Business.Interfaces.Notificacion;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
 using Business.Mensajeria.Email.@interface;
 using Business.Mensajeria.Implements;
 using Business.Services;
 using Business.Services.Entities;
+using Business.Services.Notificacion;
 using Business.Services.parameters;
 using Business.Services.PDF;
 using Business.Services.Security;
 using Data.Interfaces.DataBasic;
 using Data.Interfaces.IDataImplement.Entities;
+using Data.Interfaces.IDataImplement.Notificacion;
 using Data.Interfaces.IDataImplement.parameters;
 using Data.Interfaces.IDataImplement.Security;
 using Data.Interfaces.Security;
 using Data.Repositoy;
 using Data.Services;
 using Data.Services.Entities;
+using Data.Services.Notificacion;
 using Data.Services.Security;
 using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.Domain.Models.Implements.Recaptcha;
@@ -30,6 +34,7 @@ using Microsoft.AspNetCore.Identity;
 using Utilities.Custom;
 using Web.AutoMapper;
 using Web.Configurations;
+using Web.Hubs;
 using Web.Infrastructure;
 using Web.WebBackgroundService;
 
@@ -104,6 +109,12 @@ namespace Web.Service
             services.AddScoped<IFineCalculationDetailService, FineCalculationDetailService>();
             services.AddScoped<IValueSmldvService, ValueSmldvService>();
             services.AddScoped<IInstallmentScheduleServices, InstallmentScheduleService>();
+
+
+            //Notificaión 
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddSingleton<INotificationRealtimeService, SignalRNotificationRealtimeService>();
 
             // Servicios PDF
             services.AddScoped<IPdfGeneratorService, PdfService>();

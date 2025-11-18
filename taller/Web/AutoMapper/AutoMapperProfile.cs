@@ -2,12 +2,14 @@
 using Entity.Domain.Models;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
+using Entity.Domain.Models.Implements.Notificacion;
 using Entity.Domain.Models.Implements.parameters;
 using Entity.DTOs.Default.Auth;
 using Entity.DTOs.Default.EntitiesDto;
 using Entity.DTOs.Default.InstallmentSchedule;
 using Entity.DTOs.Default.Me;
 using Entity.DTOs.Default.ModelSecurityDto;
+using Entity.DTOs.Default.Notificacion;
 using Entity.DTOs.Default.parameters;
 using Entity.DTOs.Default.RegisterRequestDto;
 using Entity.DTOs.Select;
@@ -239,6 +241,39 @@ namespace Web.AutoMapper
                 .ForMember(dest => dest.forms,
                            opt => opt.MapFrom(src => src.FormModules.Select(fm => fm.form)));
             CreateMap<Form, FormMeDto>();
+
+            CreateMap<Notification, NotificationCreateDto>();
+
+            CreateMap<NotificationCreateDto, Notification>()
+                // Ignorar campos que no vienen del DTO
+                .ForMember(d => d.id, o => o.Ignore())
+                .ForMember(d => d.active, o => o.Ignore())
+                .ForMember(d => d.is_deleted, o => o.Ignore())
+                .ForMember(d => d.created_date, o => o.Ignore())
+                .ForMember(d => d.ReadAt, o => o.Ignore())
+
+                // Mapear con Trim() y protecciones contra null
+                .ForMember(d => d.Title,
+                    o => o.MapFrom(s => s.Title == null ? null : s.Title.Trim()))
+                .ForMember(d => d.Message,
+                    o => o.MapFrom(s => s.Message == null ? null : s.Message.Trim()))
+                .ForMember(d => d.ActionRoute,
+                    o => o.MapFrom(s => string.IsNullOrWhiteSpace(s.ActionRoute) ? null : s.ActionRoute.Trim()));
+
+
+            CreateMap<Notification, NotificationDto>()
+                .ForMember(d => d.Id, o => o.MapFrom(s => s.id))
+                .ForMember(d => d.Title, o => o.MapFrom(s => s.Title))
+                .ForMember(d => d.Message, o => o.MapFrom(s => s.Message))
+                .ForMember(d => d.Type, o => o.MapFrom(s => s.Type))
+                .ForMember(d => d.Priority, o => o.MapFrom(s => s.Priority))
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.Status))
+                .ForMember(d => d.RecipientUserId, o => o.MapFrom(s => s.RecipientUserId))
+                .ForMember(d => d.ActionRoute, o => o.MapFrom(s => s.ActionRoute))
+                .ForMember(d => d.created_date, o => o.MapFrom(s => s.created_date))
+                .ForMember(d => d.ReadAt, o => o.MapFrom(s => s.ReadAt))
+                .ForMember(d => d.ExpiresAt, o => o.MapFrom(s => s.ExpiresAt));
+
         }
     }
 }

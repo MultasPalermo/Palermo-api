@@ -1,21 +1,16 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Business.Interfaces.IJWT;
+using Data.Interfaces.IDataImplement.Security;
+using Data.Interfaces.Security;
+using Entity.Domain.Models.Implements.ModelSecurity;
+using Entity.DTOs.Default.Auth;
+using Helpers.Token;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Business.Interfaces.IJWT;
-using Data.Interfaces.IDataImplement.Security;
-using Data.Interfaces.Security;
-using Data.Services.Security;
-using Entity.Domain.Models.Implements.ModelSecurity;
-using Entity.DTOs.Default.Auth;
-using Google.Apis.Auth;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Utilities.Exceptions; // ValidationException, ExternalServiceException
-using System.Linq;
-using Helpers.Token;
 
 namespace Business.Custom
 {
@@ -70,14 +65,14 @@ namespace Business.Custom
             {
                 UserId = user.id,
                 TokenHash = refreshHash,
-                CreatedAt = now,
+                created_date = now,
                 ExpiresAt = now.AddDays(_jwtSettings.RefreshTokenExpirationDays)
             };
             await _refreshRepo.AddAsync(refreshEntity);
 
             // 3.1) Poda de tokens válidos por usuario (mantener tope de N)
             var validTokens = (await _refreshRepo.GetValidTokensByUserAsync(user.id))
-                              .OrderByDescending(t => t.CreatedAt)
+                              .OrderByDescending(t => t.created_date)
                               .ToList();
 
             const int maxActiveRefreshTokens = 5; // ajusta según política
@@ -135,7 +130,7 @@ namespace Business.Custom
             {
                 UserId = user.id,
                 TokenHash = newRefreshHash,
-                CreatedAt = now2,
+                created_date = now2,
                 ExpiresAt = now2.AddDays(_jwtSettings.RefreshTokenExpirationDays),
                 // RemoteIpAddress = remoteIp // si tu entidad lo soporta
             };

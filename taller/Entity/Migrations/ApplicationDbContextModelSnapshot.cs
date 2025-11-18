@@ -1120,9 +1120,6 @@ namespace Entity.Migrations
                     b.Property<DateTime>("AbsoluteExpiresAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Ip")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
@@ -1883,9 +1880,6 @@ namespace Entity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
@@ -1901,6 +1895,9 @@ namespace Entity.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -2053,6 +2050,59 @@ namespace Entity.Migrations
                             email = "sarita@gmail.com",
                             is_deleted = false
                         });
+                });
+
+            modelBuilder.Entity("Entity.Domain.Models.Implements.Notificacion.Notification", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("ActionRoute")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RecipientUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("is_deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.HasIndex("RecipientUserId");
+
+                    b.ToTable("notifications");
                 });
 
             modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.PaymentFrequency", b =>
@@ -4109,6 +4159,17 @@ namespace Entity.Migrations
                     b.Navigation("Person");
 
                     b.Navigation("documentType");
+                });
+
+            modelBuilder.Entity("Entity.Domain.Models.Implements.Notificacion.Notification", b =>
+                {
+                    b.HasOne("Entity.Domain.Models.Implements.ModelSecurity.User", "RecipientUser")
+                        .WithMany()
+                        .HasForeignKey("RecipientUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RecipientUser");
                 });
 
             modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.municipality", b =>

@@ -48,7 +48,7 @@ namespace Data.Services.Security
             return await _ctx.Set<RefreshToken>()
                              .Where(t => t.UserId == userId && !t.IsRevoked && t.ExpiresAt > now)
                              .AsNoTracking()
-                             .OrderByDescending(t => t.CreatedAt)
+                             .OrderByDescending(t => t.created_date)
                              .ToListAsync();
         }
     }

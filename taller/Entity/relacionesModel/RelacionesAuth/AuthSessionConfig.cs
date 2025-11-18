@@ -13,7 +13,7 @@ public class AuthSessionConfig : IEntityTypeConfiguration<AuthSession>
 
 
         b.Property(x => x.SessionId).IsRequired();
-        b.Property(x => x.CreatedAt).IsRequired();
+        b.Property(x => x.created_date).IsRequired();
         b.Property(x => x.LastActivityAt).IsRequired();
         b.Property(x => x.AbsoluteExpiresAt).IsRequired();
         b.Property(x => x.IsRevoked).IsRequired();

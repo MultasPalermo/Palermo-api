@@ -12,7 +12,7 @@ namespace Entity.Domain.Models.Implements.ModelSecurity
     {
         public Guid SessionId { get; set; }
         public long? PersonId { get; set; }               // si mapeas persona
-        public DateTime CreatedAt { get; set; }
+        public DateTime created_date { get; set; }
         public DateTime LastActivityAt { get; set; }
         public DateTime AbsoluteExpiresAt { get; set; }
         public bool IsRevoked { get; set; }
