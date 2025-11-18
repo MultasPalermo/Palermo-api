@@ -39,7 +39,7 @@ public class AuthSessionService : IAuthSessionService
         {
             SessionId = Guid.NewGuid(), // ✅ usar Guid
             PersonId = personId,
-            CreatedAt = now,
+            created_date = now,
             LastActivityAt = now,
             AbsoluteExpiresAt = now.Add(_absolute),
             IsRevoked = false,
