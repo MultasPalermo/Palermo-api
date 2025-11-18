@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace Business.Interfaces.PDF
 {
-    public interface IPdfGeneratorService
+    public interface  IPdfGeneratorService
     {
          Task<byte[]> GeneratePdfAsync(UserInfractionSelectDto dto);
+        Task<byte[]> GenerateReminderPdfAsync(UserInfractionSelectDto dto, int dias);
 
         Task<byte[]> GeneratePaymentAgreementPdfAsync(PaymentAgreementSelectDto dto);
 

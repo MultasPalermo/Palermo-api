@@ -50,12 +50,16 @@ builder.Services.AddAuthorization();
 
 builder.Services.AddMemoryCache();
 
+builder.Services.AddSignalR();
+
+
 
 // CORS
 builder.Services.AddCustomCors(builder.Configuration);
 
 var app = builder.Build();
 
+app.MapHub<MultasHub>("/multasHub");
 app.MapHub<Web.Hubs.InfractionHub>("/infractionHub");
 app.MapHub<NotificationsHub>("/Hubs/notifications");
 

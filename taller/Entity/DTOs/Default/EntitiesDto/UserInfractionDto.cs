@@ -23,6 +23,8 @@ namespace Entity.Domain.Models.Implements.Entities
         public int typeInfractionId {get; set; }
         public int UserNotificationId { get; set; }
 
+        public int numer_smldv { get; set; }
+
         public string documentNumber { get; set; }
 
         public decimal amountToPay { get; set; }
@@ -30,6 +32,23 @@ namespace Entity.Domain.Models.Implements.Entities
 
 
         public string? userEmail { get; set; }
+
+        public bool IsCoactive { get; set; }
+        public DateTime? CoactiveActivatedOn { get; set; }
+        public DateTime? LastInterestAppliedOn { get; set; }
+        public decimal AccruedInterest { get; set; }
+        public decimal InitialAmount { get; set; }
+        public int DaysOfDelay { get; set; }
+        public decimal TotalToPay { get; set; }
+
+
+        public DateTime paymentDue3Days { get; set; }
+        public DateTime paymentDue15Days { get; set; }
+        public DateTime paymentDue25Days { get; set; }
+        public DateTime? paymentDue30Days { get; set; }
+        public DateTime? paymentDue40Days { get; set; }
+
+        public EstadoCobro StatusCollection { get; set; }
 
     }
 }

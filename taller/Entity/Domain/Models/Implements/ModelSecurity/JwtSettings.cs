@@ -13,5 +13,5 @@ namespace Entity.Domain.Models.Implements.ModelSecurity
         public string Audience { get; set; } = "WebCDCP.Client";
         public int AccessTokenExpirationMinutes { get; set; } = 15;
         public int RefreshTokenExpirationDays { get; set; } = 7;
-    }
+   }
 }

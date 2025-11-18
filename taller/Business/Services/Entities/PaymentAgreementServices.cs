@@ -314,7 +314,9 @@ namespace Business.Services.Entities
                 IsPaid = false,
                 IsCoactive = false,
                 Installments = installments,
-                MonthlyFee = monthlyFee
+                MonthlyFee = monthlyFee,
+
+                LastInterestAppliedOn = startDate.AddDays(-1)
             };
 
             userInfraction.stateInfraction = EstadoMulta.ConAcuerdoPago;
@@ -323,7 +325,7 @@ namespace Business.Services.Entities
             var created = await _paymentAgreementRepository.CreateAsync(agreement);
             await _context.SaveChangesAsync();
 
-            // Generar y guardar el cronograma en la base de datos
+            // Cronograma
             var cronogramaEntities = GenerateInstallmentScheduleEntities(
                 created.id,
                 startDate,
@@ -341,7 +343,6 @@ namespace Business.Services.Entities
 
             return created;
         }
-
         public override async Task<bool> RestoreLogical(int id)
         {
             try
@@ -364,21 +365,42 @@ namespace Business.Services.Entities
             int updated = 0;
             DateTime today = nowUtc.Date;
 
+            // Días permitidos según frecuencia del acuerdo
+            var frequencyDays = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "MENSUAL", 30 },
+        { "QUINCENAL", 15 },
+        { "BIMESTRAL", 60 }
+    };
+
             var agreements = await _context.paymentAgreement
                 .Where(a => !a.is_deleted && !a.IsPaid)
+                .Include(a => a.paymentFrequency)
                 .ToListAsync(ct);
 
             foreach (var a in agreements)
             {
-                DateTime coactiveDate = a.AgreementStart.Date.AddDays(30);
+                // Frecuencia real del acuerdo
+                string freq = a.paymentFrequency?.intervalPage?.Trim().ToUpper() ?? "MENSUAL";
 
+                // Si no existe la frecuencia, usar 30 días por defecto
+                if (!frequencyDays.TryGetValue(freq, out int daysAllowed))
+                    daysAllowed = 30;
+
+                // Fecha límite para pagar la primera cuota según la frecuencia
+                DateTime coactiveDate = a.AgreementStart.Date.AddDays(daysAllowed);
+
+                // Si incumplió → entrar a coactivo
                 if (today >= coactiveDate && !a.IsCoactive)
                 {
                     a.IsCoactive = true;
                     a.CoactiveActivatedOn = coactiveDate;
+
+                    // Permite que el siguiente paso calcule días desde el día de incumplimiento
                     a.LastInterestAppliedOn = coactiveDate.AddDays(-1);
                 }
 
+                // Si está en coactivo → aplicar interés diario
                 if (a.IsCoactive)
                 {
                     DateTime lastApplied = a.LastInterestAppliedOn?.Date
@@ -388,16 +410,15 @@ namespace Business.Services.Entities
 
                     if (daysToAccrue > 0)
                     {
-                        decimal monthlyRate = 0.02m;
-                        int divisor = 30;
-                        decimal dailyRate = monthlyRate / divisor;
+                        decimal monthlyRate = 0.02m;   // 2% mensual
+                        decimal dailyRate = monthlyRate / 30m;
 
                         decimal interestToAdd = a.OutstandingAmount * dailyRate * daysToAccrue;
 
                         a.AccruedInterest += interestToAdd;
                         a.OutstandingAmount = a.BaseAmount + a.AccruedInterest;
-                        a.LastInterestAppliedOn = today;
 
+                        a.LastInterestAppliedOn = today;
                         updated++;
                     }
                 }
@@ -408,6 +429,8 @@ namespace Business.Services.Entities
 
             return updated;
         }
+
+
 
         public async Task<IEnumerable<PaymentAgreementInitDto>> GetInitDataAsync(int userId, int? infractionId = null)
         {

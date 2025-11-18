@@ -76,7 +76,7 @@ namespace Web.Controllers.Implements.Entities
                 // 👉 Devolver el acuerdo y el link del PDF
                 return Ok(new
                 {
-                    agreement = created,
+                    agreement = created,    
                     pdfUrl
                 });
             }
@@ -106,6 +106,19 @@ namespace Web.Controllers.Implements.Entities
             var pdfBytes = await _pdfService.GeneratePaymentAgreementPdfAsync(paymentAgreementDto);
             return File(pdfBytes, "application/pdf", $"AcuerdoPago_{id}.pdf");
         }
+
+        [HttpPost("apply-late-fees")]
+        public async Task<IActionResult> ApplyLateFeesAsync()
+        {
+            var updatedCount = await _paymentAgreementService.ApplyLateFeesAsync(DateTime.UtcNow);
+
+            return Ok(new
+            {
+                message = $"Intereses aplicados correctamente.",
+                agreementsUpdated = updatedCount
+            });
+        }
+
 
         protected override Task<IEnumerable<PaymentAgreementSelectDto>> GetAllAsync(GetAllType getAllType)
             => _service.GetAllAsync(getAllType);

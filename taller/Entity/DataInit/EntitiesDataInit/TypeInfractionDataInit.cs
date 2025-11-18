@@ -17,7 +17,7 @@ namespace Entity.DataInit.EntitiesDataInit
                 new TypeInfraction
                 {
                     id = 1,
-                    Name = "Infraccion de tipo uno",
+                    Name = "Multa Tipo uno",
                     active = true,
                     is_deleted = false,
                     created_date = seedDate,
@@ -25,7 +25,7 @@ namespace Entity.DataInit.EntitiesDataInit
                 new TypeInfraction
                 {
                     id = 2,
-                    Name = "Infraccion de tipo dos",
+                    Name = "Multa Tipo dos",
                     active = true,
                     is_deleted = false,
                     created_date = seedDate
@@ -33,7 +33,7 @@ namespace Entity.DataInit.EntitiesDataInit
                 new TypeInfraction
                 {
                     id = 3,
-                    Name = "Infraccion de tipo tres",
+                    Name = "Multa Tipo tres",
                     active = true,
                     is_deleted = false,
                     created_date = seedDate,
@@ -41,7 +41,7 @@ namespace Entity.DataInit.EntitiesDataInit
                 new TypeInfraction
                 {
                     id = 4,
-                    Name = "Infraccion de tipo cuatro",
+                    Name = "Multa Tipo cuatro",
                     active = true,
                     is_deleted = false,
                     created_date = seedDate,

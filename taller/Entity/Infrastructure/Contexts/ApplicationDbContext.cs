@@ -78,20 +78,21 @@ namespace Entity.Infrastructure.Contexts
 
         public DbSet<InstallmentSchedule> installmentSchedule { get; set; }
 
-        //parametros
         public DbSet<AuthSession> AuthSessions { get; set; } = null!;
         public DbSet<RefreshToken> refreshTokens { get; set; }
 
+        //parametros
         public DbSet<documentType> documentTypes { get; set; }
         public DbSet<department> Departments { get; set; }
         public DbSet<municipality> Municipality { get; set; }
         public DbSet<PaymentFrequency> paymentFrequency { get; set; }
+        public DbSet<NotificationSetting> notificationSetting { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-          
+
 
             // ============ CONFIGURACIONES (IEntityTypeConfiguration<>) ============
             // Parameters
@@ -132,6 +133,7 @@ namespace Entity.Infrastructure.Contexts
             modelBuilder.SeedDepartment();
             modelBuilder.seedMunicipality();
             modelBuilder.SeedPaymentFrequency();
+            modelBuilder.SeedNotificationSetting();
 
             // 2) Model / Security
             //    Person depende de documentType y municipality (usa FKs sombra en tu seed actual)
