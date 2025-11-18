@@ -21,17 +21,17 @@ namespace Entity.DataInit.dataInitModelSecurity
         {
             var seedDate = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
             modelBuilder.Entity<Form>().HasData(
-                new Form
-                {
-                    id = 1,
-                    name = "Formulario de acuerdo de pago",
-                    description = "Formulario de creacion de acuerdo de pago",
-                    active = true,
-                    Route = "acuerdoPago",
-                    Icon = "pi pi-fw pi-home",
-                    is_deleted = false,
-                    created_date = seedDate,
-                },
+             new Form
+             {
+                 id = 1,
+                 name = "Formulario de acuerdo de pago",
+                 description = "Formulario de creacion de acuerdo de pago",
+                 active = true,
+                 Route = "acuerdoPago",
+                 Icon = "pi pi-fw pi-home",
+                 is_deleted = false,
+                 created_date = seedDate,
+             },
                 new Form
                 {
                     id = 2,
@@ -55,38 +55,38 @@ namespace Entity.DataInit.dataInitModelSecurity
                     created_date = seedDate,
                 },
                  new Form
-                {
-                    id = 4,
-                    name = "Notificacion de multas",
-                    description = "Formulario Notificacion de multas",
-                    active = true,
+                 {
+                     id = 4,
+                     name = "Notificacion de multas",
+                     description = "Formulario Notificacion de multas",
+                     active = true,
                      Route = "notificaciones/notificacion-multas",
                      Icon = "pi pi-fw pi-check-square",
                      is_deleted = false,
-                    created_date = seedDate,
-                },
+                     created_date = seedDate,
+                 },
                new Form
-                {
-                    id = 5,
-                    name = "Formularios",
-                    description = "Formularios",
-                    active = true,
-                     Route = "formularios",
+               {
+                   id = 5,
+                   name = "Formularios",
+                   description = "Formularios",
+                   active = true,
+                   Route = "formularios",
                    Icon = "pi pi-fw pi-file",
                    is_deleted = false,
-                    created_date = seedDate,
-                },
+                   created_date = seedDate,
+               },
                  new Form
-                {
-                    id = 6,
-                    name = "Formularios y  modules",
-                    description = "Formularios y  modules",
-                    active = true,
+                 {
+                     id = 6,
+                     name = "Formularios y  modules",
+                     description = "Formularios y  modules",
+                     active = true,
                      Route = "form-modules",
                      Icon = "pi pi-fw pi-clone",
                      is_deleted = false,
-                    created_date = seedDate,
-                },
+                     created_date = seedDate,
+                 },
                   new Form
                   {
                       id = 7,
@@ -99,34 +99,34 @@ namespace Entity.DataInit.dataInitModelSecurity
                       created_date = seedDate,
                   },
                   new Form
-                {
-                    id = 8,
-                    name = "personas",
-                    description = "Personas",
-                    active = true,
-                     Route = "personas",
+                  {
+                      id = 8,
+                      name = "personas",
+                      description = "Personas",
+                      active = true,
+                      Route = "personas",
                       Icon = "pi pi-fw pi-users",
                       is_deleted = false,
-                    created_date = seedDate,
-                },
+                      created_date = seedDate,
+                  },
                new Form
-                {
-                    id = 9,
-                    name = "permisos",
-                    description = "permisos",
-                    active = true,
-                     Route = "permisos",
+               {
+                   id = 9,
+                   name = "permisos",
+                   description = "permisos",
+                   active = true,
+                   Route = "permisos",
                    Icon = "pi pi-fw pi-lock-open",
                    is_deleted = false,
-                    created_date = seedDate,
-                },
+                   created_date = seedDate,
+               },
                 new Form
                 {
                     id = 10,
                     name = "Roles Formularios y Permission",
                     description = "Roles Formularios y Permission",
                     active = true,
-                     Route = "rol-form-permission",
+                    Route = "rol-form-permission",
                     Icon = "pi pi-fw pi-key",
                     is_deleted = false,
                     created_date = seedDate,
@@ -137,73 +137,73 @@ namespace Entity.DataInit.dataInitModelSecurity
                     name = "Roles",
                     description = "Roles",
                     active = true,
-                     Route = "roles",
+                    Route = "roles",
                     Icon = "pi pi-fw pi-users",
                     is_deleted = false,
                     created_date = seedDate,
                 },
                new Form
-                {
-                    id = 12,
-                    name = "Usuarios",
-                    description = "Usuarios",
-                    active = true,
-                     Route = "usuarios",
+               {
+                   id = 12,
+                   name = "Usuarios",
+                   description = "Usuarios",
+                   active = true,
+                   Route = "usuarios",
                    Icon = "pi pi-fw pi-user",
                    is_deleted = false,
-                    created_date = seedDate,
-                },
+                   created_date = seedDate,
+               },
                  new Form
-                {
-                    id = 13,
-                    name = "Roles y Usuario",
-                    description = "Roles y Usuario",
-                    active = true,
+                 {
+                     id = 13,
+                     name = "Roles y Usuario",
+                     description = "Roles y Usuario",
+                     active = true,
                      Route = "rol-user",
                      Icon = "pi pi-fw pi-user-plus",
                      is_deleted = false,
-                    created_date = seedDate,
-                },
+                     created_date = seedDate,
+                 },
                 new Form
                 {
                     id = 14,
                     name = "departamento",
                     description = "departamento",
                     active = true,
-                     Route = "parameters/department",
+                    Route = "parameters/department",
                     Icon = "pi pi-fw pi-briefcase",
                     is_deleted = false,
                     created_date = seedDate,
                 },
                   new Form
-                {
-                    id = 15,
-                    name = "Tipo de Documento",
-                    description = "Tipo de Documento",
-                    active = true,
-                     Route = "parameters/document-type",
+                  {
+                      id = 15,
+                      name = "Tipo de Documento",
+                      description = "Tipo de Documento",
+                      active = true,
+                      Route = "parameters/document-type",
                       Icon = "pi pi-fw pi-briefcase",
                       is_deleted = false,
-                    created_date = seedDate,
-                },
+                      created_date = seedDate,
+                  },
                  new Form
-                {
-                    id = 16,
-                    name = "Municipio",
-                    description = "Municipio",
-                    active = true,
+                 {
+                     id = 16,
+                     name = "Municipio",
+                     description = "Municipio",
+                     active = true,
                      Route = "parameters/municipality",
                      Icon = "pi pi-fw pi-briefcase",
                      is_deleted = false,
-                    created_date = seedDate,
-                },
+                     created_date = seedDate,
+                 },
                 new Form
                 {
                     id = 17,
                     name = "Frecuencia de pago ",
                     description = "Frecuencia de pago",
                     active = true,
-                     Route = "parameters/payment-frequency",
+                    Route = "parameters/payment-frequency",
                     Icon = "pi pi-fw pi-briefcase",
                     is_deleted = false,
                     created_date = seedDate,
@@ -214,7 +214,7 @@ namespace Entity.DataInit.dataInitModelSecurity
                     name = "Perfil",
                     description = "Perfil",
                     active = true,
-                     Route = "dashboard",
+                    Route = "dashboard",
                     Icon = "pi pi-fw pi-briefcase",
                     is_deleted = false,
                     created_date = seedDate,
@@ -225,7 +225,7 @@ namespace Entity.DataInit.dataInitModelSecurity
                     name = "Notificacion de acuerdo",
                     description = "Notificacion de acuerdo ",
                     active = true,
-                     Route = "notificaciones",
+                    Route = "notificaciones",
                     Icon = "pi pi-fw pi-briefcase",
                     is_deleted = false,
                     created_date = seedDate,
@@ -236,9 +236,9 @@ namespace Entity.DataInit.dataInitModelSecurity
                     name = "inicio",
                     description = "inicio ",
                     active = true,
-                     Route = "consultar-ingresar",
-                     Icon = "pi pi-fw pi-home",
-                     is_deleted = false,
+                    Route = "consultar-ingresar",
+                    Icon = "pi pi-fw pi-home",
+                    is_deleted = false,
                     created_date = seedDate,
                 },
                 new Form
@@ -251,7 +251,29 @@ namespace Entity.DataInit.dataInitModelSecurity
                     Icon = "pi pi-fw pi-home",
                     is_deleted = false,
                     created_date = seedDate,
-                }
+                },
+                new Form
+                {
+                    id = 22,
+                    name = "Seguimiento de Multa",
+                    description = "Seguimiento de Multa",
+                    active = true,
+                    Route = "Seguimiento",
+                    Icon = "pi pi-fw pi-home",
+                    is_deleted = false,
+                    created_date = seedDate,
+                },
+                 new Form
+                 {
+                     id = 23,
+                     name = "Parametro de recordatorios",
+                     description = "Parametro de fechas",
+                     active = true,
+                     Route = "parameters/recordatorios",
+                     Icon = "pi pi-fw pi-home",
+                     is_deleted = false,
+                     created_date = seedDate,
+                 }
 
             );
         }

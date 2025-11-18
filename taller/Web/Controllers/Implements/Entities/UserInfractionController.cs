@@ -25,18 +25,25 @@ namespace Web.Controllers.Implements.Entities
         private readonly IPdfGeneratorService _pdfService;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IUserService _users;
+        private readonly ReminderEmailAppService _reminderService;
+        private readonly IUserInfractionServices _userInfractionServices;
+        
 
         public UserInfractionController(
             IUserInfractionServices services,
             ILogger<UserInfractionController> logger,
             IPdfGeneratorService pdf,
             IServiceScopeFactory scopeFactory,
-            IUserService users
+            IUserService users,
+            ReminderEmailAppService reminderService
         ) : base(services, logger)
         {
             _pdfService = pdf;
             _scopeFactory = scopeFactory;
             _users = users;
+            _reminderService = reminderService;
+            _userInfractionServices = services;
+
         }
 
         protected override Task<IEnumerable<UserInfractionSelectDto>> GetAllAsync(GetAllType getAllType)
@@ -162,6 +169,105 @@ namespace Web.Controllers.Implements.Entities
             var pdfBytes = await _pdfService.GeneratePdfAsync(userInfractionSelectDto);
             return File(pdfBytes, "application/pdf", $"Contrato_{userInfractionSelectDto.firstName}.pdf");
         }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 3 días
+        // ===========================================================
+        [HttpGet("{id}/pdf/3dias")]
+        public async Task<IActionResult> DownloadReminder3DaysPdf(int id)
+        {
+            return await GenerateAndReturnReminderPdf(id, 1, $"Recordatorio_3dias_{id}.pdf");
+        }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 15 días
+        // ===========================================================
+        [HttpGet("{id}/pdf/15dias")]
+        public async Task<IActionResult> DownloadReminder15DaysPdf(int id)
+        {
+            return await GenerateAndReturnReminderPdf(id, 2, $"Recordatorio_15dias_{id}.pdf");
+        }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 25 días
+        // ===========================================================
+        [HttpGet("{id}/pdf/25dias")]
+        public async Task<IActionResult> DownloadReminder25DaysPdf(int id)
+        {
+            return await GenerateAndReturnReminderPdf(id, 3, $"Recordatorio_25dias_{id}.pdf");
+        }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 30 días (cobro jurídico)
+        // ===========================================================
+        [HttpGet("{id}/pdf/cobroJuridico")]
+        public async Task<IActionResult> DownloadReminder30DaysPdf(int id)
+        {
+            return await GenerateAndReturnReminderPdf(id, 4, $"CobroJuridico_{id}.pdf");
+        }
+
+
+
+        // ===========================================================
+        // MÉTODO INTERNO REUTILIZABLE (SRP)
+        // ===========================================================
+        private async Task<IActionResult> GenerateAndReturnReminderPdf(int id, int reminderId, string fileName)
+        {
+            var userInfraction = await _service.GetByIdAsyncPdf(id);
+
+            if (userInfraction == null)
+                return NotFound(new { message = $"No se encontró una infracción con id {id}" });
+
+            // Generate PDF using your new service and logic
+            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, reminderId);
+
+            // Si el recordatorio NO tiene PDF configurado en GetReminderTemplateById()
+            if (pdfBytes == null)
+                return BadRequest(new { message = "Este tipo de recordatorio no genera PDF." });
+
+            return File(pdfBytes, "application/pdf", fileName);
+        }
+
+        [HttpPost("simulate-interest")]
+        public async Task<IActionResult> SimulateInterest([FromQuery] int days)
+        {
+            if (days < 0)
+                return BadRequest("Los días deben ser positivos.");
+
+            // Simular fecha avanzando días
+            var simulatedDate = DateTime.UtcNow.AddDays(days);
+
+            // Llamar al servicio que aplica intereses
+            int updated = await _userInfractionServices.ApplyInterestToInfractionsAsync(simulatedDate);
+
+            return Ok(new
+            {
+                isSuccess = true,
+                simulatedDate,
+                updatedRecords = updated
+            });
+        }
+
+
+
+
+        //[HttpPost("test-email")]
+        //public async Task<IActionResult> TestEmail([FromServices] ReminderEmailAppService service)
+        //{
+        //    var dto = new UserInfractionSelectDto
+        //    {
+        //        id = 12345,
+        //        firstName = "Camilo",
+        //        lastName = "Andrés",
+        //        userEmail = "camiloandreslosada801@gmail.com",
+        //        dateInfraction = DateTime.Now.AddDays(-5),
+        //        amountToPay = 250000
+        //    };
+
+        //    await service.ProgramarRecordatoriosAsync(dto);
+        //    return Ok("📨 Recordatorios programados (ver logs para el resultado).");
+        //}
+
 
         //[HttpPost("test-send-email")]
         //public async Task<IActionResult> TestSendEmail([FromBody] UserInfractionDto dto)

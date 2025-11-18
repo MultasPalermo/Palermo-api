@@ -10,7 +10,7 @@ using Entity.Domain.Models.Implements.parameters;
 using Entity.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
 
-namespace Data.Services.Entities
+namespace Data.Services.Parameters
 {
     public class municipalityRepository : DataGeneric<municipality>, ImunicipalityRepository
     {

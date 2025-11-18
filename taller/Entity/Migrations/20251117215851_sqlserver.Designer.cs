@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251104044424_Initial")]
-    partial class Initial
+    [Migration("20251117215851_sqlserver")]
+    partial class sqlserver
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -795,7 +795,7 @@ namespace Entity.Migrations
                         new
                         {
                             id = 1,
-                            Name = "Infraccion de tipo uno",
+                            Name = "Multa Tipo uno",
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false
@@ -803,7 +803,7 @@ namespace Entity.Migrations
                         new
                         {
                             id = 2,
-                            Name = "Infraccion de tipo dos",
+                            Name = "Multa Tipo dos",
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false
@@ -811,7 +811,7 @@ namespace Entity.Migrations
                         new
                         {
                             id = 3,
-                            Name = "Infraccion de tipo tres",
+                            Name = "Multa Tipo tres",
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false
@@ -819,7 +819,7 @@ namespace Entity.Migrations
                         new
                         {
                             id = 4,
-                            Name = "Infraccion de tipo cuatro",
+                            Name = "Multa Tipo cuatro",
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false
@@ -913,11 +913,35 @@ namespace Entity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+                    b.Property<decimal>("AccruedInterest")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("CoactiveActivatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DaysOfDelay")
+                        .HasColumnType("int");
+
                     b.Property<string>("InformationFine")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("InfractionId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("InitialAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsCoactive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastInterestAppliedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("StatusCollection")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalToPay")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -940,6 +964,24 @@ namespace Entity.Migrations
                     b.Property<bool>("is_deleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("numer_smldv")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("paymentDue15Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue25Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue30Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue3Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue40Days")
+                        .HasColumnType("datetime2");
+
                     b.Property<decimal?>("smldvValueAtCreation")
                         .HasColumnType("decimal(18,2)");
 
@@ -960,7 +1002,15 @@ namespace Entity.Migrations
                         new
                         {
                             id = 1,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 1,
+                            InitialAmount = 174000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            StatusCollection = 0,
+                            TotalToPay = 174000m,
                             UserId = 1,
                             UserNotificationId = 1,
                             active = true,
@@ -968,13 +1018,25 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            numer_smldv = 0,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         },
                         new
                         {
                             id = 2,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 14,
+                            InitialAmount = 348000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            StatusCollection = 1,
+                            TotalToPay = 348000m,
                             UserId = 1,
                             UserNotificationId = 2,
                             active = true,
@@ -982,13 +1044,25 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            numer_smldv = 0,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         },
                         new
                         {
                             id = 3,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 27,
+                            InitialAmount = 696000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            StatusCollection = 2,
+                            TotalToPay = 696000m,
                             UserId = 2,
                             UserNotificationId = 1,
                             active = true,
@@ -996,13 +1070,25 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            numer_smldv = 0,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         },
                         new
                         {
                             id = 4,
+                            AccruedInterest = 0m,
+                            CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DaysOfDelay = 0,
                             InfractionId = 40,
+                            InitialAmount = 1392000m,
+                            IsCoactive = true,
+                            LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
+                            StatusCollection = 0,
+                            TotalToPay = 1392000m,
                             UserId = 2,
                             UserNotificationId = 2,
                             active = true,
@@ -1010,6 +1096,10 @@ namespace Entity.Migrations
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             dateInfraction = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             is_deleted = false,
+                            numer_smldv = 0,
+                            paymentDue15Days = new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue25Days = new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            paymentDue3Days = new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc),
                             smldvValueAtCreation = 43500m,
                             stateInfraction = 0
                         });
@@ -1434,6 +1524,28 @@ namespace Entity.Migrations
                             description = "valor de SMDLV ",
                             is_deleted = false,
                             name = "valor de SMDLV"
+                        },
+                        new
+                        {
+                            id = 22,
+                            Icon = "pi pi-fw pi-home",
+                            Route = "Seguimiento",
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            description = "Seguimiento de Multa",
+                            is_deleted = false,
+                            name = "Seguimiento de Multa"
+                        },
+                        new
+                        {
+                            id = 23,
+                            Icon = "pi pi-fw pi-home",
+                            Route = "parameters/recordatorios",
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            description = "Parametro de fechas",
+                            is_deleted = false,
+                            name = "Parametro de recordatorios"
                         });
                 });
 
@@ -1626,10 +1738,19 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 18,
+                            id = 19,
                             active = false,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            formid = 21,
+                            formid = 22,
+                            is_deleted = false,
+                            moduleid = 2
+                        },
+                        new
+                        {
+                            id = 20,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            formid = 23,
                             is_deleted = false,
                             moduleid = 5
                         });
@@ -2054,6 +2175,102 @@ namespace Entity.Migrations
                             documentNumber = "0123432121",
                             documentTypeId = 2,
                             email = "sarita@gmail.com",
+                            is_deleted = false
+                        });
+                });
+
+            modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.NotificationSetting", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("Days")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TimeUnit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("is_deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.ToTable("notificationSetting");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            Days = 30,
+                            Description = "Primer recordatorio después de la infracción.",
+                            Name = "Recordatorio 30 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 2,
+                            Days = 60,
+                            Description = "Segundo recordatorio después de la infracción.",
+                            Name = "Recordatorio 60 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 3,
+                            Days = 60,
+                            Description = "Tercer recordatorio después de la infracción.",
+                            Name = "Recordatorio 80 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 4,
+                            Days = 100,
+                            Description = "cobrojuridico recordatorio después de la infracción",
+                            Name = "Recordatorio 100 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 5,
+                            Days = 120,
+                            Description = "CobroCoactivo recordatorio después de la infracción.",
+                            Name = "Recordatorio 120 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             is_deleted = false
                         });
                 });
@@ -3900,6 +4117,126 @@ namespace Entity.Migrations
                         new
                         {
                             id = 127,
+                            FormId = 22,
+                            PermissionId = 1,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 128,
+                            FormId = 22,
+                            PermissionId = 2,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 129,
+                            FormId = 22,
+                            PermissionId = 3,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 130,
+                            FormId = 22,
+                            PermissionId = 4,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 131,
+                            FormId = 22,
+                            PermissionId = 5,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 132,
+                            FormId = 22,
+                            PermissionId = 6,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 133,
+                            FormId = 23,
+                            PermissionId = 1,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 134,
+                            FormId = 23,
+                            PermissionId = 2,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 135,
+                            FormId = 23,
+                            PermissionId = 3,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 136,
+                            FormId = 23,
+                            PermissionId = 4,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 137,
+                            FormId = 23,
+                            PermissionId = 5,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 138,
+                            FormId = 23,
+                            PermissionId = 6,
+                            RolId = 1,
+                            active = false,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 139,
                             FormId = 4,
                             PermissionId = 1,
                             RolId = 2,
@@ -3909,7 +4246,7 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 128,
+                            id = 140,
                             FormId = 18,
                             PermissionId = 1,
                             RolId = 2,
@@ -3919,7 +4256,7 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 129,
+                            id = 141,
                             FormId = 19,
                             PermissionId = 1,
                             RolId = 2,
@@ -3929,7 +4266,7 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 130,
+                            id = 142,
                             FormId = 20,
                             PermissionId = 1,
                             RolId = 2,
