@@ -12,8 +12,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<< HEAD
     [Migration("20251112221934_notification")]
     partial class notification
+=======
+<<<<<<<< HEAD:taller/Entity/Migrations/20251114014744_AddUserInfractionPaymentColumns.Designer.cs
+    [Migration("20251114014744_AddUserInfractionPaymentColumns")]
+    partial class AddUserInfractionPaymentColumns
+========
+    [Migration("20251112221934_notification")]
+    partial class notification
+>>>>>>>> 533252e (notificaciones):taller/Entity/Migrations/20251112221934_notification.Designer.cs
+>>>>>>> 533252e (notificaciones)
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

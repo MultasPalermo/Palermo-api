@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Entity.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class notification : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,15 +31,14 @@ namespace Entity.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PersonId = table.Column<long>(type: "bigint", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastActivityAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AbsoluteExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     Ip = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
                     UserAgent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     active = table.Column<bool>(type: "bit", nullable: false),
-                    is_deleted = table.Column<bool>(type: "bit", nullable: false),
-                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -183,7 +182,7 @@ namespace Entity.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TokenHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     ReplacedByTokenHash = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -504,6 +503,37 @@ namespace Entity.Migrations
                         principalTable: "documentType",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "notifications",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    RecipientUserId = table.Column<int>(type: "int", nullable: false),
+                    ActionRoute = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    active = table.Column<bool>(type: "bit", nullable: false),
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_notifications", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_notifications_user_RecipientUserId",
+                        column: x => x.RecipientUserId,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1288,6 +1318,11 @@ namespace Entity.Migrations
                 column: "name");
 
             migrationBuilder.CreateIndex(
+                name: "IX_notifications_RecipientUserId",
+                table: "notifications",
+                column: "RecipientUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_paymentAgreement_paymentFrequencyId",
                 schema: "Entities",
                 table: "paymentAgreement",
@@ -1438,6 +1473,9 @@ namespace Entity.Migrations
             migrationBuilder.DropTable(
                 name: "installmentSchedule",
                 schema: "Entities");
+
+            migrationBuilder.DropTable(
+                name: "notifications");
 
             migrationBuilder.DropTable(
                 name: "refreshTokens");
