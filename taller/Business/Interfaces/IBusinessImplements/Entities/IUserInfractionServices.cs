@@ -12,5 +12,7 @@ namespace Business.Interfaces.IBusinessImplements.Entities
         Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto);
         Task<IEnumerable<UserInfractionSelectDto>> GetByTypeInfractionAsync(int typeInfractionId);
         Task<UserInfractionSelectDto?> GetFirstByDocumentAsync(int documentTypeId, string documentNumber);
+        Task<int> ApplyInterestToInfractionsAsync(DateTime nowUtc, CancellationToken ct = default);
+        Task<bool> ApplyInterestToSingleInfractionAsync(int idUserInfraction,DateTime nowUtc,CancellationToken ct = default);
     }
 }
