@@ -208,6 +208,34 @@ namespace Web.Controllers.Implements.Entities
             return File(pdfBytes, "application/pdf", $"Recordatorio_25dias_{userInfraction.id}.pdf");
         }
 
+        [HttpPost("simulate-interest")]
+        public async Task<IActionResult> SimulateInterest(
+     [FromQuery] int idUserInfraction,
+     [FromQuery] int days)
+        {
+            if (idUserInfraction <= 0)
+                return BadRequest("el id del userInfraction es obligatorio.");
+
+            if (days < 0)
+                return BadRequest("los días deben ser positivos.");
+
+            // fecha simulada
+            var simulatedDate = DateTime.UtcNow.AddDays(days);
+
+            bool updated = await _userInfractionServices
+                .ApplyInterestToSingleInfractionAsync(idUserInfraction, simulatedDate);
+
+            return Ok(new
+            {
+                isSuccess = updated,
+                idUserInfraction,
+                simulatedDate
+            });
+        }
+
+
+
+
 
         //[HttpPost("test-email")]
         //public async Task<IActionResult> TestEmail([FromServices] ReminderEmailAppService service)
