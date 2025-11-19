@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Entities;
+using Business.Interfaces.IBusinessImplements.parameters;
+using Business.Interfaces.IBusinessImplements.Security;
 using Business.Interfaces.Notificacion;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
@@ -38,6 +40,9 @@ public class UserInfractionServices
     private readonly IServiceScopeFactory _scopeFactory;    // Permite crear servicios scoped en tareas background
     private readonly IPdfGeneratorService _pdfservices;     // Servicio para generar PDFs
     private readonly INotificationService _notificationService;
+    private readonly IMapper _mapper;
+    private readonly EmailScheduler _scheduler;
+    private readonly EmailOrchestrator _emailOrchestrator;
     public UserInfractionServices(
         IUserInfractionRepository repo,
         IUserRepository users,
@@ -46,10 +51,12 @@ public class UserInfractionServices
         IMapper mapper,
         ILogger<UserInfractionServices> logger,
         EmailBackgroundQueue emailQueue,
+        EmailScheduler scheduler,
+        EmailOrchestrator emailOrchestrator,
         IServiceScopeFactory scopeFactory,
         Entity.Infrastructure.Contexts.ApplicationDbContext db,
         IPdfGeneratorService pdfService,
-         INotificationService notificationService
+        INotificationService notificationService
 
     ) : base(repo, mapper, db)
     {
@@ -62,7 +69,9 @@ public class UserInfractionServices
         _emailQueue = emailQueue;
         _scopeFactory = scopeFactory;
         _pdfservices = pdfService;
+        _scheduler = scheduler;
         _notificationService = notificationService;
+        _emailOrchestrator = emailOrchestrator;
     }
 
     // -------- Helpers FK --------

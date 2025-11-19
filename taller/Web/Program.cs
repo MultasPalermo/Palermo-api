@@ -9,6 +9,7 @@ using Web.Service;
 using Web.Infrastructure;
 using Business.Mensajeria.Email.implements;
 using Web.Hubs;
+using Business.Mensajeria.Email.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 

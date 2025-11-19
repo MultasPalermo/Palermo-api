@@ -2226,6 +2226,102 @@ namespace Entity.Migrations
                     b.ToTable("notifications");
                 });
 
+            modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.NotificationSetting", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<int>("Days")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TimeUnit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("is_deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.ToTable("notificationSetting");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            Days = 30,
+                            Description = "Primer recordatorio después de la infracción.",
+                            Name = "Recordatorio 30 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 2,
+                            Days = 60,
+                            Description = "Segundo recordatorio después de la infracción.",
+                            Name = "Recordatorio 60 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 3,
+                            Days = 60,
+                            Description = "Tercer recordatorio después de la infracción.",
+                            Name = "Recordatorio 80 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 4,
+                            Days = 100,
+                            Description = "cobrojuridico recordatorio después de la infracción",
+                            Name = "Recordatorio 100 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 5,
+                            Days = 120,
+                            Description = "CobroCoactivo recordatorio después de la infracción.",
+                            Name = "Recordatorio 120 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        });
+                });
+
             modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.PaymentFrequency", b =>
                 {
                     b.Property<int>("id")
