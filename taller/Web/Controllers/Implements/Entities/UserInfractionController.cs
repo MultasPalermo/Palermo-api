@@ -229,24 +229,30 @@ namespace Web.Controllers.Implements.Entities
         }
 
         [HttpPost("simulate-interest")]
-        public async Task<IActionResult> SimulateInterest([FromQuery] int days)
+        public async Task<IActionResult> SimulateInterest(
+     [FromQuery] int idUserInfraction,
+     [FromQuery] int days)
         {
-            if (days < 0)
-                return BadRequest("Los días deben ser positivos.");
+            if (idUserInfraction <= 0)
+                return BadRequest("el id del userInfraction es obligatorio.");
 
-            // Simular fecha avanzando días
+            if (days < 0)
+                return BadRequest("los días deben ser positivos.");
+
+            // fecha simulada
             var simulatedDate = DateTime.UtcNow.AddDays(days);
 
-            // Llamar al servicio que aplica intereses
-            int updated = await _userInfractionServices.ApplyInterestToInfractionsAsync(simulatedDate);
+            bool updated = await _userInfractionServices
+                .ApplyInterestToSingleInfractionAsync(idUserInfraction, simulatedDate);
 
             return Ok(new
             {
-                isSuccess = true,
-                simulatedDate,
-                updatedRecords = updated
+                isSuccess = updated,
+                idUserInfraction,
+                simulatedDate
             });
         }
+
 
 
 

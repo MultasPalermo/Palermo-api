@@ -500,6 +500,65 @@ public class UserInfractionServices
         return updated;
     }
 
+    public async Task<bool> ApplyInterestToSingleInfractionAsync(
+    int idUserInfraction,
+    DateTime simulatedNowUtc,
+    CancellationToken ct = default)
+    {
+        DateTime today = simulatedNowUtc.Date;
+
+        var i = await _context.userInfraction
+            .FirstOrDefaultAsync(x =>
+                x.id == idUserInfraction &&
+                !x.is_deleted &&
+                x.stateInfraction == EstadoMulta.Pendiente,
+                ct);
+
+        if (i == null)
+            return false;
+
+        // recalcular días de mora con la fecha simulada
+        i.DaysOfDelay = (today - i.dateInfraction.Date).Days;
+        if (i.DaysOfDelay < 0) i.DaysOfDelay = 0;
+
+        // activar coactivo si ya pasaron 30 días
+        DateTime coactiveDate = i.dateInfraction.Date.AddDays(30);
+
+        if (today >= coactiveDate && !i.IsCoactive)
+        {
+            i.IsCoactive = true;
+            i.CoactiveActivatedOn = coactiveDate;
+            i.LastInterestAppliedOn = coactiveDate.AddDays(-1);
+        }
+
+        if (i.IsCoactive)
+        {
+            DateTime lastApplied = i.LastInterestAppliedOn?.Date
+                ?? i.CoactiveActivatedOn!.Value.AddDays(-1);
+
+            int daysToAccrue = (today - lastApplied).Days;
+
+            if (daysToAccrue > 0)
+            {
+                decimal monthlyRate = 0.02m;
+                decimal dailyRate = monthlyRate / 30;
+
+                decimal interestToAdd = i.InitialAmount * dailyRate * daysToAccrue;
+
+                i.AccruedInterest += interestToAdd;
+                i.LastInterestAppliedOn = today;
+            }
+        }
+
+        // total
+        i.TotalToPay = i.InitialAmount + i.AccruedInterest;
+        i.amountToPay = i.TotalToPay;
+
+        await _context.SaveChangesAsync(ct);
+        return true;
+    }
+
+
     public async Task<IEnumerable<UserInfractionSelectDto>> GetByTypeInfractionAsync(int typeInfractionId)
     {
         var entities = await _repo.GetByTypeInfractionAsync(typeInfractionId);
