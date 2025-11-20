@@ -233,10 +233,12 @@ namespace Web.AutoMapper
                 .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
                 .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
 
-                // 🔥 Aquí también enum -> string
-                .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()))
+                   .ForMember(d => d.PaymentAgreements, o => o.MapFrom(s => s.paymentAgreement))
+
+                  .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()));
 
                 .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId));
+
 
 
             // -------------------------------------------------------------

@@ -51,15 +51,34 @@ namespace Data.Services.Entities
 
             return await _dbSet
                 .AsNoTracking()
+
+                // Infracción + tipo
                 .Include(u => u.Infraction)
                     .ThenInclude(i => i.TypeInfraction)
+
+                // Usuario + persona
                 .Include(u => u.User)
                     .ThenInclude(ui => ui.Person)
+
+                // 🔥 Incluir acuerdos de pago
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.paymentFrequency)
+
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.TypePayment)
+
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.InstallmentSchedule)
+
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.documentInfraction)
+
                 .Where(u => !u.is_deleted &&
                             u.User.documentTypeId == documentTypeId &&
                             u.User.documentNumber == documentNumber)
                 .ToListAsync();
         }
+
 
         public async Task<UserInfraction?> GetUserInfractionWithUserAndPersonAsync(int infractionId)
         {
