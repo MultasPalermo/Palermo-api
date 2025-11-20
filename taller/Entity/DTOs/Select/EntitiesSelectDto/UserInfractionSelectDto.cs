@@ -1,9 +1,10 @@
-﻿    using Entity.DTOs.Interface.Entities;
-    using Entity.Domain.Enums;
+﻿    using Entity.Domain.Enums;
     using Entity.Domain.Interfaces;
     using Entity.Domain.Models.Base;
     using Entity.Domain.Models.Implements.ModelSecurity;
     using Entity.DTOs.Interface.Entities;
+    using Entity.DTOs.Interface.Entities;
+using Entity.DTOs.Select.Entities;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -53,6 +54,8 @@
 
 
         public string StatusCollection { get; set; }
+
+        public List<PaymentAgreementSelectDto> PaymentAgreements { get; set; } = new();
     }
 
 }

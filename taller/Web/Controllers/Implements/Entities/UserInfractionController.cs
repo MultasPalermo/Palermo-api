@@ -230,8 +230,8 @@ namespace Web.Controllers.Implements.Entities
 
         [HttpPost("simulate-interest")]
         public async Task<IActionResult> SimulateInterest(
-     [FromQuery] int idUserInfraction,
-     [FromQuery] int days)
+         [FromQuery] int idUserInfraction,
+         [FromQuery] int days)
         {
             if (idUserInfraction <= 0)
                 return BadRequest("el id del userInfraction es obligatorio.");
@@ -253,9 +253,20 @@ namespace Web.Controllers.Implements.Entities
             });
         }
 
+        [HttpGet("filter")]
+        public async Task<IActionResult> FilterMultas(
+       int? documentTypeId,
+       int? typeInfractionId,
+       EstadoMulta? stateInfraction)
+        {
+            var result = await _service.GetMultasAsync(
+                documentTypeId,
+                typeInfractionId,
+                stateInfraction
+            );
 
-
-
+            return Ok(result);
+        }
 
         //[HttpPost("test-email")]
         //public async Task<IActionResult> TestEmail([FromServices] ReminderEmailAppService service)

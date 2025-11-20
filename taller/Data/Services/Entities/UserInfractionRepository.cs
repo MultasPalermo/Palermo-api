@@ -1,5 +1,6 @@
 ﻿using Data.Interfaces.IDataImplement.Entities;
 using Data.Repositoy;
+using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -51,15 +52,34 @@ namespace Data.Services.Entities
 
             return await _dbSet
                 .AsNoTracking()
+
+                // Infracción + tipo
                 .Include(u => u.Infraction)
                     .ThenInclude(i => i.TypeInfraction)
+
+                // Usuario + persona
                 .Include(u => u.User)
                     .ThenInclude(ui => ui.Person)
+
+                // 🔥 Incluir acuerdos de pago
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.paymentFrequency)
+
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.TypePayment)
+
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.InstallmentSchedule)
+
+                .Include(u => u.paymentAgreement)
+                    .ThenInclude(pa => pa.documentInfraction)
+
                 .Where(u => !u.is_deleted &&
                             u.User.documentTypeId == documentTypeId &&
                             u.User.documentNumber == documentNumber)
                 .ToListAsync();
         }
+
 
         public async Task<UserInfraction?> GetUserInfractionWithUserAndPersonAsync(int infractionId)
         {
@@ -84,6 +104,34 @@ namespace Data.Services.Entities
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<UserInfraction>> GetMultasAsync(
+      int? documentTypeId,
+      int? typeInfractionId,
+      EstadoMulta? stateInfraction)
+        {
+            return await _dbSet
+             .Include(ui => ui.User)
+                 .ThenInclude(u => u.Person)
+             .Include(ui => ui.User)
+                 .ThenInclude(u => u.documentType)
+             .Include(ui => ui.Infraction)
+                 .ThenInclude(i => i.TypeInfraction)
+             .Include(ui => ui.Infraction)
+                 .ThenInclude(i => i.fineCalculationDetail)
+                     .ThenInclude(fd => fd.valueSmldv)
+             .Where(ui =>
+                 !ui.is_deleted &&
 
+                 // Filtrar por tipo de documento
+                 (!documentTypeId.HasValue || ui.User.documentTypeId == documentTypeId.Value) &&
+
+                 // Filtrar por tipo de infracción
+                 (!typeInfractionId.HasValue || ui.Infraction.TypeInfractionId == typeInfractionId.Value) &&
+
+                 // Nuevo filtro: Estado de la infracción
+                 (!stateInfraction.HasValue || ui.stateInfraction == stateInfraction.Value)
+             )
+             .ToListAsync();
+        }
     }
 }

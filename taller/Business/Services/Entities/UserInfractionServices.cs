@@ -13,6 +13,7 @@ using Business.Validaciones.Entities.UserInfraction;
 using Data.Interfaces.IDataImplement.Entities;   // <- IUserInfractionRepository
 using Data.Interfaces.IDataImplement.parameters;
 using Data.Interfaces.IDataImplement.Security;   // <- IUserRepository
+using Data.Services.Security;
 using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
@@ -558,6 +559,27 @@ public class UserInfractionServices
         return true;
     }
 
+    public async Task<IEnumerable<UserInfractionSelectDto>> GetMultasAsync(
+    int? documentTypeId,
+    int? typeInfractionId,
+    EstadoMulta? stateInfraction)
+    {
+        try
+        {
+            var result = await _repo.GetMultasAsync(
+                documentTypeId,
+                typeInfractionId,
+                stateInfraction
+            );
+
+            return _mapper.Map<IEnumerable<UserInfractionSelectDto>>(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR en UserInfractionService] {ex.Message}");
+            throw new Exception("Error en la capa de negocio al consultar multas", ex);
+        }
+    }
 
     public async Task<IEnumerable<UserInfractionSelectDto>> GetByTypeInfractionAsync(int typeInfractionId)
     {

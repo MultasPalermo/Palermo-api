@@ -13,11 +13,11 @@ namespace Entity.Domain.Models.Implements.Entities
     {
         public int id { get; set; }
         public string address { get; set; }
-        public string neighborhood { get; set; }
-        public string AgreementDescription { get; set; }
+        public string? neighborhood { get; set; }
+        public string? AgreementDescription { get; set; }
         public DateTime expeditionCedula { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Email { get; set; }
         public decimal BaseAmount { get; set; }
         public bool IsPaid { get; set; }
         public int userInfractionId { get; set; }
