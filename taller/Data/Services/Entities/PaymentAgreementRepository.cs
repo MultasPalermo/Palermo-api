@@ -123,6 +123,43 @@ public class PaymentAgreementRepository : DataGeneric<PaymentAgreement>, IPaymen
             .FirstOrDefaultAsync(ui => ui.id == userInfractionId);
     }
 
+    public async Task<IEnumerable<PaymentAgreement>> GetPaymentAgreementFilteredAsync(
+     string? phoneNumber,
+     string? address,
+     string? neighborhood,
+     string? email)
+    {
+        return await _dbSet
+            .Include(p => p.userInfraction)
+                .ThenInclude(ui => ui.User)
+                    .ThenInclude(u => u.Person)
+            .Include(p => p.userInfraction.Infraction)
+                .ThenInclude(i => i.TypeInfraction)
+            .Include(p => p.paymentFrequency)
+            .Include(p => p.TypePayment)
+            .Where(p =>
+                !p.is_deleted &&
+
+                // Phone
+                (string.IsNullOrEmpty(phoneNumber) ||
+                 (p.PhoneNumber != null && p.PhoneNumber.Contains(phoneNumber))) &&
+
+                // Address
+                (string.IsNullOrEmpty(address) ||
+                 p.address.Contains(address)) &&
+
+                // Neighborhood
+                (string.IsNullOrEmpty(neighborhood) ||
+                 (p.neighborhood != null && p.neighborhood.Contains(neighborhood))) &&
+
+                // EMAIL - CORRECTO
+                (string.IsNullOrEmpty(email) ||
+                 (p.userInfraction != null &&
+                  p.userInfraction.User.email.Contains(email)))
+            )
+            .ToListAsync();
+    }
+
     public async Task<PaymentFrequency?> GetPaymentFrequencyAsync(int id)
         => await _context.paymentFrequency.FindAsync(id);
 

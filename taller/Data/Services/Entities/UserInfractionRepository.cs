@@ -1,5 +1,6 @@
 ﻿using Data.Interfaces.IDataImplement.Entities;
 using Data.Repositoy;
+using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -84,6 +85,34 @@ namespace Data.Services.Entities
                 .ToListAsync();
         }
 
+        public async Task<IEnumerable<UserInfraction>> GetMultasAsync(
+      int? documentTypeId,
+      int? typeInfractionId,
+      EstadoMulta? stateInfraction)
+        {
+            return await _dbSet
+             .Include(ui => ui.User)
+                 .ThenInclude(u => u.Person)
+             .Include(ui => ui.User)
+                 .ThenInclude(u => u.documentType)
+             .Include(ui => ui.Infraction)
+                 .ThenInclude(i => i.TypeInfraction)
+             .Include(ui => ui.Infraction)
+                 .ThenInclude(i => i.fineCalculationDetail)
+                     .ThenInclude(fd => fd.valueSmldv)
+             .Where(ui =>
+                 !ui.is_deleted &&
 
+                 // Filtrar por tipo de documento
+                 (!documentTypeId.HasValue || ui.User.documentTypeId == documentTypeId.Value) &&
+
+                 // Filtrar por tipo de infracción
+                 (!typeInfractionId.HasValue || ui.Infraction.TypeInfractionId == typeInfractionId.Value) &&
+
+                 // Nuevo filtro: Estado de la infracción
+                 (!stateInfraction.HasValue || ui.stateInfraction == stateInfraction.Value)
+             )
+             .ToListAsync();
+        }
     }
 }

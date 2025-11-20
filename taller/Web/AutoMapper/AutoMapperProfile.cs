@@ -82,9 +82,6 @@ namespace Web.AutoMapper
             CreateMap<TypePayment, TypePaymentDto>().ReverseMap();
             CreateMap<TypePayment, TypePaymentSelectDto>().ReverseMap();
 
-
-            CreateMap<PaymentAgreement, PaymentAgreementDto>().ReverseMap();
-
             CreateMap<InstallmentSchedule, InstallmentScheduleDto>().ReverseMap();
             CreateMap<InstallmentSchedule, InstallmentScheduleSelectDto>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.id))
@@ -97,9 +94,23 @@ namespace Web.AutoMapper
 
 
             CreateMap<PaymentAgreement, PaymentAgreementDto>()
-                .ReverseMap()
-                .ForMember(dest => dest.Installments, opt => opt.MapFrom(src => src.Installments))
-                .ForMember(dest => dest.MonthlyFee, opt => opt.MapFrom(src => src.MonthlyFee));
+             .ForMember(d => d.id, o => o.MapFrom(s => s.id))
+             .ForMember(d => d.address, o => o.MapFrom(s => s.address))
+             .ForMember(d => d.neighborhood, o => o.MapFrom(s => s.neighborhood))
+             .ForMember(d => d.AgreementDescription, o => o.MapFrom(s => s.AgreementDescription))
+             .ForMember(d => d.expeditionCedula, o => o.MapFrom(s => s.expeditionCedula))
+             .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.PhoneNumber))
+             .ForMember(d => d.Email,
+                o => o.MapFrom(s => s.userInfraction.User.email))
+             .ForMember(d => d.BaseAmount, o => o.MapFrom(s => s.BaseAmount))
+             .ForMember(d => d.IsPaid, o => o.MapFrom(s => s.IsPaid))
+             .ForMember(d => d.userInfractionId, o => o.MapFrom(s => s.userInfractionId))
+             .ForMember(d => d.paymentFrequencyId, o => o.MapFrom(s => s.paymentFrequencyId))
+             .ForMember(d => d.typePaymentId, o => o.MapFrom(s => s.typePaymentId))
+             .ForMember(d => d.Installments, o => o.MapFrom(s => s.Installments))
+             .ForMember(d => d.MonthlyFee, o => o.MapFrom(s => s.MonthlyFee))
+             .ReverseMap();
+
 
             // Mapeo de InstallmentSchedule
             CreateMap<InstallmentSchedule, InstallmentScheduleDto>().ReverseMap();

@@ -16,5 +16,11 @@ namespace Data.Interfaces.IDataImplement.Entities
         Task<UserInfraction?> GetUserInfractionWithDetailsAsync(int userInfractionId);
         Task<PaymentFrequency?> GetPaymentFrequencyAsync(int id);
         Task<TypePayment?> GetTypePaymentAsync(int id);
+
+        Task<IEnumerable<PaymentAgreement>> GetPaymentAgreementFilteredAsync(
+    string? phoneNumber,
+    string? address,
+    string? neighborhood,
+    string? email);
     }
 }

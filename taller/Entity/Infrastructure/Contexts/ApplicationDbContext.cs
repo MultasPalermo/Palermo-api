@@ -88,6 +88,7 @@ namespace Entity.Infrastructure.Contexts
         public DbSet<PaymentFrequency> paymentFrequency { get; set; }
         public DbSet<NotificationSetting> notificationSetting { get; set; }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

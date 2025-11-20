@@ -1,4 +1,5 @@
 ﻿using Business.Interfaces.BusinessBasic;
+using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.DTOs.Default.AnexarMulta; // si acá están tus DTOs
 // ^ Ajusta el using según dónde estén tus DTOs (UserInfractionDto, UserInfractionSelectDto)
@@ -14,5 +15,7 @@ namespace Business.Interfaces.IBusinessImplements.Entities
         Task<UserInfractionSelectDto?> GetFirstByDocumentAsync(int documentTypeId, string documentNumber);
         Task<int> ApplyInterestToInfractionsAsync(DateTime nowUtc, CancellationToken ct = default);
         Task<bool> ApplyInterestToSingleInfractionAsync(int idUserInfraction,DateTime nowUtc,CancellationToken ct = default);
+
+        Task<IEnumerable<UserInfractionSelectDto>> GetMultasAsync(int? documentTypeId,int? typeInfractionId, EstadoMulta? stateInfraction);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Business.Interfaces.IBusinessImplements.Entities;
+﻿using Business.Interfaces.BusinessBasic;
+using Business.Interfaces.IBusinessImplements.Entities;
 using Business.Interfaces.PDF;
 using Business.Services.PDF;
 using Entity.Domain.Enums;
@@ -117,6 +118,23 @@ namespace Web.Controllers.Implements.Entities
                 message = $"Intereses aplicados correctamente.",
                 agreementsUpdated = updatedCount
             });
+        }
+
+        [HttpGet("filter")]
+        public async Task<IActionResult> GetFiltered(
+      [FromQuery] string? phoneNumber,
+      [FromQuery] string? address,
+      [FromQuery] string? neighborhood,
+      [FromQuery] string? email)
+        {
+            var result = await _paymentAgreementService.GetFilteredAsync(
+                phoneNumber,
+                address,
+                neighborhood,
+                email
+            );
+
+            return Ok(result);
         }
 
 

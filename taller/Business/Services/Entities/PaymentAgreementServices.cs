@@ -456,6 +456,23 @@ namespace Business.Services.Entities
         }
 
 
+        public async Task<IEnumerable<PaymentAgreementSelectDto>> GetFilteredAsync(
+            string? phoneNumber,
+            string? address,
+            string? neighborhood,
+            string? email)
+        {
+            var result = await _paymentAgreementRepository.GetPaymentAgreementFilteredAsync(
+                phoneNumber,
+                address,
+                neighborhood,
+                email
+            );
+
+            // Mapear a DTO
+            return _mapper.Map<IEnumerable<PaymentAgreementSelectDto>>(result);
+        }
+
         public Task<PaymentAgreementSelectDto> GetByIdAsyncPdf(int id)
         {
             throw new NotImplementedException();

@@ -20,6 +20,12 @@ namespace Business.Interfaces.IBusinessImplements.Entities
 
         Task<PaymentAgreementSelectDto> GetByIdAsyncPdf(int id);
 
+        Task<IEnumerable<PaymentAgreementSelectDto>> GetFilteredAsync(
+      string? phoneNumber,
+      string? address,
+      string? neighborhood,
+      string? email);
+
         // Task<PaymentAgreementSelectDto?> CreatePaymentAgreementInternalAsync(PaymentAgreementDto dto);
     }
 
