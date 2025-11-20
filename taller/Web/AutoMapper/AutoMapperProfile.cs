@@ -210,8 +210,34 @@ namespace Web.AutoMapper
                 .ForMember(d => d.dateInfraction, o => o.MapFrom(s => s.dateInfraction))
                 .ForMember(d => d.observations, o => o.MapFrom(s => s.Infraction.description ?? string.Empty))
                 .ForMember(d => d.amountToPay, o => o.MapFrom(s => s.amountToPay))
-                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))  // ✅ Nuevo campo
+                .ForMember(d => d.smldvValueAtCreation, o => o.MapFrom(s => s.smldvValueAtCreation))
+                .ForMember(d => d.paymentDue3Days, o => o.MapFrom(s => s.paymentDue3Days))
+                .ForMember(d => d.paymentDue15Days, o => o.MapFrom(s => s.paymentDue15Days))
+                .ForMember(d => d.paymentDue25Days, o => o.MapFrom(s => s.paymentDue25Days))
+                .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
+                .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
+
+                   .ForMember(d => d.PaymentAgreements, o => o.MapFrom(s => s.paymentAgreement))
+
+                  .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()));
+
                 .ForMember(d => d.UserNotificationId, o => o.MapFrom(s => s.UserNotificationId));
+
+
+
+            // -------------------------------------------------------------
+            // UserInfractionSelectDto -> UserInfraction (para UPDATE)
+            // -------------------------------------------------------------
+            CreateMap<UserInfractionSelectDto, UserInfraction>()
+                .AfterMap((src, dest) =>
+                {
+                    if (!string.IsNullOrEmpty(src.StatusCollection) &&
+                        Enum.TryParse<EstadoCobro>(src.StatusCollection, out var result))
+                    {
+                        dest.StatusCollection = result;
+                    }
+                });
+
 
 
             // Parameters

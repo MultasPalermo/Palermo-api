@@ -1,14 +1,15 @@
-﻿using Entity.DTOs.Interface.Entities;
-using Entity.Domain.Enums;
-using Entity.Domain.Interfaces;
-using Entity.Domain.Models.Base;
-using Entity.Domain.Models.Implements.ModelSecurity;
-using Entity.DTOs.Interface.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿    using Entity.Domain.Enums;
+    using Entity.Domain.Interfaces;
+    using Entity.Domain.Models.Base;
+    using Entity.Domain.Models.Implements.ModelSecurity;
+    using Entity.DTOs.Interface.Entities;
+    using Entity.DTOs.Interface.Entities;
+using Entity.DTOs.Select.Entities;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
 
 namespace Entity.Domain.Models.Implements.Entities
 {
@@ -31,6 +32,17 @@ namespace Entity.Domain.Models.Implements.Entities
         public decimal smldvValueAtCreation { get; set; }
 
 
-        public string userEmail { get; set; }
+            public string userEmail { get; set; }
+
+            public DateTime paymentDue3Days { get; set; }
+            public DateTime paymentDue15Days { get; set; }
+            public DateTime paymentDue25Days { get; set; }
+            public DateTime? paymentDue30Days { get; set; }
+            public DateTime? paymentDue40Days { get; set; }
+
+        public string StatusCollection { get; set; }
+
+        public List<PaymentAgreementSelectDto> PaymentAgreements { get; set; } = new();
     }
+
 }
