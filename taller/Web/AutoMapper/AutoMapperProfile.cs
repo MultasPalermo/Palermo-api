@@ -270,7 +270,10 @@ namespace Web.AutoMapper
                   .ForMember(d => d.paymentDue30Days, o => o.MapFrom(s => s.paymentDue30Days))
                   .ForMember(d => d.paymentDue40Days, o => o.MapFrom(s => s.paymentDue40Days))
 
+                   .ForMember(d => d.PaymentAgreements, o => o.MapFrom(s => s.paymentAgreement))
+
                   .ForMember(d => d.StatusCollection, o => o.MapFrom(s => s.StatusCollection.ToString()));
+
 
 
 
