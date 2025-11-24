@@ -26,24 +26,30 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
 using SendGrid.Helpers.Errors.Model;
+using System;
 using Utilities.Exceptions;
 using static Entity.Domain.Enums.Notification.NotificationEnums;
+
 
 public class UserInfractionServices
     : BusinessBasic<UserInfractionDto, UserInfractionSelectDto, UserInfraction>, IUserInfractionServices
 {
+
     private readonly ILogger<UserInfractionServices> _logger;
-    private readonly IUserInfractionRepository _repo;       // CRUD principal de infracciones
-    private readonly IUserRepository _users;                 // FK -> User
-    private readonly IInfractionRepository _types;      // FK -> Tipo de infracción
-    private readonly IUserNotificationRepository _notifs;   // FK -> Notificaciones de usuario
-    private readonly EmailBackgroundQueue _emailQueue;      // Cola para enviar correos en background
-    private readonly IServiceScopeFactory _scopeFactory;    // Permite crear servicios scoped en tareas background
-    private readonly IPdfGeneratorService _pdfservices;     // Servicio para generar PDFs
+    private readonly IUserInfractionRepository _repo;
+    private readonly IUserRepository _users;
+    private readonly IInfractionRepository _types;
+    private readonly IUserNotificationRepository _notifs;
+    private readonly EmailBackgroundQueue _emailQueue;
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IPdfGeneratorService _pdfservices;
     private readonly INotificationService _notificationService;
     private readonly IMapper _mapper;
     private readonly EmailScheduler _scheduler;
     private readonly EmailOrchestrator _emailOrchestrator;
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IInfractionDiscountRunner _discountRunner;
+
     public UserInfractionServices(
         IUserInfractionRepository repo,
         IUserRepository users,
@@ -57,8 +63,9 @@ public class UserInfractionServices
         IServiceScopeFactory scopeFactory,
         Entity.Infrastructure.Contexts.ApplicationDbContext db,
         IPdfGeneratorService pdfService,
-        INotificationService notificationService
-
+        INotificationService notificationService,
+        IServiceProvider serviceProvider,
+        IInfractionDiscountRunner discountRunner
     ) : base(repo, mapper, db)
     {
         _repo = repo;
@@ -73,6 +80,8 @@ public class UserInfractionServices
         _scheduler = scheduler;
         _notificationService = notificationService;
         _emailOrchestrator = emailOrchestrator;
+        _serviceProvider = serviceProvider;
+        _discountRunner = discountRunner;// <-- asignación
     }
 
     // -------- Helpers FK --------
@@ -310,14 +319,14 @@ public class UserInfractionServices
     // 🚨 Nuevo método: Crear multa con datos de persona (cuando no hay User todavía)
     public async Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto)
     {
-        // 1. Validación inicial
+        // 1. validación
         var validator = new CreateInfractionRequestValidator();
         var validationResult = validator.Validate(dto);
 
         if (!validationResult.IsValid)
             throw new BusinessException(string.Join(" | ", validationResult.Errors.Select(e => e.ErrorMessage)));
 
-        // 2. Buscar o crear usuario
+        // 2. buscar o crear usuario
         var user = await _users.FindByDocumentAsync(dto.DocumentTypeId, dto.DocumentNumber);
 
         if (user == null)
@@ -329,7 +338,8 @@ public class UserInfractionServices
                 tipoUsuario = TipoUsuario.PersonaNormal
             };
 
-            await _context.persons.AddAsync(person);
+            // Evitar warning CS8602 usando null-forgiving en _context
+            await _context!.persons.AddAsync(person);
             await _context.SaveChangesAsync();
 
             user = new User
@@ -352,23 +362,22 @@ public class UserInfractionServices
             }
         }
 
-        // 3. Validar tipo infracción
+        // 3. validar tipo de infracción
         var typeInfraction = await _types.GetByIdAsync(dto.TypeInfractionId)
-            ?? throw new BusinessException("Tipo de infracción inválido.");
+            ?? throw new BusinessException("tipo de infracción inválido");
 
-        // 4. Obtener SMLDV vigente
-        var smldv = await _context.valueSmldv
+        // 4. obtener smldv vigente (usar null-forgiving en _context para evitar CS8602)
+        var smldv = await _context!.valueSmldv
             .OrderByDescending(v => v.created_date)
             .FirstOrDefaultAsync()
-            ?? throw new BusinessException("No hay SMLDV registrado.");
+            ?? throw new BusinessException("no hay smldv registrado");
 
-        // 5. Calcular monto inicial
-        var amount = dto.SmldvCount * smldv.value_smldv;
+        var baseAmount = dto.SmldvCount * smldv.value_smldv;
 
-        // 6. Crear notificación inicial
+        // 5. crear notificación inicial
         var notification = new UserNotification
         {
-            message = $"Nueva infracción registrada: {typeInfraction.description}. Monto a pagar: {amount:C}",
+            message = $"nueva infracción registrada: {typeInfraction.description}. monto base: {baseAmount:C}",
             shippingDate = DateTime.UtcNow,
             active = true,
             is_deleted = false,
@@ -378,71 +387,90 @@ public class UserInfractionServices
         await _context.userNotification.AddAsync(notification);
         await _context.SaveChangesAsync();
 
-        // 7. Crear infracción
-        var now = DateTime.UtcNow;
-
+        // 6. crear infracción
         var infraction = new UserInfraction
         {
             UserId = user.id,
             InfractionId = dto.TypeInfractionId,
-            dateInfraction = now,
+            dateInfraction = DateTime.UtcNow,
             stateInfraction = EstadoMulta.Pendiente,
             InformationFine = typeInfraction.description,
-            amountToPay = amount,
-            InitialAmount = amount,
+
+            // inicia con el valor base (sin descuento aplicado en esta capa)
+            amountToPay = baseAmount,
+            InitialAmount = baseAmount,
+            TotalToPay = baseAmount,
+
             smldvValueAtCreation = smldv.value_smldv,
             UserNotificationId = notification.id,
 
-            // NUEVOS CAMPOS
+            StatusCollection = EstadoCobro.CobroPrejuridico,
+
             IsCoactive = false,
             CoactiveActivatedOn = null,
             LastInterestAppliedOn = null,
             AccruedInterest = 0,
-            DaysOfDelay = 0,
-            TotalToPay = amount
+            DaysOfDelay = 0
         };
 
-        // 8. Calcular recordatorios dinámicos 
-        using var scope = _scopeFactory.CreateScope();
-        var settingsService = scope.ServiceProvider.GetRequiredService<INotificationSettingServices>();
-        var settings = (await settingsService.GetAllAsync()).ToList();
-
-        string timeUnit = settings.First().TimeUnit?.ToUpper() ?? "DAYS";
-        bool usarSegundos = timeUnit == "SECONDS";
-
-        int r1 = settings.Where(s => s.Days <= 10).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 3;
-        int r2 = settings.Where(s => s.Days > 10 && s.Days <= 20).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 15;
-        int r3 = settings.Where(s => s.Days > 20 && s.Days <= 30).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 25;
-        int r4 = settings.Where(s => s.Days > 30 && s.Days <= 40).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 35;
-        int r5 = settings.Where(s => s.Days > 40).OrderBy(s => s.Days).FirstOrDefault()?.Days ?? 45;
-
-        DateTime fechaInf = infraction.dateInfraction;
-
-        DateTime Calc(int v) => usarSegundos ? fechaInf.AddSeconds(v) : fechaInf.AddDays(v);
-
-        infraction.paymentDue3Days = Calc(r1);
-        infraction.paymentDue15Days = Calc(r2);
-        infraction.paymentDue25Days = Calc(r3);
-        infraction.paymentDue30Days = Calc(r4);
-        infraction.paymentDue40Days = Calc(r5);
-
-        // 9. Guardar infracción
         await _repo.CreateAsync(infraction);
         await _context.SaveChangesAsync();
 
-        // 10. Mapear DTO SIN recalcular en frontend
         var infractionDto = _mapper.Map<UserInfractionSelectDto>(infraction);
-        infractionDto.userEmail = user.email;
+        infractionDto.userEmail = user.email ?? string.Empty;
 
-        // 11. Enviar correos en background
+        // 🚀 CORRECCIÓN CLAVE: Clonar el record (usando 'with {}') para 'dtoParaR0'.
+        // Esto previene que la tarea asíncrona de notificación inicial capture una referencia
+        // que podría ser sobrescrita por una segunda multa creada rápidamente.
+        var dtoParaR0 = infractionDto with { };
+
+        string jobIdInicial = $"Infraction_{dtoParaR0.id}_Status_{EstadoCobro.CobroPrejuridico}";
+
         await _scheduler.ScheduleEmailAsync(
-             () => _emailOrchestrator.ProcesarNotificacionInicialAsync(infractionDto),
-             TimeSpan.Zero
+            () => _emailOrchestrator.ProcesarNotificacionInicialAsync(dtoParaR0),
+            TimeSpan.Zero,
+            jobIdInicial
         );
+
+
+        var reminderService = _scopeFactory.CreateScope()
+            .ServiceProvider
+            .GetRequiredService<ReminderEmailAppService>();
+
+
+        // ProgramarRecordatoriosAsync ya contiene su propia clonación defensiva.
+        await reminderService.ProgramarRecordatoriosAsync(infractionDto);
+
+        try
+        {
+            // 7. Ejecutar descuento inicial
+            await _discountRunner.RunOnceFor(infraction.id);
+
+            _logger.LogInformation("✅ Ejecución RunOnceFor completada con éxito. Descuento aplicado.");
+
+            var updated = await _context.userInfraction
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.id == infraction.id);
+
+            if (updated != null)
+            {
+                // Re-mapear el DTO de salida con la entidad que ya contiene el descuento.
+                infractionDto = _mapper.Map<UserInfractionSelectDto>(updated);
+                infractionDto.userEmail = user.email ?? string.Empty;
+
+                _logger.LogInformation($"📝 Infracción #{infraction.id} recargada. Monto final con descuento: {infractionDto.amountToPay:C}");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "❌ Error al ejecutar el RunOnceFor para aplicar el descuento inicial.");
+        }
 
         return infractionDto;
     }
-    public async Task<int> ApplyInterestToInfractionsAsync(DateTime nowUtc, CancellationToken ct = default)
+
+
+    public async Task<int> ApplyInterestToInfractionsAsync(DateTime nowUtc, CancellationToken ct = default)                     
     {
         int updated = 0;
         DateTime today = nowUtc.Date;

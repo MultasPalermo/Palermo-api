@@ -29,6 +29,8 @@ namespace Entity.Domain.Models.Implements.Entities
         public decimal amountToPay { get; set; }           
         public decimal? smldvValueAtCreation { get; set; }
 
+        public bool DiscountLocked { get; set; }
+
         public bool IsCoactive { get; set; }
         public DateTime? CoactiveActivatedOn { get; set; }
         public DateTime? LastInterestAppliedOn { get; set; }

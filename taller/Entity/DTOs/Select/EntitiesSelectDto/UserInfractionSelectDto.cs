@@ -13,7 +13,7 @@ using Entity.DTOs.Select.Entities;
 
     namespace Entity.Domain.Models.Implements.Entities
     {
-    public class UserInfractionSelectDto : IUserInfraction
+    public record UserInfractionSelectDto : IUserInfraction
     {
         public int id { get; set; }
         public DateTime dateInfraction { get; set; }

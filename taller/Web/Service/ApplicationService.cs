@@ -127,6 +127,7 @@ namespace Web.Service
 
             // Background Services
             services.AddHostedService<InfractionDiscountBackgroundService>();
+            services.AddScoped<IInfractionDiscountRunner, InfractionDiscountBackgroundService>();
             services.AddScoped<DiscountService>();
             services.AddHostedService<EmailBackgroundService>();
             services.AddSingleton<EmailBackgroundQueue>();

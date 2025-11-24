@@ -27,38 +27,32 @@ namespace Business.Mensajeria.Email.implements
         private readonly IPdfGeneratorService _pdfService;
         private readonly EmailScheduler _scheduler;
         private readonly ILogger<ReminderEmailAppService> _logger;
-        private readonly INotificationSettingServices _notificationSettingService;
-        private readonly IUserInfractionRepository _repo;
         private readonly IMapper _mapper;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<MultasHub> _hub;
+        private readonly IInfractionDiscountRunner _discountRunner;
 
         public ReminderEmailAppService(
             IServiceEmail emailService,
             IPdfGeneratorService pdfService,
             EmailScheduler scheduler,
             ILogger<ReminderEmailAppService> logger,
-            INotificationSettingServices notificationSettingService,
             IMapper mapper,
-            IUserInfractionRepository repo,
             IServiceScopeFactory scopeFactory,
-            IHubContext<MultasHub> hub)
+            IHubContext<MultasHub> hub,
+            IInfractionDiscountRunner discountRunner) 
         {
             _emailService = emailService;
             _pdfService = pdfService;
             _scheduler = scheduler;
             _logger = logger;
-            _notificationSettingService = notificationSettingService;
-            _repo = repo;
             _mapper = mapper;
             _scopeFactory = scopeFactory;
             _hub = hub;
+            _discountRunner = discountRunner;
         }
 
-
-        /// <summary>
-        /// programa los recordatorios reales basados en la fecha de infracción.
-        /// </summary>
+        // --- ProgramarRecordatoriosAsync ---
         public async Task ProgramarRecordatoriosAsync(UserInfractionSelectDto dto)
         {
             if (dto == null)
@@ -67,26 +61,46 @@ namespace Business.Mensajeria.Email.implements
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(dto.userEmail))
+            // 🚀 Clonación del record para inmutabilidad.
+            var dtoSeguro = dto with { };
+
+            if (dtoSeguro.stateInfraction == EstadoMulta.ConAcuerdoPago)
             {
-                _logger.LogWarning($"⚠️ La infracción #{dto.id} no tiene correo asignado.");
+                _logger.LogInformation($"🛑 La infracción #{dtoSeguro.id} ya tiene estado 'ConAcuerdoPago'. No se programarán recordatorios.");
                 return;
             }
 
-            if (dto.dateInfraction == default)
+            if (string.IsNullOrWhiteSpace(dtoSeguro.userEmail))
             {
-                _logger.LogWarning($"⚠️ La infracción #{dto.id} no tiene fecha válida.");
+                _logger.LogWarning($"⚠️ La infracción #{dtoSeguro.id} no tiene correo asignado.");
                 return;
             }
 
-            _logger.LogInformation($"📅 Programando recordatorios para infracción #{dto.id} ({dto.userEmail})...");
+            if (dtoSeguro.dateInfraction == default)
+            {
+                _logger.LogWarning($"⚠️ La infracción #{dtoSeguro.id} no tiene fecha válida.");
+                return;
+            }
+
+            _logger.LogInformation($"📅 Programando recordatorios para infracción #{dtoSeguro.id} ({dtoSeguro.userEmail})...");
 
             try
             {
                 using var scope = _scopeFactory.CreateScope();
+                // ✅ Obtener servicios con scope (solo aquí)
                 var settingService = scope.ServiceProvider.GetRequiredService<INotificationSettingServices>();
+                var repoScoped = scope.ServiceProvider.GetRequiredService<IUserInfractionRepository>();
+
+                var currentEntity = await repoScoped.GetByIdAsync(dtoSeguro.id);
+                if (currentEntity == null)
+                {
+                    _logger.LogWarning($"⚠ La infracción #{dtoSeguro.id} no existe en BD. No se programarán recordatorios.");
+                    return;
+                }
+                var currentStatus = currentEntity.StatusCollection;
 
                 var settings = (await settingService.GetAllAsync())?.ToList();
+                // ... (resto de la lógica sin cambios)
 
                 if (settings == null || settings.Count < 5)
                 {
@@ -111,47 +125,49 @@ namespace Business.Mensajeria.Email.implements
 
                 _logger.LogWarning($"⏱ Modo utilizado: {(usarSegundos ? "SEGUNDOS (pruebas)" : "DÍAS (normal)")}");
 
-                int v1 = r1.Days;
-                int v2 = r2.Days;
-                int v3 = r3.Days;
-                int v4 = r4.Days;
-                int v5 = r5.Days;
-
-                _logger.LogInformation($"🔧 Configuración → R1: {v1} {timeUnit}, R2: {v2} {timeUnit}, R3: {v3} {timeUnit}, R4: {v4} {timeUnit}, R5: {v5} {timeUnit}");
-
-                DateTime CalcFecha(int val) => usarSegundos ? dto.dateInfraction.AddSeconds(val) : dto.dateInfraction.AddDays(val);
+                DateTime CalcFecha(int val) => usarSegundos ? dtoSeguro.dateInfraction.AddSeconds(val) : dtoSeguro.dateInfraction.AddDays(val);
                 TimeSpan CalcDelay(DateTime target) => target - DateTime.Now;
                 string Etiqueta(int val) => usarSegundos ? $"{val} segundos" : $"{val} días";
 
                 var fechas = new[]
                 {
-            (v1, CalcFecha(v1), Etiqueta(v1)),
-            (v2, CalcFecha(v2), Etiqueta(v2)),
-            (v3, CalcFecha(v3), Etiqueta(v3)),
-            (v4, CalcFecha(v4), Etiqueta(v4)),
-            (v5, CalcFecha(v5), Etiqueta(v5))
-        };
+                    (EstadoCobro.prejuridico3Dias, r1.Days, CalcFecha(r1.Days), Etiqueta(r1.Days)),
+                    (EstadoCobro.prejuridico15Dias, r2.Days, CalcFecha(r2.Days), Etiqueta(r2.Days)),
+                    (EstadoCobro.prejuridico25Dias, r3.Days, CalcFecha(r3.Days), Etiqueta(r3.Days)),
+                    (EstadoCobro.CobroJuridico, r4.Days, CalcFecha(r4.Days), Etiqueta(r4.Days)),
+                    (EstadoCobro.CobroCoactivo, r5.Days, CalcFecha(r5.Days), Etiqueta(r5.Days))
+                };
 
-                foreach (var (valor, fechaEnvio, etiqueta) in fechas)
+                foreach (var (targetStatus, valor, fechaEnvio, etiqueta) in fechas)
                 {
+                    if (currentStatus >= targetStatus)
+                    {
+                        _logger.LogWarning($"❌ El estado actual ({currentStatus}) ya alcanzó o superó el recordatorio para {targetStatus}. No se programa.");
+                        continue;
+                    }
+
                     var delay = usarSegundos ? TimeSpan.FromSeconds(valor) : CalcDelay(fechaEnvio);
 
                     if (delay <= TimeSpan.Zero)
                     {
-                        _logger.LogWarning($"⚠️ Ya pasó la fecha del recordatorio ({etiqueta}) para #{dto.id}. No se programará.");
+                        _logger.LogWarning($"⚠️ Ya pasó la fecha del recordatorio ({etiqueta}) para #{dtoSeguro.id}. No se programará.");
                         continue;
                     }
 
-                    await ProgramarEnvioAsync(dto, valor, etiqueta, delay);
-                    _logger.LogInformation($"⏳ Recordatorio programado: {etiqueta} → En {delay}");
+                    string jobId = $"Infraction_{dtoSeguro.id}_Status_{targetStatus}";
+
+                    // ✅ Se pasa el DTO SEGURO (dtoSeguro)
+                    await ProgramarEnvioAsync(dtoSeguro, valor, etiqueta, delay, targetStatus, jobId);
+                    _logger.LogInformation($"⏳ Recordatorio programado: {etiqueta} → En {delay} (Para el estado {targetStatus}");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"❌ Error al programar recordatorios para infracción #{dto.id}");
+                _logger.LogError(ex, $"❌ Error al programar recordatorios para infracción #{dtoSeguro.id}");
             }
         }
 
+        // --- ObtenerRecordatorioIdPorEstado (Sin cambios) ---
         private int ObtenerRecordatorioIdPorEstado(EstadoCobro estado)
         {
             return estado switch
@@ -165,98 +181,103 @@ namespace Business.Mensajeria.Email.implements
             };
         }
 
-
-
-        private async Task ProgramarEnvioAsync(UserInfractionSelectDto dto, int dias, string etiqueta, TimeSpan delay)
+        // --- ProgramarEnvioAsync (Sin cambios mayores, solo la fuente de IInfractionDiscountRunner) ---
+        private async Task ProgramarEnvioAsync(UserInfractionSelectDto dto, int dias, string etiqueta, TimeSpan delay, EstadoCobro targetStatus, string jobId)
         {
+            var dtoInmutable = dto;
+
             await _scheduler.ScheduleEmailAsync(async () =>
             {
                 try
                 {
-                    _logger.LogInformation($"🚀 Enviando recordatorio de {etiqueta} a {dto.userEmail}...");
+                    _logger.LogInformation($"🚀 Enviando recordatorio de {etiqueta} a {dtoInmutable.userEmail}...");
 
                     using var scope = _scopeFactory.CreateScope();
                     var repoScoped = scope.ServiceProvider.GetRequiredService<IUserInfractionRepository>();
+                    var infractionRunner = scope.ServiceProvider.GetRequiredService<IInfractionDiscountRunner>();
+                    var hub = scope.ServiceProvider.GetRequiredService<IHubContext<MultasHub>>();
 
-                    var entity = await repoScoped.GetByIdAsync(dto.id);
+                    var entity = await repoScoped.GetByIdAsync(dtoInmutable.id);
                     if (entity == null)
                     {
-                        _logger.LogWarning($"⚠ La infracción #{dto.id} no existe en BD.");
+                        _logger.LogWarning($"⚠ La infracción #{dtoInmutable.id} no existe en BD.");
                         return;
                     }
 
-                    // ----- ACTUALIZA ESTADO -----
-                    entity.StatusCollection = entity.StatusCollection switch
+                    if (entity.stateInfraction == EstadoMulta.ConAcuerdoPago)
                     {
-                        EstadoCobro.CobroPrejuridico => EstadoCobro.prejuridico3Dias,
-                        EstadoCobro.prejuridico3Dias => EstadoCobro.prejuridico15Dias,
-                        EstadoCobro.prejuridico15Dias => EstadoCobro.prejuridico25Dias,
-                        EstadoCobro.prejuridico25Dias => EstadoCobro.CobroJuridico,
-                        EstadoCobro.CobroJuridico => EstadoCobro.CobroCoactivo,
-                        EstadoCobro.CobroCoactivo => EstadoCobro.CobroCoactivo,
-                        _ => EstadoCobro.CobroPrejuridico
-                    };
-
-                    await repoScoped.UpdateAsync(entity);
-
-                    dto.StatusCollection = entity.StatusCollection.ToString(); ;
-                    var estado = entity.StatusCollection;
-
-                    _logger.LogInformation($"📌 Estado actualizado → {estado}");
-
-                    // ----- CONTENIDO DEL CORREO -----
-                    var (subject, body) = ObtenerContenidoCorreo(dto, estado);
-
-                    // ----- OBTENER ID DE RECORDATORIO -----
-                    int reminderId = ObtenerRecordatorioIdPorEstado(estado);
-
-                    // ----- GENERAR PDF SI CORRESPONDE -----
-                    byte[]? pdfBytes = null;
-                    if (reminderId > 0)
-                    {
-                        pdfBytes = await _pdfService.GenerateReminderPdfAsync(dto, reminderId);
+                        _logger.LogInformation($"🛑 Multa #{dtoInmutable.id} tiene estado 'ConAcuerdoPago'. Se aborta el envío del recordatorio para {targetStatus}.");
+                        return;
                     }
 
-                    // ----- ENVIAR CORREO SEGÚN SI HAY PDF -----
+                    if (entity.StatusCollection >= targetStatus)
+                    {
+                        _logger.LogInformation($"🛑 Multa #{dtoInmutable.id} ya en estado {entity.StatusCollection}. No se necesita enviar el recordatorio para {targetStatus}.");
+                        return;
+                    }
+
+                    var oldStatus = entity.StatusCollection;
+                    entity.StatusCollection = targetStatus;
+                    dtoInmutable = dtoInmutable with { StatusCollection = entity.StatusCollection.ToString() };
+                    var estado = entity.StatusCollection;
+
+                    _logger.LogInformation($"📌 Estado actualizado ␦ {estado}");
+
+                    if (oldStatus == EstadoCobro.CobroPrejuridico && estado == EstadoCobro.prejuridico3Dias)
+                    {
+                        _logger.LogWarning($"💰 Estado cambiado a {EstadoCobro.prejuridico3Dias}. Forzando recálculo (debería quitar el 50%).");
+
+                        await repoScoped.UpdateAsync(entity);
+                        await infractionRunner.RunOnceFor(entity.id);
+                        _logger.LogInformation($"✅ Recálculo de descuento forzado para multa #{entity.id} vía IInfractionDiscountRunner.");
+
+                        var updatedEntity = await repoScoped.GetByIdAsync(entity.id);
+                        if (updatedEntity != null)
+                        {
+                            dtoInmutable = dtoInmutable with { amountToPay = updatedEntity.amountToPay };
+                            _logger.LogInformation($"📝 Monto actualizado después del recálculo: {dtoInmutable.amountToPay:N0}");
+                        }
+                    }
+                    else
+                    {
+                        await repoScoped.UpdateAsync(entity);
+                    }
+
+                    var (subject, body) = ObtenerContenidoCorreo(dtoInmutable, estado);
+                    int reminderId = ObtenerRecordatorioIdPorEstado(estado);
+                    byte[]? pdfBytes = null;
+
+                    if (reminderId > 0)
+                    {
+                        pdfBytes = await _pdfService.GenerateReminderPdfAsync(dtoInmutable, reminderId);
+                    }
+
                     if (pdfBytes != null)
                     {
                         _logger.LogInformation($"📎 Adjuntando PDF para recordatorio {reminderId}");
 
                         var attachment = new Attachment(new MemoryStream(pdfBytes),
-                            $"Recordatorio_{dto.id}_R{reminderId}.pdf");
+                               $"Recordatorio_{dtoInmutable.id}_R{reminderId}.pdf");
 
                         await _emailService.SendEmailAsync(
-                            dto.userEmail,
-                            subject,
-                            body,
-                            new List<Attachment> { attachment }
+                            dtoInmutable.userEmail, subject, body, new List<Attachment> { attachment }
                         );
                     }
                     else
                     {
                         _logger.LogInformation($"📨 Envío sin PDF (recordatorio {reminderId})");
-
-                        await _emailService.SendEmailAsync(dto.userEmail, subject, body);
+                        await _emailService.SendEmailAsync(dtoInmutable.userEmail, subject, body);
                     }
 
-
-                    _logger.LogInformation($"✅ Recordatorio enviado correctamente a {dto.userEmail}");
-
-                    // SignalR
-                    await _hub.Clients.All.SendAsync(
-                        "ReceiveStatusUpdate",
-                        dto.id,
-                        dto.StatusCollection
-                    );
+                    _logger.LogInformation($"✅ Recordatorio enviado correctamente a {dtoInmutable.userEmail}");
+                    await hub.Clients.All.SendAsync("ReceiveStatusUpdate", dtoInmutable.id, dtoInmutable.StatusCollection);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"❌ Error al enviar recordatorio de {etiqueta} a {dto.userEmail}");
+                    _logger.LogError(ex, $"❌ Error al enviar recordatorio de {etiqueta} a {dtoInmutable.userEmail}");
                 }
-
-            }, delay);
+            }, delay, jobId);
         }
-
 
 
         private (string subject, string body) ObtenerContenidoCorreo(UserInfractionSelectDto dto, EstadoCobro estado)
@@ -318,17 +339,67 @@ namespace Business.Mensajeria.Email.implements
             var repoScoped = scope.ServiceProvider.GetRequiredService<IUserInfractionRepository>();
             var hub = scope.ServiceProvider.GetRequiredService<IHubContext<MultasHub>>();
 
-            // Actualizar estado
+            // ✅ Obtener el servicio de recordatorios
+            var reminderService = scope.ServiceProvider.GetRequiredService<ReminderEmailAppService>();
+
+            // 1. Actualizar StatusCollection
             entity.StatusCollection = nuevoEstado;
             await repoScoped.UpdateAsync(entity);
 
-            // DTO para enviar al front
+            // 2. 🛑 LÓGICA DE CANCELACIÓN DE RECORDATORIOS FUTUROS
+            // La cancelación se dispara si:
+            // a) El nuevo estado de COBRO es CobroCoactivo o superior (>=).
+            // b) El estado de MULTA se ha cambiado a ConAcuerdoPago.
+
+            bool debeCancelar = nuevoEstado >= EstadoCobro.CobroCoactivo ||
+                                entity.stateInfraction == EstadoMulta.ConAcuerdoPago;
+
+            if (debeCancelar)
+            {
+                string razon = (entity.stateInfraction == EstadoMulta.ConAcuerdoPago)
+                               ? "Acuerdo de Pago"
+                               : nuevoEstado.ToString();
+
+                _logger.LogWarning($"🛑 Multa #{entity.id} avanzado/modificado a {razon}. Cancelando recordatorios programados...");
+
+                // **LLAMADA CRÍTICA:** Ejecutar la cancelación
+                await reminderService.CancelarRecordatoriosPendientesAsync(entity.id);
+
+                _logger.LogInformation($"✅ Cancelación de recordatorios terminada para multa #{entity.id}.");
+            }
+
+            // 3. DTO y Notificación
             var dto = _mapper.Map<UserInfractionDto>(entity);
 
             // 🚀 Notificar a Angular en tiempo real
             await hub.Clients.All.SendAsync("MultaUpdated", dto);
 
             _logger.LogInformation($"📡 Notificación SignalR enviada para multa #{dto.id}, nuevo estado: {dto.StatusCollection}");
+        }
+
+        public async Task CancelarRecordatoriosPendientesAsync(int infractionId)
+        {
+            _logger.LogInformation($"🗑️ Intentando cancelar recordatorios pendientes para la infracción #{infractionId}...");
+
+            // Definir todos los estados que corresponden a un recordatorio programado (R1 a R5)
+            var estadosACancelar = new[]
+            {
+                EstadoCobro.prejuridico3Dias,
+                EstadoCobro.prejuridico15Dias,
+                EstadoCobro.prejuridico25Dias,
+                EstadoCobro.CobroJuridico,
+                EstadoCobro.CobroCoactivo
+            };
+
+            foreach (var status in estadosACancelar)
+            {
+                // El jobId debe coincidir exactamente con el que se usa para programar
+                string jobId = $"Infraction_{infractionId}_Status_{status}";
+
+                // 🛑 Llamar al método de cancelación del scheduler
+                await _scheduler.CancelJobAsync(jobId);
+                _logger.LogWarning($"✅ Tarea de recordatorio cancelada para {status} ({jobId}).");
+            }
         }
     }
 }
