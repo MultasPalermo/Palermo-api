@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Mail;
@@ -40,7 +41,7 @@ namespace Business.Mensajeria.Email.implements
             IMapper mapper,
             IServiceScopeFactory scopeFactory,
             IHubContext<MultasHub> hub,
-            IInfractionDiscountRunner discountRunner) 
+            IInfractionDiscountRunner discountRunner)
         {
             _emailService = emailService;
             _pdfService = pdfService;
@@ -53,6 +54,9 @@ namespace Business.Mensajeria.Email.implements
         }
 
         // --- ProgramarRecordatoriosAsync ---
+        private static readonly ConcurrentDictionary<int, bool> _multasProgramadas = new();
+
+        // --- ProgramarRecordatoriosAsync ---
         public async Task ProgramarRecordatoriosAsync(UserInfractionSelectDto dto)
         {
             if (dto == null)
@@ -61,33 +65,42 @@ namespace Business.Mensajeria.Email.implements
                 return;
             }
 
-            // 🚀 Clonación del record para inmutabilidad.
+            // 🔒 PROTECCIÓN: Verificar si ya se programaron recordatorios para esta multa
+            if (!_multasProgramadas.TryAdd(dto.id, true))
+            {
+                _logger.LogWarning($"🛑 Los recordatorios para la multa #{dto.id} YA FUERON PROGRAMADOS. Ignorando llamada duplicada.");
+                return;
+            }
+
+            // Clonación del record para inmutabilidad.
             var dtoSeguro = dto with { };
 
             if (dtoSeguro.stateInfraction == EstadoMulta.ConAcuerdoPago)
             {
                 _logger.LogInformation($"🛑 La infracción #{dtoSeguro.id} ya tiene estado 'ConAcuerdoPago'. No se programarán recordatorios.");
+                _multasProgramadas.TryRemove(dtoSeguro.id, out _); // Limpiar del diccionario
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(dtoSeguro.userEmail))
             {
                 _logger.LogWarning($"⚠️ La infracción #{dtoSeguro.id} no tiene correo asignado.");
+                _multasProgramadas.TryRemove(dtoSeguro.id, out _);
                 return;
             }
 
             if (dtoSeguro.dateInfraction == default)
             {
                 _logger.LogWarning($"⚠️ La infracción #{dtoSeguro.id} no tiene fecha válida.");
+                _multasProgramadas.TryRemove(dtoSeguro.id, out _);
                 return;
             }
 
-            _logger.LogInformation($"📅 Programando recordatorios para infracción #{dtoSeguro.id} ({dtoSeguro.userEmail})...");
+            _logger.LogInformation($"📅 [PRIMERA VEZ] Programando recordatorios para infracción #{dtoSeguro.id} ({dtoSeguro.userEmail})...");
 
             try
             {
                 using var scope = _scopeFactory.CreateScope();
-                // ✅ Obtener servicios con scope (solo aquí)
                 var settingService = scope.ServiceProvider.GetRequiredService<INotificationSettingServices>();
                 var repoScoped = scope.ServiceProvider.GetRequiredService<IUserInfractionRepository>();
 
@@ -95,16 +108,17 @@ namespace Business.Mensajeria.Email.implements
                 if (currentEntity == null)
                 {
                     _logger.LogWarning($"⚠ La infracción #{dtoSeguro.id} no existe en BD. No se programarán recordatorios.");
+                    _multasProgramadas.TryRemove(dtoSeguro.id, out _);
                     return;
                 }
                 var currentStatus = currentEntity.StatusCollection;
 
                 var settings = (await settingService.GetAllAsync())?.ToList();
-                // ... (resto de la lógica sin cambios)
 
                 if (settings == null || settings.Count < 5)
                 {
                     _logger.LogWarning("⚠️ No están configurados los recordatorios 1 a 5.");
+                    _multasProgramadas.TryRemove(dtoSeguro.id, out _);
                     return;
                 }
 
@@ -117,6 +131,7 @@ namespace Business.Mensajeria.Email.implements
                 if (r1 == null || r2 == null || r3 == null || r4 == null || r5 == null)
                 {
                     _logger.LogWarning("⚠️ Faltan recordatorios (IDs 1 a 5).");
+                    _multasProgramadas.TryRemove(dtoSeguro.id, out _);
                     return;
                 }
 
@@ -131,12 +146,12 @@ namespace Business.Mensajeria.Email.implements
 
                 var fechas = new[]
                 {
-                    (EstadoCobro.prejuridico3Dias, r1.Days, CalcFecha(r1.Days), Etiqueta(r1.Days)),
-                    (EstadoCobro.prejuridico15Dias, r2.Days, CalcFecha(r2.Days), Etiqueta(r2.Days)),
-                    (EstadoCobro.prejuridico25Dias, r3.Days, CalcFecha(r3.Days), Etiqueta(r3.Days)),
-                    (EstadoCobro.CobroJuridico, r4.Days, CalcFecha(r4.Days), Etiqueta(r4.Days)),
-                    (EstadoCobro.CobroCoactivo, r5.Days, CalcFecha(r5.Days), Etiqueta(r5.Days))
-                };
+            (EstadoCobro.prejuridico3Dias, r1.Days, CalcFecha(r1.Days), Etiqueta(r1.Days)),
+            (EstadoCobro.prejuridico15Dias, r2.Days, CalcFecha(r2.Days), Etiqueta(r2.Days)),
+            (EstadoCobro.prejuridico25Dias, r3.Days, CalcFecha(r3.Days), Etiqueta(r3.Days)),
+            (EstadoCobro.CobroJuridico, r4.Days, CalcFecha(r4.Days), Etiqueta(r4.Days)),
+            (EstadoCobro.CobroCoactivo, r5.Days, CalcFecha(r5.Days), Etiqueta(r5.Days))
+        };
 
                 foreach (var (targetStatus, valor, fechaEnvio, etiqueta) in fechas)
                 {
@@ -154,20 +169,30 @@ namespace Business.Mensajeria.Email.implements
                         continue;
                     }
 
-                    string jobId = $"Infraction_{dtoSeguro.id}_Status_{targetStatus}";
+                    // ❌ ELIMINAR ESTAS LÍNEAS:
+                    // var microsecondsOffset = (dtoSeguro.id % 100) * 10;
+                    // delay = delay.Add(TimeSpan.FromMilliseconds(microsecondsOffset));
 
-                    // ✅ Se pasa el DTO SEGURO (dtoSeguro)
-                    await ProgramarEnvioAsync(dtoSeguro, valor, etiqueta, delay, targetStatus, jobId);
-                    _logger.LogInformation($"⏳ Recordatorio programado: {etiqueta} → En {delay} (Para el estado {targetStatus}");
+                    // ✅ AGREGAR SOLO ESTO (opcional, para debuggear):
+                    _logger.LogDebug($"🕐 Job para multa #{dtoSeguro.id}, estado {targetStatus}, delay: {delay.TotalSeconds:F3}s");
+
+                    string jobId = $"Infraction_{dtoSeguro.id}_Status_{targetStatus}";
+                    var dtoJob = dtoSeguro with { };
+
+                    await ProgramarEnvioAsync(dtoJob, valor, etiqueta, delay, targetStatus, jobId);
+                    _logger.LogInformation($"⏳ Recordatorio programado: {etiqueta} → En {delay.TotalSeconds:F3}s (Para el estado {targetStatus})");
                 }
+
+                _logger.LogInformation($"✅ Todos los recordatorios programados exitosamente para multa #{dtoSeguro.id}");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"❌ Error al programar recordatorios para infracción #{dtoSeguro.id}");
+                // En caso de error, remover del diccionario para permitir reintento
+                _multasProgramadas.TryRemove(dtoSeguro.id, out _);
             }
         }
 
-        // --- ObtenerRecordatorioIdPorEstado (Sin cambios) ---
         private int ObtenerRecordatorioIdPorEstado(EstadoCobro estado)
         {
             return estado switch
@@ -181,16 +206,20 @@ namespace Business.Mensajeria.Email.implements
             };
         }
 
-        // --- ProgramarEnvioAsync (Sin cambios mayores, solo la fuente de IInfractionDiscountRunner) ---
         private async Task ProgramarEnvioAsync(UserInfractionSelectDto dto, int dias, string etiqueta, TimeSpan delay, EstadoCobro targetStatus, string jobId)
         {
-            var dtoInmutable = dto;
+            var dtoCapturado = dto with { };
+            var etiquetaCapturada = etiqueta;
 
             await _scheduler.ScheduleEmailAsync(async () =>
             {
+                var dtoInmutable = dtoCapturado;
+                var etiquetaParaLog = etiquetaCapturada;
+
                 try
                 {
-                    _logger.LogInformation($"🚀 Enviando recordatorio de {etiqueta} a {dtoInmutable.userEmail}...");
+                    // Usar etiquetaParaLog si quieres el log más preciso al momento de la ejecución.
+                    _logger.LogInformation($"🚀 Enviando recordatorio de {etiquetaParaLog} a {dtoInmutable.userEmail}...");
 
                     using var scope = _scopeFactory.CreateScope();
                     var repoScoped = scope.ServiceProvider.GetRequiredService<IUserInfractionRepository>();
@@ -218,6 +247,8 @@ namespace Business.Mensajeria.Email.implements
 
                     var oldStatus = entity.StatusCollection;
                     entity.StatusCollection = targetStatus;
+
+                    // Actualizamos la copia local (dtoInmutable) para el cuerpo del correo/PDF.
                     dtoInmutable = dtoInmutable with { StatusCollection = entity.StatusCollection.ToString() };
                     var estado = entity.StatusCollection;
 
@@ -256,8 +287,8 @@ namespace Business.Mensajeria.Email.implements
                     {
                         _logger.LogInformation($"📎 Adjuntando PDF para recordatorio {reminderId}");
 
-                        var attachment = new Attachment(new MemoryStream(pdfBytes),
-                               $"Recordatorio_{dtoInmutable.id}_R{reminderId}.pdf");
+                        using var attachment = new Attachment(new MemoryStream(pdfBytes),
+                                                             $"Recordatorio_{dtoInmutable.id}_R{reminderId}.pdf");
 
                         await _emailService.SendEmailAsync(
                             dtoInmutable.userEmail, subject, body, new List<Attachment> { attachment }
@@ -274,7 +305,7 @@ namespace Business.Mensajeria.Email.implements
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"❌ Error al enviar recordatorio de {etiqueta} a {dtoInmutable.userEmail}");
+                    _logger.LogError(ex, $"❌ Error al enviar recordatorio de {etiquetaParaLog} a {dtoInmutable.userEmail}");
                 }
             }, delay, jobId);
         }
@@ -339,17 +370,11 @@ namespace Business.Mensajeria.Email.implements
             var repoScoped = scope.ServiceProvider.GetRequiredService<IUserInfractionRepository>();
             var hub = scope.ServiceProvider.GetRequiredService<IHubContext<MultasHub>>();
 
-            // ✅ Obtener el servicio de recordatorios
+            // Obtener el servicio de recordatorios
             var reminderService = scope.ServiceProvider.GetRequiredService<ReminderEmailAppService>();
 
-            // 1. Actualizar StatusCollection
             entity.StatusCollection = nuevoEstado;
             await repoScoped.UpdateAsync(entity);
-
-            // 2. 🛑 LÓGICA DE CANCELACIÓN DE RECORDATORIOS FUTUROS
-            // La cancelación se dispara si:
-            // a) El nuevo estado de COBRO es CobroCoactivo o superior (>=).
-            // b) El estado de MULTA se ha cambiado a ConAcuerdoPago.
 
             bool debeCancelar = nuevoEstado >= EstadoCobro.CobroCoactivo ||
                                 entity.stateInfraction == EstadoMulta.ConAcuerdoPago;
@@ -371,7 +396,7 @@ namespace Business.Mensajeria.Email.implements
             // 3. DTO y Notificación
             var dto = _mapper.Map<UserInfractionDto>(entity);
 
-            // 🚀 Notificar a Angular en tiempo real
+            // Notificar a Angular en tiempo real
             await hub.Clients.All.SendAsync("MultaUpdated", dto);
 
             _logger.LogInformation($"📡 Notificación SignalR enviada para multa #{dto.id}, nuevo estado: {dto.StatusCollection}");
@@ -381,25 +406,26 @@ namespace Business.Mensajeria.Email.implements
         {
             _logger.LogInformation($"🗑️ Intentando cancelar recordatorios pendientes para la infracción #{infractionId}...");
 
-            // Definir todos los estados que corresponden a un recordatorio programado (R1 a R5)
             var estadosACancelar = new[]
             {
-                EstadoCobro.prejuridico3Dias,
-                EstadoCobro.prejuridico15Dias,
-                EstadoCobro.prejuridico25Dias,
-                EstadoCobro.CobroJuridico,
-                EstadoCobro.CobroCoactivo
-            };
+        EstadoCobro.prejuridico3Dias,
+        EstadoCobro.prejuridico15Dias,
+        EstadoCobro.prejuridico25Dias,
+        EstadoCobro.CobroJuridico,
+        EstadoCobro.CobroCoactivo
+    };
 
             foreach (var status in estadosACancelar)
             {
-                // El jobId debe coincidir exactamente con el que se usa para programar
                 string jobId = $"Infraction_{infractionId}_Status_{status}";
-
-                // 🛑 Llamar al método de cancelación del scheduler
                 await _scheduler.CancelJobAsync(jobId);
                 _logger.LogWarning($"✅ Tarea de recordatorio cancelada para {status} ({jobId}).");
             }
+
+            // 🔒 Limpiar del diccionario de programados
+            _multasProgramadas.TryRemove(infractionId, out _);
+            _logger.LogInformation($"🧹 Multa #{infractionId} removida del registro de programación.");
         }
     }
 }
+

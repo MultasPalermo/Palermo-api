@@ -33,10 +33,13 @@ namespace Business.Mensajeria.Email.implements
         {
             try
             {
+                // Generar PDF de la multa
                 var pdfBytes = await _pdfService.GeneratePdfAsync(dto);
 
+                // Construir el correo con el PDF adjunto
                 var builder = new InfraccionEmailBuilder(dto, pdfBytes);
 
+                // Enviar correo inicial
                 await _emailService.SendEmailAsync(
                     dto.userEmail,
                     builder.GetSubject(),
@@ -44,11 +47,11 @@ namespace Business.Mensajeria.Email.implements
                     builder.GetAttachments()?.ToList()
                 );
 
-                await _reminderService.ProgramarRecordatoriosAsync(dto);
+                _logger.LogInformation($"✅ Notificación inicial enviada a {dto.userEmail} para multa #{dto.id}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error en procesamiento inicial de infracción");
+                _logger.LogError(ex, $"❌ Error en procesamiento inicial de infracción #{dto.id}");
             }
         }
     }
