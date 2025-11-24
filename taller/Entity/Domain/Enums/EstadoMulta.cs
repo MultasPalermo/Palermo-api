@@ -11,6 +11,6 @@ namespace Entity.Domain.Enums
         Pendiente,
         Pagada,
         Vencida,
-        ConAcuerdoPago   // 👈 nuevo estado
+        ConAcuerdoPago   
     }
 }

@@ -919,6 +919,9 @@ namespace Entity.Migrations
                     b.Property<int>("DaysOfDelay")
                         .HasColumnType("int");
 
+                    b.Property<bool>("DiscountLocked")
+                        .HasColumnType("bit");
+
                     b.Property<string>("InformationFine")
                         .HasColumnType("nvarchar(max)");
 
@@ -1002,6 +1005,7 @@ namespace Entity.Migrations
                             AccruedInterest = 0m,
                             CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
                             DaysOfDelay = 0,
+                            DiscountLocked = false,
                             InfractionId = 1,
                             InitialAmount = 174000m,
                             IsCoactive = true,
@@ -1028,11 +1032,12 @@ namespace Entity.Migrations
                             AccruedInterest = 0m,
                             CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
                             DaysOfDelay = 0,
+                            DiscountLocked = false,
                             InfractionId = 14,
                             InitialAmount = 348000m,
                             IsCoactive = true,
                             LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
-                            StatusCollection = 1,
+                            StatusCollection = 4,
                             TotalToPay = 348000m,
                             UserId = 1,
                             UserNotificationId = 2,
@@ -1054,11 +1059,12 @@ namespace Entity.Migrations
                             AccruedInterest = 0m,
                             CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
                             DaysOfDelay = 0,
+                            DiscountLocked = false,
                             InfractionId = 27,
                             InitialAmount = 696000m,
                             IsCoactive = true,
                             LastInterestAppliedOn = new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc),
-                            StatusCollection = 2,
+                            StatusCollection = 5,
                             TotalToPay = 696000m,
                             UserId = 2,
                             UserNotificationId = 1,
@@ -1080,6 +1086,7 @@ namespace Entity.Migrations
                             AccruedInterest = 0m,
                             CoactiveActivatedOn = new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc),
                             DaysOfDelay = 0,
+                            DiscountLocked = false,
                             InfractionId = 40,
                             InitialAmount = 1392000m,
                             IsCoactive = true,

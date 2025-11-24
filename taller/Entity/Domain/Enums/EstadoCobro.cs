@@ -6,13 +6,13 @@
 
     namespace Entity.Domain.Enums
     {
-        public enum EstadoCobro
-        {
-            CobroPrejuridico,
-            CobroJuridico,
-            CobroCoactivo,
-            prejuridico3Dias,
-            prejuridico15Dias,
-            prejuridico25Dias,
+    public enum EstadoCobro
+    {
+        CobroPrejuridico = 0, 
+        prejuridico3Dias = 1, 
+        prejuridico15Dias = 2, 
+        prejuridico25Dias = 3,
+        CobroJuridico = 4,
+        CobroCoactivo = 5
     }
-    }
+}
