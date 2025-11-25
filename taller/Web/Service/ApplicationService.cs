@@ -7,6 +7,7 @@ using Business.Interfaces.IBusinessImplements.Security;
 using Business.Interfaces.IJWT;
 using Business.Interfaces.Notificacion;
 using Business.Interfaces.PDF;
+using Business.Mensajeria.Email;
 using Business.Mensajeria.Email.implements;
 using Business.Mensajeria.Email.@interface;
 using Business.Mensajeria.Implements;
@@ -32,6 +33,7 @@ using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.Domain.Models.Implements.Recaptcha;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using Utilities.Custom;
 using Web.AutoMapper;
 using Web.Configurations;
@@ -125,17 +127,24 @@ namespace Web.Service
             // Servicios PDF
             services.AddScoped<IPdfGeneratorService, PdfService>();
 
-            // Background Services
             services.AddHostedService<InfractionDiscountBackgroundService>();
-            services.AddScoped<IInfractionDiscountRunner, InfractionDiscountBackgroundService>();
+            services.AddSingleton<IInfractionDiscountRunner, InfractionDiscountBackgroundService>();
+
             services.AddScoped<DiscountService>();
+
             services.AddHostedService<EmailBackgroundService>();
             services.AddSingleton<EmailBackgroundQueue>();
             services.AddScoped<IServiceEmail, ServiceEmails>();
+
             services.AddHostedService<PaymentAgreementBackgroundService>();
+
             services.AddScoped<ReminderEmailAppService>();
-            services.AddScoped<EmailScheduler>();
+
+            services.AddSingleton<EmailScheduler>();
+            services.AddSingleton<IReminderScheduler, EmailScheduler>();
+
             services.AddScoped<EmailOrchestrator>();
+
 
 
 

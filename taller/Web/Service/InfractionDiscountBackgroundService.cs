@@ -124,7 +124,7 @@ namespace Web.Service
                 }
 
                 // ✅ Modo normal: ejecutar cada 24 horas
-                await Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
             }
 
         }

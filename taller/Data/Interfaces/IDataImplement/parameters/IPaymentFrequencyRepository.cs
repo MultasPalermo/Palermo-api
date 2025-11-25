@@ -10,5 +10,6 @@ namespace Data.Interfaces.IDataImplement.parameters
 {
     public interface IPaymentFrequencyRepository : IData<PaymentFrequency>
     {
+        Task<PaymentFrequency?> GetByIntervalAsync(string interval);
     }
 }

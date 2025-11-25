@@ -282,8 +282,6 @@ namespace Web.AutoMapper
             // -------------------------------------------------------------
             CreateMap<UserInfractionSelectDto, UserInfraction>();
 
-
-
             // Parameters
             CreateMap<department, departmentDto>().ReverseMap();
             CreateMap<department, departmentSelectDto>().ReverseMap();

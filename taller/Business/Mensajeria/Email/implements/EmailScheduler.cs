@@ -1,31 +1,26 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Business.Mensajeria.Email.implements
 {
-    // ✅ Implementar la interfaz y usar ConcurrentDictionary
     public class EmailScheduler : IReminderScheduler
     {
         private readonly EmailBackgroundQueue _queue;
-        // 💡 Almacena la fuente de cancelación (CTS) por el ID del trabajo (JobId)
+        private readonly ILogger<EmailScheduler> _logger;
+
+        // 🔥 CAMBIO 1: Usar un identificador único por job
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _scheduledJobs;
 
-        public EmailScheduler(EmailBackgroundQueue queue)
+        public EmailScheduler(EmailBackgroundQueue queue, ILogger<EmailScheduler> logger)
         {
-            _queue = queue;
+            _queue = queue ?? throw new ArgumentNullException(nameof(queue));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _scheduledJobs = new ConcurrentDictionary<string, CancellationTokenSource>();
         }
 
-        // ----------------------------------------
-        // IMPLEMENTACIÓN DE IREMINDERSCHEDULER
-        // ----------------------------------------
-
-        /// <summary>
-        /// Agenda el envío de un correo después de cierto tiempo.
-        /// </summary>
-        // ✅ 1. Recibe el jobId (ej: "Infraction_6_Status_prejuridico25Dias")
         public async Task ScheduleEmailAsync(Func<Task> sendEmailFunc, TimeSpan delay, string jobId)
         {
             if (sendEmailFunc == null)
@@ -33,44 +28,88 @@ namespace Business.Mensajeria.Email.implements
             if (string.IsNullOrWhiteSpace(jobId))
                 throw new ArgumentNullException(nameof(jobId));
 
-            // Crear y almacenar la fuente de cancelación para esta tarea
-            var cts = new CancellationTokenSource();
-            if (!_scheduledJobs.TryAdd(jobId, cts))
+            // 🔥 CAMBIO 2: Generar un ID único interno si ya existe
+            var internalJobId = jobId;
+            var attempt = 0;
+
+            while (_scheduledJobs.ContainsKey(internalJobId) && attempt < 100)
             {
-                // Si ya existe (no debería ocurrir si se usa correctamente), retornar
-                return;
+                attempt++;
+                internalJobId = $"{jobId}_{attempt}";
+                _logger.LogWarning($"⚠️ Job '{jobId}' ya existe. Generando ID único: '{internalJobId}'");
             }
 
-            // Agendar la ejecución con los nuevos parámetros
+            // Crear la fuente de cancelación
+            var cts = new CancellationTokenSource();
+
+            // 🔥 CAMBIO 3: Si falla el TryAdd después de 100 intentos, usar AddOrUpdate
+            if (!_scheduledJobs.TryAdd(internalJobId, cts))
+            {
+                _logger.LogWarning($"⚠️ No se pudo agregar '{internalJobId}'. Usando AddOrUpdate como fallback.");
+
+                var oldCts = _scheduledJobs.AddOrUpdate(
+                    internalJobId,
+                    cts,
+                    (key, existingCts) =>
+                    {
+                        existingCts?.Cancel();
+                        existingCts?.Dispose();
+                        return cts;
+                    }
+                );
+            }
+
+            _logger.LogInformation($"📅 Job '{internalJobId}' programado para ejecutarse en {delay.TotalSeconds:F3} segundos.");
+
+            // 🔥 CAMBIO 4: Pasar el internalJobId (no el original)
             await _queue.QueueBackgroundWorkItemAsync(() =>
-                ExecuteScheduledEmailAsync(sendEmailFunc, delay, jobId, cts.Token)
+                ExecuteScheduledEmailAsync(sendEmailFunc, delay, internalJobId, cts.Token)
             );
         }
 
-        /// <summary>
-        /// Cancela una tarea programada por su ID.
-        /// </summary>
-        // ✅ 2. Detiene la ejecución pendiente.
         public async Task CancelJobAsync(string jobId)
         {
-            // Intentar remover la fuente de cancelación del diccionario
-            if (_scheduledJobs.TryRemove(jobId, out var cts))
+            if (string.IsNullOrWhiteSpace(jobId))
             {
-                // Disparar la cancelación. Esto lanzará TaskCanceledException dentro de ExecuteScheduledEmailAsync.
-                cts.Cancel();
-                cts.Dispose(); // Liberar recursos
+                _logger.LogWarning("⚠️ Se intentó cancelar un job con ID nulo o vacío.");
+                return;
             }
+
+            // 🔥 CAMBIO 5: Buscar todos los jobs que coincidan con el patrón
+            var jobsToCancel = _scheduledJobs.Keys
+                .Where(k => k.StartsWith(jobId))
+                .ToList();
+
+            if (jobsToCancel.Count == 0)
+            {
+                _logger.LogInformation($"ℹ️ Job '{jobId}' no encontrado. Puede que ya se haya ejecutado.");
+                await Task.CompletedTask;
+                return;
+            }
+
+            foreach (var job in jobsToCancel)
+            {
+                if (_scheduledJobs.TryRemove(job, out var cts))
+                {
+                    try
+                    {
+                        cts.Cancel();
+                        _logger.LogInformation($"✅ Job '{job}' cancelado exitosamente.");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"❌ Error al cancelar el job '{job}'.");
+                    }
+                    finally
+                    {
+                        cts.Dispose();
+                    }
+                }
+            }
+
             await Task.CompletedTask;
         }
 
-        // ----------------------------------------
-        // MÉTODOS PRIVADOS (AUXILIARES)
-        // ----------------------------------------
-
-        /// <summary>
-        /// Ejecuta el envío real luego del delay.
-        /// </summary>
-        // ✅ 3. Recibe el jobId y el CancellationToken asociado
         private async Task ExecuteScheduledEmailAsync(
             Func<Task> sendEmailFunc,
             TimeSpan delay,
@@ -79,28 +118,59 @@ namespace Business.Mensajeria.Email.implements
         {
             try
             {
-                // 🛑 4. CRÍTICO: Monitorear el token durante el retraso. Si se cancela, lanza TaskCanceledException.
+                // 🔥 CAMBIO 6: Log antes del delay
+                _logger.LogDebug($"⏳ Job '{jobId}' esperando {delay.TotalSeconds:F3}s antes de ejecutar...");
+
                 await Task.Delay(delay, token);
 
-                // ✅ 5. Monitorear el token durante la ejecución real de la función
-                // (Aunque Task.Delay es lo más importante aquí, es buena práctica pasarlo a la función)
                 token.ThrowIfCancellationRequested();
 
+                _logger.LogInformation($"🚀 Ejecutando job '{jobId}'...");
+
                 await sendEmailFunc();
+
+                _logger.LogInformation($"✅ Job '{jobId}' ejecutado exitosamente.");
             }
             catch (TaskCanceledException)
             {
-                // ✅ Manejar la cancelación (para evitar el log de error)
-                Console.WriteLine($"🗑️ Tarea programada '{jobId}' cancelada correctamente. No se enviará correo.");
+                _logger.LogInformation($"🗑️ Job '{jobId}' fue cancelado antes de ejecutarse.");
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation($"🗑️ Job '{jobId}' fue cancelado (OperationCanceledException).");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Error ejecutando tarea programada '{jobId}': {ex.Message}");
+                _logger.LogError(ex, $"❌ Error ejecutando job '{jobId}'.");
             }
             finally
             {
-                // 6. Limpiar: Remover la entrada del diccionario, si aún estuviera allí (TryRemove es más seguro)
-                _scheduledJobs.TryRemove(jobId, out _);
+                // 🔥 CAMBIO 7: Intentar remover con timeout
+                var removed = false;
+                var retries = 0;
+
+                while (!removed && retries < 3)
+                {
+                    if (_scheduledJobs.TryRemove(jobId, out var cts))
+                    {
+                        cts?.Dispose();
+                        removed = true;
+                        _logger.LogDebug($"🧹 Recursos del job '{jobId}' liberados.");
+                    }
+                    else
+                    {
+                        retries++;
+                        if (retries < 3)
+                        {
+                            await Task.Delay(50); // Esperar 50ms antes de reintentar
+                        }
+                    }
+                }
+
+                if (!removed)
+                {
+                    _logger.LogWarning($"⚠️ No se pudo remover el job '{jobId}' del diccionario después de 3 intentos.");
+                }
             }
         }
     }

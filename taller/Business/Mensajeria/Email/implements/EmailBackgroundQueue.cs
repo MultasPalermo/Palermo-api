@@ -1,7 +1,6 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 
@@ -10,16 +9,27 @@ namespace Business.Mensajeria.Email.implements
     public class EmailBackgroundQueue
     {
         private readonly Channel<Func<Task>> _queue = Channel.CreateUnbounded<Func<Task>>();
+        private readonly ILogger<EmailBackgroundQueue> _logger;
 
-        // Se encola un "trabajo" (delegado async)
-        public async Task QueueBackgroundWorkItemAsync(Func<Task> workItem)
+        public EmailBackgroundQueue(ILogger<EmailBackgroundQueue> logger)
         {
-            await _queue.Writer.WriteAsync(workItem);
+            _logger = logger;
         }
 
-        // El worker lo consume uno a uno
+        // Encolar un trabajo
+        public async Task QueueBackgroundWorkItemAsync(Func<Task> workItem)
+        {
+            if (workItem == null)
+                throw new ArgumentNullException(nameof(workItem));
+
+            await _queue.Writer.WriteAsync(workItem);
+
+            // 🔍 Log opcional para monitoreo
+            _logger.LogDebug($"📥 Job encolado. Pendientes en cola: {_queue.Reader.Count}");
+        }
+
+        // El worker consume jobs
         public IAsyncEnumerable<Func<Task>> DequeueAsync(CancellationToken token)
             => _queue.Reader.ReadAllAsync(token);
     }
-
 }
