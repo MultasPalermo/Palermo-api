@@ -11,5 +11,8 @@ namespace Business.Interfaces.IBusinessImplements.parameters
 {
     public interface IPaymentFrequencyServices : IBusiness<PaymentFrequencyDto,PaymentFrequencySelectDto>
     {
+        Task<PaymentFrequency?> GetByIntervalAsync(string interval);
+        Task<DateTime> CalculateNextDateAsync(DateTime currentDate, string frequencyInterval);
+        Task<DateTime> CalculateEndDateAsync(DateTime startDate, string frequencyInterval, int installments);
     }
 }

@@ -166,7 +166,8 @@ namespace Entity.Migrations
                     id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     intervalPage = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    dueDayOfMonth = table.Column<int>(type: "int", nullable: false),
+                    IntervalType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IntervalValue = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -870,12 +871,16 @@ namespace Entity.Migrations
             migrationBuilder.InsertData(
                 schema: "Parameters",
                 table: "paymentFrequency",
-                columns: new[] { "id", "active", "created_date", "dueDayOfMonth", "intervalPage", "is_deleted" },
+                columns: new[] { "id", "IntervalType", "IntervalValue", "active", "created_date", "intervalPage", "is_deleted" },
                 values: new object[,]
                 {
-                    { 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 15, "MENSUAL", false },
-                    { 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 1, "QUINCENAL", false },
-                    { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 10, "BIMESTRAL", false }
+                    { 1, "Months", 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "MENSUAL", false },
+                    { 2, "Days", 15, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "QUINCENAL", false },
+                    { 3, "Months", 2, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "BIMESTRAL", false },
+                    { 4, "Days", 7, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "SEMANAL", false },
+                    { 5, "Months", 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "TRIMESTRAL", false },
+                    { 6, "Months", 6, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "SEMESTRAL", false },
+                    { 7, "Years", 1, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "ANUAL", false }
                 });
 
             migrationBuilder.InsertData(

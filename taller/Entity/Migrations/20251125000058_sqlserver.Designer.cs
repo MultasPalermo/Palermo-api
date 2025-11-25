@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251124221255_sqlserver")]
+    [Migration("20251125000058_sqlserver")]
     partial class sqlserver
     {
         /// <inheritdoc />
@@ -2340,14 +2340,18 @@ namespace Entity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+                    b.Property<string>("IntervalType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IntervalValue")
+                        .HasColumnType("int");
+
                     b.Property<bool>("active")
                         .HasColumnType("bit");
 
                     b.Property<DateTime>("created_date")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("dueDayOfMonth")
-                        .HasColumnType("int");
 
                     b.Property<string>("intervalPage")
                         .IsRequired()
@@ -2367,28 +2371,71 @@ namespace Entity.Migrations
                         new
                         {
                             id = 1,
+                            IntervalType = "Months",
+                            IntervalValue = 1,
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            dueDayOfMonth = 15,
                             intervalPage = "MENSUAL",
                             is_deleted = false
                         },
                         new
                         {
                             id = 2,
+                            IntervalType = "Days",
+                            IntervalValue = 15,
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            dueDayOfMonth = 1,
                             intervalPage = "QUINCENAL",
                             is_deleted = false
                         },
                         new
                         {
                             id = 3,
+                            IntervalType = "Months",
+                            IntervalValue = 2,
                             active = true,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            dueDayOfMonth = 10,
                             intervalPage = "BIMESTRAL",
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 4,
+                            IntervalType = "Days",
+                            IntervalValue = 7,
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            intervalPage = "SEMANAL",
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 5,
+                            IntervalType = "Months",
+                            IntervalValue = 3,
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            intervalPage = "TRIMESTRAL",
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 6,
+                            IntervalType = "Months",
+                            IntervalValue = 6,
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            intervalPage = "SEMESTRAL",
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 7,
+                            IntervalType = "Years",
+                            IntervalValue = 1,
+                            active = true,
+                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            intervalPage = "ANUAL",
                             is_deleted = false
                         });
                 });
