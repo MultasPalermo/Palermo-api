@@ -1,5 +1,6 @@
 ﻿using Data.Interfaces.IDataImplement.Security;
 using Data.Repositoy;
+using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.Auth.RestPasword;
 using Entity.Infrastructure.Contexts;
 using Microsoft.EntityFrameworkCore;

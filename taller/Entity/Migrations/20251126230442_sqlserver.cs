@@ -159,6 +159,25 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PasswordResetCodes",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    expiration = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    isUsed = table.Column<bool>(type: "bit", nullable: false),
+                    active = table.Column<bool>(type: "bit", nullable: false),
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PasswordResetCodes", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "paymentFrequency",
                 schema: "Parameters",
                 columns: table => new
@@ -863,7 +882,7 @@ namespace Entity.Migrations
                 {
                     { 1, 30, "Primer recordatorio después de la infracción.", "Recordatorio 30 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
                     { 2, 60, "Segundo recordatorio después de la infracción.", "Recordatorio 60 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
-                    { 3, 60, "Tercer recordatorio después de la infracción.", "Recordatorio 80 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
+                    { 3, 80, "Tercer recordatorio después de la infracción.", "Recordatorio 80 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
                     { 4, 100, "cobrojuridico recordatorio después de la infracción", "Recordatorio 100 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
                     { 5, 120, "CobroCoactivo recordatorio después de la infracción.", "Recordatorio 120 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false }
                 });
@@ -1534,6 +1553,9 @@ namespace Entity.Migrations
 
             migrationBuilder.DropTable(
                 name: "notificationSetting");
+
+            migrationBuilder.DropTable(
+                name: "PasswordResetCodes");
 
             migrationBuilder.DropTable(
                 name: "refreshTokens");

@@ -61,10 +61,12 @@ namespace Business.Mensajeria.Email.implements
 
             _logger.LogInformation($"📅 Job '{internalJobId}' programado para ejecutarse en {delay.TotalSeconds:F3} segundos.");
 
-            // 🔥 CAMBIO 4: Pasar el internalJobId (no el original)
-            await _queue.QueueBackgroundWorkItemAsync(() =>
-                ExecuteScheduledEmailAsync(sendEmailFunc, delay, internalJobId, cts.Token)
-            );
+            // Pasar el internalJobId (no el original)
+            await _queue.QueueBackgroundWorkItemAsync(async sp =>
+            {
+                await ExecuteScheduledEmailAsync(sendEmailFunc, delay, internalJobId, cts.Token);
+            });
+
         }
 
         public async Task CancelJobAsync(string jobId)

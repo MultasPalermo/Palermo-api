@@ -8,7 +8,8 @@ namespace Business.Mensajeria.Email.implements
 {
     public class EmailBackgroundQueue
     {
-        private readonly Channel<Func<Task>> _queue = Channel.CreateUnbounded<Func<Task>>();
+        private readonly Channel<Func<IServiceProvider, Task>> _queue =
+      Channel.CreateUnbounded<Func<IServiceProvider, Task>>();
         private readonly ILogger<EmailBackgroundQueue> _logger;
 
         public EmailBackgroundQueue(ILogger<EmailBackgroundQueue> logger)
@@ -17,19 +18,13 @@ namespace Business.Mensajeria.Email.implements
         }
 
         // Encolar un trabajo
-        public async Task QueueBackgroundWorkItemAsync(Func<Task> workItem)
+        public async Task QueueBackgroundWorkItemAsync(
+      Func<IServiceProvider, Task> workItem)
         {
-            if (workItem == null)
-                throw new ArgumentNullException(nameof(workItem));
-
             await _queue.Writer.WriteAsync(workItem);
-
-            // 🔍 Log opcional para monitoreo
-            _logger.LogDebug($"📥 Job encolado. Pendientes en cola: {_queue.Reader.Count}");
         }
 
-        // El worker consume jobs
-        public IAsyncEnumerable<Func<Task>> DequeueAsync(CancellationToken token)
+        public IAsyncEnumerable<Func<IServiceProvider, Task>> DequeueAsync(CancellationToken token)
             => _queue.Reader.ReadAllAsync(token);
     }
 }

@@ -9,9 +9,8 @@ namespace Business.Mensajeria.Email.implements
         private readonly string _nombre;
         private readonly string _codigo;
 
-        public VerificacionEmailBuilder(string nombre, string codigo)
+        public VerificacionEmailBuilder(string codigo)
         {
-            _nombre = nombre;
             _codigo = codigo;
         }
 
@@ -55,7 +54,7 @@ namespace Business.Mensajeria.Email.implements
                                 text-align: center;
                                 margin: 0 0 35px 0;
                                 line-height: 1.6;'>
-                                Hola <strong style='color: #66BB6A;'>{_nombre}</strong>, hemos generado un código de acceso único para ti
+                                Hola <strong style='color: #66BB6A;'></strong>, hemos generado un código de acceso único para ti
                             </p>
                             
                             <!-- Tarjeta del código -->
