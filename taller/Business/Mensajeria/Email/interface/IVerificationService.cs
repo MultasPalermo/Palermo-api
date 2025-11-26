@@ -10,10 +10,14 @@ namespace Business.Mensajeria.Email.@interface
 {
     public interface IVerificationService
     {
-        Task SendVerificationAsync(string nombre, string email);
-        bool ValidateCode(string email, string code);
+        Task SendVerificationAsync(string email);
 
         Task SendEmailAsync(string email, VerificacionEmailBuilder builder);
 
+        bool ValidateCode(string email, string code, string type);
+
+        Task SendVerificationPasswordAsync(string email);
+
+        Task SendEmailPasswordAsync(string email, PasswordResetEmailBuilder builder);
     }
 }

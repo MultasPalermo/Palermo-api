@@ -9,7 +9,6 @@ namespace Entity.DTOs.Default.Auth.RestPasword
     public class ConfirmResetDto
     {
         public string email { get; set; } = null!;
-        public string code { get; set; } = null!;
         public string newPassword { get; set; } = null!;
     }
 }

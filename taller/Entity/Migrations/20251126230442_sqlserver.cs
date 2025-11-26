@@ -8,7 +8,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Entity.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+<<<<<<<< HEAD:taller/Entity/Migrations/20251112221934_notification.cs
+    public partial class notification : Migration
+========
+    public partial class sqlserver : Migration
+>>>>>>>> 3ea7252 (feat: seguimiento a las multas):taller/Entity/Migrations/20251115175530_sqlserver.cs
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,15 +35,14 @@ namespace Entity.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PersonId = table.Column<long>(type: "bigint", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     LastActivityAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AbsoluteExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     Ip = table.Column<string>(type: "nvarchar(64)", maxLength: 64, nullable: true),
                     UserAgent = table.Column<string>(type: "nvarchar(512)", maxLength: 512, nullable: true),
                     active = table.Column<bool>(type: "bit", nullable: false),
-                    is_deleted = table.Column<bool>(type: "bit", nullable: false),
-                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -140,8 +143,6 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
-<<<<<<< HEAD:taller/Entity/Migrations/20251104044424_Initial.cs
-=======
                 name: "notificationSetting",
                 columns: table => new
                 {
@@ -181,7 +182,6 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
->>>>>>> 4281fa1 (feat(HU-07): Recuperar contraseña):taller/Entity/Migrations/20251112221934_notification.cs
                 name: "paymentFrequency",
                 schema: "Parameters",
                 columns: table => new
@@ -225,7 +225,7 @@ namespace Entity.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     TokenHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsRevoked = table.Column<bool>(type: "bit", nullable: false),
                     ReplacedByTokenHash = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -549,6 +549,37 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "notifications",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    RecipientUserId = table.Column<int>(type: "int", nullable: false),
+                    ActionRoute = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ReadAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    active = table.Column<bool>(type: "bit", nullable: false),
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_notifications", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_notifications_user_RecipientUserId",
+                        column: x => x.RecipientUserId,
+                        principalSchema: "ModelSecurity",
+                        principalTable: "user",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "roluser",
                 schema: "ModelSecurity",
                 columns: table => new
@@ -595,6 +626,12 @@ namespace Entity.Migrations
                     UserNotificationId = table.Column<int>(type: "int", nullable: false),
                     amountToPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     smldvValueAtCreation = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    paymentDue3Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue15Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue25Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue30Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue40Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StatusCollection = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -814,7 +851,8 @@ namespace Entity.Migrations
                     { 18, "pi pi-fw pi-briefcase", "dashboard", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Perfil", false, "Perfil" },
                     { 19, "pi pi-fw pi-briefcase", "notificaciones", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Notificacion de acuerdo ", false, "Notificacion de acuerdo" },
                     { 20, "pi pi-fw pi-home", "consultar-ingresar", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "inicio ", false, "inicio" },
-                    { 21, "pi pi-fw pi-home", "parameters/smdlv", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "valor de SMDLV ", false, "valor de SMDLV" }
+                    { 21, "pi pi-fw pi-home", "parameters/smdlv", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "valor de SMDLV ", false, "valor de SMDLV" },
+                    { 22, "pi pi-fw pi-home", "Seguimiento", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Seguimiento de Multa", false, "Seguimiento de Multa" }
                 });
 
             migrationBuilder.InsertData(
@@ -831,8 +869,6 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
-<<<<<<< HEAD:taller/Entity/Migrations/20251104044424_Initial.cs
-=======
                 table: "notificationSetting",
                 columns: new[] { "id", "Days", "Description", "Name", "TimeUnit", "UpdatedAt", "active", "created_date", "is_deleted" },
                 values: new object[,]
@@ -845,7 +881,6 @@ namespace Entity.Migrations
                 });
 
             migrationBuilder.InsertData(
->>>>>>> 4281fa1 (feat(HU-07): Recuperar contraseña):taller/Entity/Migrations/20251112221934_notification.cs
                 schema: "Parameters",
                 table: "paymentFrequency",
                 columns: new[] { "id", "active", "created_date", "dueDayOfMonth", "intervalPage", "is_deleted" },
@@ -991,7 +1026,7 @@ namespace Entity.Migrations
                     { 15, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 18, false, 2 },
                     { 16, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 19, false, 2 },
                     { 17, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 20, false, 2 },
-                    { 18, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 21, false, 5 }
+                    { 19, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 22, false, 2 }
                 });
 
             migrationBuilder.InsertData(
@@ -1138,10 +1173,16 @@ namespace Entity.Migrations
                     { 124, 21, 4, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
                     { 125, 21, 5, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
                     { 126, 21, 6, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 127, 4, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 128, 18, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 129, 19, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 130, 20, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
+                    { 127, 22, 1, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 128, 22, 2, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 129, 22, 3, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 130, 22, 4, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 131, 22, 5, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 132, 22, 6, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 133, 4, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 134, 18, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 135, 19, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 136, 20, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
                 });
 
             migrationBuilder.InsertData(
@@ -1177,13 +1218,13 @@ namespace Entity.Migrations
             migrationBuilder.InsertData(
                 schema: "Entities",
                 table: "userInfraction",
-                columns: new[] { "id", "InformationFine", "InfractionId", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "smldvValueAtCreation", "stateInfraction" },
+                columns: new[] { "id", "InformationFine", "InfractionId", "StatusCollection", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "paymentDue15Days", "paymentDue25Days", "paymentDue30Days", "paymentDue3Days", "paymentDue40Days", "smldvValueAtCreation", "stateInfraction" },
                 values: new object[,]
                 {
-                    { 1, null, 1, 1, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 },
-                    { 2, null, 14, 1, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 },
-                    { 3, null, 27, 2, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 },
-                    { 4, null, 40, 2, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 }
+                    { 1, null, 1, 0, 1, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 2, null, 14, 1, 1, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 3, null, 27, 2, 2, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 4, null, 40, 0, 2, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -1331,6 +1372,11 @@ namespace Entity.Migrations
                 schema: "Parameters",
                 table: "municipality",
                 column: "name");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_notifications_RecipientUserId",
+                table: "notifications",
+                column: "RecipientUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_paymentAgreement_paymentFrequencyId",
@@ -1485,8 +1531,6 @@ namespace Entity.Migrations
                 schema: "Entities");
 
             migrationBuilder.DropTable(
-<<<<<<< HEAD:taller/Entity/Migrations/20251104044424_Initial.cs
-=======
 <<<<<<<< HEAD:taller/Entity/Migrations/20251112221934_notification.cs
                 name: "notifications");
 ========
@@ -1497,7 +1541,6 @@ namespace Entity.Migrations
                 name: "PasswordResetCodes");
 
             migrationBuilder.DropTable(
->>>>>>> 4281fa1 (feat(HU-07): Recuperar contraseña):taller/Entity/Migrations/20251112221934_notification.cs
                 name: "refreshTokens");
 
             migrationBuilder.DropTable(

@@ -13,6 +13,8 @@ using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.AnexarMulta;           // <- DTO especial para anexar multas con persona
 using Entity.DTOs.Default.EntitiesDto;
+using Entity.DTOs.Default.Notificacion;
+using Entity.DTOs.Select.Entities;
 using Helpers.Business.Business.Helpers.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -188,30 +190,96 @@ public class UserInfractionServices
         // Crear la infracción
         var result = await base.CreateAsync(dto);
 
-        // 📨 Enviar correo con PDF de la multa
-        await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+        // ----------------------------------------------------------------
+        // Ejecutar la transacción DENTRO de la ExecutionStrategy (reintentos)
+        // ----------------------------------------------------------------
+        var strategy = _context.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
         {
-            using var scope = _scopeFactory.CreateScope();
-            var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
-            var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
+            // Abrimos la transacción dentro del ExecuteAsync para que EF Core pueda reintentar todo el bloque.
+            await using (var trx = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    // Crear la infracción dentro de la transacción (mantengo tu llamada original)
+                    result = await base.CreateAsync(dto);
 
-            var user = await _users.GetByIdAsync(dto.userId);
+                    // Confirmar la transacción
+                    await trx.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    try
+                    {
+                        await trx.RollbackAsync();
+                    }
+                    catch (Exception rbEx)
+                    {
+                        _logger.LogError(rbEx, "Error al hacer rollback de la transacción para la creación de infracción.");
+                    }
 
-            // Generamos el PDF con los datos de la infracción recién creada
-            var pdfBytes = await pdfService.GeneratePdfAsync(await GetByIdAsync(result.id));
-
-            var builder = new InfraccionEmailBuilder(
-                await GetByIdAsync(result.id),
-                pdfBytes
-            );
-
-            await emailService.SendEmailAsync(
-                user!.email,
-                builder.GetSubject(),
-                builder.GetBody()
-            );
+                    throw; // propaga la excepción para que la estrategia la pueda manejar/reintentar si aplica
+                }
+            }
         });
 
+        // ---------------------
+        // Post-commit: encolar correo con PDF (mantengo exactamente tu lógica)
+        // ---------------------    
+        await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
+        {
+            using var scope = sp.CreateScope();
+
+            var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
+            var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
+            var repo = scope.ServiceProvider.GetRequiredService<IPaymentAgreementRepository>();
+
+            var agreement = await repo.GetByIdAsync(dto.userId);
+            var dtoForPdf = _mapper.Map<PaymentAgreementSelectDto>(agreement);
+
+            var pdfBytes = await pdfService.GeneratePaymentAgreementPdfAsync(dtoForPdf);
+            var builder = new PaymentAgreementEmailBuilder(dtoForPdf, pdfBytes);
+
+            var email = agreement.userInfraction?.User?.email;
+            if (string.IsNullOrWhiteSpace(email))
+                return;
+
+            await emailService.SendEmailAsync(email, builder.GetSubject(), builder.GetBody());
+        });
+
+
+        // Post-commit: crear notificación del sistema y push realtime (en background) con scope propio
+        _ = Task.Run(async () =>
+        {
+            _logger.LogInformation("NotificationTask: iniciando creación de notificación para infracción {InfractionId}", result.id);
+
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var notifService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+                var notificationDto = new NotificationCreateDto
+                {
+                    Title = "Multa creada",
+                    Message = $"Hola, tu multa #{result.id:D6} fue registrada correctamente. Valor a pagar: {result.amountToPay:C}.",
+                    Type = NotificationType.InfractionCreated,
+                    Priority = NotificationPriority.Info,
+                    RecipientUserId = dto.userId,
+                    ActionRoute = "/infractions"
+                };
+
+                await notifService.CreateAsync(notificationDto);
+
+                _logger.LogInformation("NotificationTask: notificación creada OK para infracción {InfractionId}", result.id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "NotificationTask: error creando notificación para infracción {InfractionId}", result.id);
+            }
+        });
+
+        // 🔹 🔹 🔹 ¡Esta línea faltaba!
         return result;
     }
 

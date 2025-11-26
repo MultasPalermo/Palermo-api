@@ -44,19 +44,26 @@ public class PostgresDbContext : DbContext
         public DbSet<RolFormPermission> rol_form_permissions { get; set; }
         public DbSet<FormModule> form_modules { get; set; }
 
-        // =========================
-        // === DBSET Model Entities
-        // =========================
-        public DbSet<Infraction> Infraction { get; set; }
-        public DbSet<InspectoraReport> inspectoraReport { get; set; }
-        public DbSet<ValueSmldv> valueSmldv { get; set; }
-        public DbSet<UserNotification> userNotification { get; set; }
-        public DbSet<DocumentInfraction> documenInfraction { get; set; }
-        public DbSet<TypePayment> typePayment { get; set; }
-        public DbSet<UserInfraction> userInfraction { get; set; }
-        public DbSet<FineCalculationDetail> fineCalculationDetail { get; set; }
-        public DbSet<PaymentAgreement> paymentAgreement { get; set; }
-        public DbSet<RefreshToken> refreshTokens { get; set; }
+    ///<summary>
+    ///Implementación DBSet Model entities
+    ///</summary>
+
+    public DbSet<Infraction> Infraction { get; set; }
+    public DbSet<InspectoraReport> inspectoraReport { get; set; }
+    public DbSet<ValueSmldv> valueSmldv { get; set; }
+    public DbSet<UserNotification> userNotification { get; set; }
+    public DbSet<DocumentInfraction> documenInfraction { get; set; }
+    public DbSet<TypePayment> typePayment { get; set; }
+    public DbSet<UserInfraction> userInfraction { get; set; }
+    public DbSet<FineCalculationDetail> fineCalculationDetail { get; set; }
+    public DbSet<PaymentAgreement> paymentAgreement { get; set; }
+
+    public DbSet<InstallmentSchedule> installmentSchedule { get; set; }
+
+    public DbSet<AuthSession> AuthSessions { get; set; } = null!;
+    public DbSet<RefreshToken> refreshTokens { get; set; }
+    public DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

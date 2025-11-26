@@ -79,6 +79,8 @@ namespace Entity.Infrastructure.Contexts
         //parametros
         public DbSet<AuthSession> AuthSessions { get; set; } = null!;
         public DbSet<RefreshToken> refreshTokens { get; set; }
+        public DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
+
 
         public DbSet<documentType> documentTypes { get; set; }
         public DbSet<department> Departments { get; set; }

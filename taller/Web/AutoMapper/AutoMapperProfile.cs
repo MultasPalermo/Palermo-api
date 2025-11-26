@@ -30,6 +30,8 @@ namespace Web.AutoMapper
             // Users
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<User, UserSelectDto>()
+                .ForMember(p => p.password,
+                o => o.MapFrom(S => S.PasswordHash != null ? S.PasswordHash : null))
                 .ForMember(p => p.TypeDocument,
                 o => o.MapFrom(S => S.documentType != null ? S.documentType.name : null));
 

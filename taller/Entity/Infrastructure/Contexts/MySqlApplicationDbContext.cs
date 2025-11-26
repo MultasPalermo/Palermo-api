@@ -53,6 +53,8 @@ public class MySqlApplicationDbContext : DbContext
     public DbSet<FineCalculationDetail> fineCalculationDetail { get; set; }
     public DbSet<PaymentAgreement> paymentAgreement { get; set; }
     public DbSet<RefreshToken> refreshTokens { get; set; }
+    public DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

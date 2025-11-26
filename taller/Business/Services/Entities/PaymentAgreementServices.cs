@@ -173,12 +173,15 @@ namespace Business.Services.Entities
             _logger.LogInformation("Acuerdo {Id} creado con {Count} cuotas",
                 resultDto.Id, resultDto.InstallmentSchedule?.Count ?? 0);
 
-            // Envío de PDF y correo (background)
-            await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+            // -------------------------------------------------------------------
+            // 📨 Envío de PDF y correo (background)
+            // -------------------------------------------------------------------
+            await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
             {
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
+                    using var scope = sp.CreateScope();
+
                     var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
                     var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
                     var repository = scope.ServiceProvider.GetRequiredService<IPaymentAgreementRepository>();
@@ -215,6 +218,50 @@ namespace Business.Services.Entities
                 }
             });
 
+
+            // -------------------------------------------------------------------
+            // 🔔 Crear notificación del sistema (realtime + registro) en background
+            // -------------------------------------------------------------------
+            _ = Task.Run(async () =>
+            {
+                _logger.LogInformation("NotificationTask: iniciando creación de notificación para acuerdo {AgreementId}", entity.id);
+
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var notifService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+                    // Obtener el usuario receptor desde la relación (acuerdo -> infracción -> usuario)
+                    var recipientUserId = agreementWithSchedule?.userInfraction?.UserId;
+
+                    if (recipientUserId == null || recipientUserId <= 0)
+                    {
+                        _logger.LogWarning("No se encontró usuario asociado al acuerdo {AgreementId}, no se enviará notificación.", entity.id);
+                        return;
+                    }
+
+                    // Crear DTO de notificación
+                    var notificationDto = new NotificationCreateDto
+                    {
+                        Title = "Acuerdo de pago creado",
+                        Message = $"Hola, tu acuerdo de pago #{entity.id:D6} fue registrado correctamente con {resultDto.InstallmentSchedule?.Count ?? 0} cuotas.",
+                        Type = NotificationType.System, // o NotificationType.Reminder si lo prefieres más semántico
+                        Priority = NotificationPriority.Info,
+                        RecipientUserId = recipientUserId.Value,
+                        ActionRoute = "/agreements"
+                    };
+
+                    await notifService.CreateAsync(notificationDto);
+
+                    _logger.LogInformation("NotificationTask: notificación creada OK para acuerdo {AgreementId}", entity.id);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "NotificationTask: error creando notificación para acuerdo {AgreementId}", entity.id);
+                }
+            });
+
+            // ✅ Retornar el DTO final
             return resultDto;
         }
 

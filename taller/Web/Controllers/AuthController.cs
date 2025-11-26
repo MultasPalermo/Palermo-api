@@ -1,14 +1,16 @@
-﻿using Business.Interfaces.IJWT;
+﻿using Business.Interfaces.IBusinessImplements.Security;
+using Business.Interfaces.IJWT;
+using Business.Mensajeria.Email.@interface;
 using Entity.Domain.Models.Implements.ModelSecurity;
-using Entity.DTOs.Default.Auth.RestPasword;
 using Entity.DTOs.Default.Auth;
+using Entity.DTOs.Default.Auth.RestPasword;
+using Entity.DTOs.Default.Email;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Web.Infrastructure;
-using Business.Interfaces.IBusinessImplements.Security;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Web.Controllers
 {
@@ -23,6 +25,7 @@ namespace Web.Controllers
         private readonly IAuthCookieFactory _cookieFactory;
         private readonly JwtSettings _jwt;
         private readonly CookieSettings _cookieSettings;
+        private readonly IVerificationService _verificationService;
 
         public AuthController(
             IAuthService authService,
@@ -30,7 +33,8 @@ namespace Web.Controllers
             IAuthCookieFactory cookieFactory,
             IOptions<JwtSettings> jwtOptions,
             IOptions<CookieSettings> cookieOptions,
-            ILogger<AuthController> logger)
+            ILogger<AuthController> logger,
+            IVerificationService verificationService)
         {
             _authService = authService;
             _tokenService = tokenService;
@@ -38,6 +42,7 @@ namespace Web.Controllers
             _jwt = jwtOptions.Value;
             _cookieSettings = cookieOptions.Value;
             _logger = logger;
+            _verificationService = verificationService;
         }
 
         [HttpPost("register")]
@@ -157,23 +162,30 @@ namespace Web.Controllers
             return Ok(currentUserDto);
         }
 
-        [HttpPost("recuperar/enviar-codigo")]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> EnviarCodigoAsync([FromBody] RequestResetDto dto)
+        [HttpPost("code")]
+        public async Task<IActionResult> SendResetCode([FromBody] SendVerificationDto dto)
         {
-            await _authService.RequestPasswordResetAsync(dto.email);
-            return Ok(new { isSuccess = true, message = "Código enviado al correo (si el email es válido)" });
+            await _verificationService.SendVerificationPasswordAsync(dto.Email);
+            return Ok(new { message = "código enviado al correo" });
         }
 
-        [HttpPost("recuperar/confirmar")]
-        [AllowAnonymous]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> ConfirmarCodigo([FromBody] ConfirmResetDto dto)
+        [HttpPost("validate")]
+        public IActionResult ValidateResetCode([FromBody] VerificationRequestDto dto)
+        {
+            var valid = _verificationService.ValidateCode(dto.Email, dto.Code, "passwordReset");
+
+            return valid
+                ? Ok(new { valid = true })
+                : BadRequest(new { valid = false });
+        }
+
+        [HttpPost("newPassword")]
+        public async Task<IActionResult> ConfirmResetPassword([FromBody] ConfirmResetDto dto)
         {
             await _authService.ResetPasswordAsync(dto);
-            return Ok(new { isSuccess = true, message = "Contraseña actualizada" });
+            return Ok(new { message = "contraseña actualizada correctamente" });
         }
+
     }
 }
 

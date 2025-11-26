@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Security;
 using Business.Mensajeria;
+using Business.Mensajeria.Email.implements;
+using Business.Mensajeria.Email.@interface;
 using Data.Interfaces.IDataImplement.Security;
 using Data.Interfaces.Security;
 using Entity.Domain.Models.Implements.ModelSecurity;
@@ -12,6 +14,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
+using Telegram.Bot.Passport;
+using Utilities.Custom;
 using Utilities.Exceptions;
 
 namespace Business.Services.Security
@@ -27,17 +31,23 @@ namespace Business.Services.Security
         private readonly IPasswordResetCodeRepository _passwordResetRepo;
         private readonly IMemoryCache _cache;
         private readonly IPasswordHasher<User> _passwordHasher;
-
+        private readonly IVerificationService _verificationService;
+        private readonly EncriptePassword _encrypter;
+        private readonly EmailBackgroundQueue _queue;
+        private readonly IServiceEmail _emailService;
         public AuthService(
             IUserRepository userData,
             ILogger<AuthService> logger,
             IRolUserRepository rolUserData,
             IMapper mapper,
-            //IServiceEmail emailService,
+            IServiceEmail emailService,
             IPasswordResetCodeRepository passwordResetRepo,
             IUserMeRepository userMeRepository,
             IMemoryCache memoryCache,
-            IPasswordHasher<User> passwordHasher)
+            IPasswordHasher<User> passwordHasher,
+            IVerificationService verificationService,
+            EncriptePassword encrypter,
+            EmailBackgroundQueue emailQueue)
         {
             _userRepository = userData;
             _logger = logger;
@@ -48,12 +58,20 @@ namespace Business.Services.Security
             _userMeRepository = userMeRepository;
             _cache = memoryCache;
             _passwordHasher = passwordHasher;
+            _verificationService = verificationService;
+            _encrypter = encrypter;
+            _queue = emailQueue;
+            _emailService = emailService;
         }
 
         private static string MeKey(int userId) => $"me:{userId}";
 
         public async Task<UserDto> RegisterAsync(RegisterDto dto)
         {
+            // 1. verificar código
+            var isValidCode = _verificationService.ValidateCode(dto.email, dto.verificationCode, "verification");
+            if (!isValidCode)
+                throw new BusinessException("código de verificación incorrecto o expirado.");
 
             // tu repo NO tiene ExistsByEmailAsync -> usa FindEmail
             var existing = await _userRepository.FindEmail(dto.email);
@@ -63,69 +81,57 @@ namespace Business.Services.Security
             var person = _mapper.Map<Person>(dto);
             var user = _mapper.Map<User>(dto);
 
-            // tu entidad usa "password" en minúscula
+            // 🔥 aplicar hash identity (NO tu encrypter)
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.password);
+
             user.Person = person;
 
+            // logs
+            _logger.LogInformation("registrando user: {@user}", user);
+            _logger.LogInformation("registrando persona: {@person}", person);
+
+            // 4. crear
             await _userRepository.CreateAsync(user);
 
-            // tu repo de roles expone AsignateUserRTo (no AsignateRolDefault)
+            if (user.id <= 0)
+                throw new BusinessException("no se pudo crear el usuario.");
+
+            // 5. asignar rol
             await _rolUserRepository.AsignateUserRTo(user);
 
             // en tu modelo, la PK es "id"
             var createdUser = await _userRepository.GetByIdAsync(user.id)
-                               ?? throw new BusinessException("Error interno: no se pudo recuperar el usuario tras registrarlo.");
+                                   ?? throw new BusinessException("error interno al obtener usuario.");
 
             InvalidateUserCache(user.id);
+
             return _mapper.Map<UserDto>(createdUser);
         }
-
         public async Task RequestPasswordResetAsync(string email)
         {
-            // tu repo NO tiene GetByEmailAsync -> usa FindEmail
-            var user = await _userRepository.FindEmail(email)
-                       ?? throw new ValidationException("Correo no registrado");
+            var user = await _userRepository.FindEmail(email);
+            if (user == null)
+                throw new ValidationException("correo no registrado");
 
-            // Código 6 dígitos con RNG criptográfico
-            string code;
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                var bytes = new byte[4];
-                rng.GetBytes(bytes);
-                code = (BitConverter.ToUInt32(bytes, 0) % 1_000_000).ToString("D6");
-            }
-
-            var resetCode = new PasswordResetCode
-            {
-                email = email,
-                code = code,
-                expiration = DateTime.UtcNow.AddMinutes(10),
-                isUsed = false
-            };
-
-            await _passwordResetRepo.CreateAsync(resetCode);
-           // await _emailService.EnviarEmailBienvenida(email);
+            // enviar código de recuperación
+            await _verificationService.SendVerificationPasswordAsync(email);
         }
 
         public async Task ResetPasswordAsync(ConfirmResetDto dto)
         {
-            var record = await _passwordResetRepo.GetValidCodeAsync(dto.email, dto.code)
-                         ?? throw new ValidationException("Código inválido o expirado");
-
-            // tu repo NO tiene GetByEmailAsync -> usa FindEmail
             var user = await _userRepository.FindEmail(dto.email)
-                       ?? throw new ValidationException("Usuario no encontrado");
+                       ?? throw new ValidationException("usuario no encontrado");
 
-            // tu entidad usa "password" en minúscula
             user.PasswordHash = _passwordHasher.HashPassword(user, dto.newPassword);
 
             await _userRepository.UpdateAsync(user);
 
-            record.isUsed = true;
-            await _passwordResetRepo.UpdateAsync(record);
-
             InvalidateUserCache(user.id);
+
+            _cache.Remove(dto.email); // eliminar token/código usado
         }
+
+
 
 
         public async Task<UserMeDto> BuildUserContextAsync(int userId)
