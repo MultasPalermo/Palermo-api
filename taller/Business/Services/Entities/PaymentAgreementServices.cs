@@ -179,11 +179,12 @@ namespace Business.Services.Entities
             // -------------------------------------------------------------------
             // 📨 Envío de PDF y correo (background)
             // -------------------------------------------------------------------
-            await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+            await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
             {
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
+                    using var scope = sp.CreateScope();
+
                     var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
                     var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
                     var repository = scope.ServiceProvider.GetRequiredService<IPaymentAgreementRepository>();
@@ -219,6 +220,7 @@ namespace Business.Services.Entities
                     _logger.LogError(ex, "Error enviando correo con acuerdo {Id}", entity.id);
                 }
             });
+
 
             // -------------------------------------------------------------------
             // 🔔 Crear notificación del sistema (realtime + registro) en background

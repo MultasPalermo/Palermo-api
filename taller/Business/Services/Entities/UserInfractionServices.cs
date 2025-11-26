@@ -16,7 +16,8 @@ using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.AnexarMulta;           // <- DTO especial para anexar multas con persona
 using Entity.DTOs.Default.EntitiesDto;
-using Entity.Infrastructure.Contexts;
+using Entity.DTOs.Default.Notificacion;
+using Entity.DTOs.Select.Entities;
 using Helpers.Business.Business.Helpers.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -247,29 +248,28 @@ public class UserInfractionServices
 
         // ---------------------
         // Post-commit: encolar correo con PDF (mantengo exactamente tu lógica)
-        // ---------------------
-        await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+        // ---------------------    
+        await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
         {
-            using var scope = _scopeFactory.CreateScope();
+            using var scope = sp.CreateScope();
+
             var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
             var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
+            var repo = scope.ServiceProvider.GetRequiredService<IPaymentAgreementRepository>();
 
-            var user = await _users.GetByIdAsync(dto.userId);
+            var agreement = await repo.GetByIdAsync(dto.userId);
+            var dtoForPdf = _mapper.Map<PaymentAgreementSelectDto>(agreement);
 
-            // Generamos el PDF con los datos de la infracción recién creada
-            var pdfBytes = await pdfService.GeneratePdfAsync(await GetByIdAsync(result.id));
+            var pdfBytes = await pdfService.GeneratePaymentAgreementPdfAsync(dtoForPdf);
+            var builder = new PaymentAgreementEmailBuilder(dtoForPdf, pdfBytes);
 
-            var builder = new InfraccionEmailBuilder(
-                await GetByIdAsync(result.id),
-                pdfBytes
-            );
+            var email = agreement.userInfraction?.User?.email;
+            if (string.IsNullOrWhiteSpace(email))
+                return;
 
-            await emailService.SendEmailAsync(
-                user!.email,
-                builder.GetSubject(),
-                builder.GetBody()
-            );
+            await emailService.SendEmailAsync(email, builder.GetSubject(), builder.GetBody());
         });
+
 
         // Post-commit: crear notificación del sistema y push realtime (en background) con scope propio
         _ = Task.Run(async () =>

@@ -64,6 +64,8 @@ public class MySqlApplicationDbContext : DbContext
 
     public DbSet<AuthSession> AuthSessions { get; set; } = null!;
     public DbSet<RefreshToken> refreshTokens { get; set; }
+    public DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
+
 
     //parametros
     public DbSet<documentType> documentTypes { get; set; }

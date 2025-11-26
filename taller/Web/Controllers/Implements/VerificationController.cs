@@ -19,15 +19,18 @@ namespace Web.Controllers.Implements
         [HttpPost("send")]
         public async Task<IActionResult> SendCode([FromBody] SendVerificationDto dto)
         {
-            await _verificationService.SendVerificationAsync(dto.Nombre, dto.Email);
-            return Ok(new { message = "Código enviado al correo" });
+            await _verificationService.SendVerificationAsync(dto.Email);
+            return Ok(new { message = "código enviado al correo" });
         }
 
         [HttpPost("validate")]
         public IActionResult ValidateCode([FromBody] VerificationRequestDto dto)
         {
-            var result = _verificationService.ValidateCode(dto.Email, dto.Code);
-            return result ? Ok(new { valid = true }) : BadRequest(new { valid = false });
+            var result = _verificationService.ValidateCode(dto.Email, dto.Code, "verification");
+
+            return result
+                ? Ok(new { valid = true })
+                : BadRequest(new { valid = false });
         }
     }
 }

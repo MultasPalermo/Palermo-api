@@ -1823,6 +1823,42 @@ namespace Entity.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Entity.Domain.Models.Implements.ModelSecurity.PasswordResetCode", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("expiration")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("isUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("is_deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.ToTable("PasswordResetCodes");
+                });
+
             modelBuilder.Entity("Entity.Domain.Models.Implements.ModelSecurity.Permission", b =>
                 {
                     b.Property<int>("id")
@@ -2268,7 +2304,7 @@ namespace Entity.Migrations
                         new
                         {
                             id = 3,
-                            Days = 60,
+                            Days = 80,
                             Description = "Tercer recordatorio después de la infracción.",
                             Name = "Recordatorio 80 segundos",
                             TimeUnit = "SECONDS",
