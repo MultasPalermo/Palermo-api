@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Entity.Domain.Models.Implements.ModelSecurity;
 
-namespace ControlDeComparendo.Tests
+namespace ControlDeComparendo.Tests.Entity
 {
     public class CookieSettingsTests
     {

@@ -1,7 +1,7 @@
 ﻿using Entity.Domain.Models.Implements.Entities;
 using Xunit;
 
-namespace ControlDeComparendo.Tests
+namespace ControlDeComparendo.Tests.Entity
 {
     public class PaymentAgreementTests
     {

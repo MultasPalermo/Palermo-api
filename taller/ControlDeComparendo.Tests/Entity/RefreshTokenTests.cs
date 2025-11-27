@@ -1,8 +1,8 @@
 ﻿using Xunit;
 using Entity.Domain.Models.Implements.Entities;
-using Entity.Domain.Models.Implements.ModelSecurity; // ajusta el namespace
+using Entity.Domain.Models.Implements.ModelSecurity;
 
-namespace ControlDeComparendo.Tests
+namespace ControlDeComparendo.Tests.Entity
 {
     public class RefreshTokenTests
     {
