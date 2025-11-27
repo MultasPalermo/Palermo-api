@@ -21,15 +21,15 @@ namespace Entity.DataInit.dataInitModelSecurity
         {
             var seedDate = new DateTime(2025, 01, 01, 0, 0, 0, DateTimeKind.Utc);
             modelBuilder.Entity<Module>().HasData(
-                new Module
-                {
-                    id = 1,
-                    name = "Inicio",
-                    description = "Inicio",
-                    active = true,
-                    is_deleted = false,
-                    created_date = seedDate,
-                },
+                  new Module
+                  {
+                      id = 1,
+                      name = "Inicio",
+                      description = "Inicio",
+                      active = true,
+                      is_deleted = false,
+                      created_date = seedDate,
+                  },
                 new Module
                 {
                     id = 2,
@@ -41,7 +41,7 @@ namespace Entity.DataInit.dataInitModelSecurity
                 },
                 new Module
                 {
-                    id = 3 ,
+                    id = 3,
                     name = "Gestion Avanzada",
                     description = "Gestion Avanzada",
                     active = true,
@@ -49,14 +49,14 @@ namespace Entity.DataInit.dataInitModelSecurity
                     created_date = seedDate,
                 },
                  new Module
-                {
-                    id = 4 ,
-                    name = "perfil",
-                    description = "perfil",
-                    active = true,
-                    is_deleted = false,
-                    created_date = seedDate,
-                },
+                 {
+                     id = 4,
+                     name = "perfil",
+                     description = "perfil",
+                     active = true,
+                     is_deleted = false,
+                     created_date = seedDate,
+                 },
                  new Module
                  {
                      id = 5,

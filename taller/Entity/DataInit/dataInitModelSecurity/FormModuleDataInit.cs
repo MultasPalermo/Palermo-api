@@ -185,12 +185,20 @@ namespace Entity.DataInit.dataInitModelSecurity
                  },
                  new FormModule
                  {
-                     id = 18,
-                     formid = 21,
-                     moduleid = 5,
+                     id = 19,
+                     formid = 22,
+                     moduleid = 2,
                      is_deleted = false,
                      created_date = seedDate,
-                 }
+                 },
+                   new FormModule
+                   {
+                       id = 20,
+                       formid = 23,
+                       moduleid = 5,
+                       is_deleted = false,
+                       created_date = seedDate,
+                   }
              );
         }
     }

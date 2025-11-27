@@ -22,6 +22,7 @@ using Data.Interfaces.Security;
 using Data.Repositoy;
 using Data.Services;
 using Data.Services.Entities;
+using Data.Services.Parameters;
 using Data.Services.Security;
 using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.Domain.Models.Implements.Recaptcha;
@@ -50,6 +51,10 @@ namespace Web.Service
 
             // Repositorios — PARAMETERS
             services.AddScoped<ImunicipalityRepository, municipalityRepository>();
+            services.AddScoped<IdocumentTypeRepository, documentTypeRepository>();
+            services.AddScoped<IPaymentFrequencyRepository, PaymentFrequencyRepository>();
+            services.AddScoped<IdepartmentRepository, departmentRepository>();
+            services.AddScoped<INotificationSettingRepository, NotificationSettingRepository>();
 
             // Repositorios — SECURITY
             services.AddScoped<IUserRepository, UserRepository>();
@@ -76,6 +81,7 @@ namespace Web.Service
             services.AddScoped<IdocumentTypeServices, documentTypeServices>();
             services.AddScoped<IPaymentFrequencyServices, PaymentFrequencyServices>();
             services.AddScoped<ITypePaymentServices, TypePaymentServices>();
+            services.AddScoped<INotificationSettingServices, NotificationSettingService>();
 
             // Servicios — SECURITY
             services.AddScoped<IUserService, UserService>();
@@ -115,6 +121,11 @@ namespace Web.Service
             services.AddSingleton<EmailBackgroundQueue>();
             services.AddScoped<IServiceEmail, ServiceEmails>();
             services.AddHostedService<PaymentAgreementBackgroundService>();
+            services.AddScoped<ReminderEmailAppService>();
+            services.AddScoped<EmailScheduler>();
+            services.AddScoped<EmailOrchestrator>();
+
+
 
             // Recaptcha
             services.Configure<RecaptchaOptions>(configuration.GetSection("Recaptcha"));

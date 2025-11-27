@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Entity.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class sqlserver : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -137,6 +137,26 @@ namespace Entity.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_module", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "notificationSetting",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Days = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TimeUnit = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    active = table.Column<bool>(type: "bit", nullable: false),
+                    is_deleted = table.Column<bool>(type: "bit", nullable: false),
+                    created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_notificationSetting", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -550,9 +570,23 @@ namespace Entity.Migrations
                     InformationFine = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     InfractionId = table.Column<int>(type: "int", nullable: false),
+                    numer_smldv = table.Column<int>(type: "int", nullable: false),
                     UserNotificationId = table.Column<int>(type: "int", nullable: false),
                     amountToPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     smldvValueAtCreation = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
+                    IsCoactive = table.Column<bool>(type: "bit", nullable: false),
+                    CoactiveActivatedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    LastInterestAppliedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AccruedInterest = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    InitialAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    DaysOfDelay = table.Column<int>(type: "int", nullable: false),
+                    TotalToPay = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    paymentDue3Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue15Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue25Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue30Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    paymentDue40Days = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    StatusCollection = table.Column<int>(type: "int", nullable: false),
                     active = table.Column<bool>(type: "bit", nullable: false),
                     is_deleted = table.Column<bool>(type: "bit", nullable: false),
                     created_date = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -716,10 +750,10 @@ namespace Entity.Migrations
                 columns: new[] { "id", "Name", "active", "created_date", "is_deleted" },
                 values: new object[,]
                 {
-                    { 1, "Infraccion de tipo uno", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 2, "Infraccion de tipo dos", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 3, "Infraccion de tipo tres", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 4, "Infraccion de tipo cuatro", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
+                    { 1, "Multa Tipo uno", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 2, "Multa Tipo dos", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 3, "Multa Tipo tres", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 4, "Multa Tipo cuatro", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
                 });
 
             migrationBuilder.InsertData(
@@ -772,7 +806,9 @@ namespace Entity.Migrations
                     { 18, "pi pi-fw pi-briefcase", "dashboard", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Perfil", false, "Perfil" },
                     { 19, "pi pi-fw pi-briefcase", "notificaciones", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Notificacion de acuerdo ", false, "Notificacion de acuerdo" },
                     { 20, "pi pi-fw pi-home", "consultar-ingresar", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "inicio ", false, "inicio" },
-                    { 21, "pi pi-fw pi-home", "parameters/smdlv", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "valor de SMDLV ", false, "valor de SMDLV" }
+                    { 21, "pi pi-fw pi-home", "parameters/smdlv", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "valor de SMDLV ", false, "valor de SMDLV" },
+                    { 22, "pi pi-fw pi-home", "Seguimiento", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Seguimiento de Multa", false, "Seguimiento de Multa" },
+                    { 23, "pi pi-fw pi-home", "parameters/recordatorios", true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Parametro de fechas", false, "Parametro de recordatorios" }
                 });
 
             migrationBuilder.InsertData(
@@ -786,6 +822,18 @@ namespace Entity.Migrations
                     { 3, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Gestion Avanzada", false, "Gestion Avanzada" },
                     { 4, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "perfil", false, "perfil" },
                     { 5, true, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "modulo de parametro", false, "modulo de parametro" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "notificationSetting",
+                columns: new[] { "id", "Days", "Description", "Name", "TimeUnit", "UpdatedAt", "active", "created_date", "is_deleted" },
+                values: new object[,]
+                {
+                    { 1, 30, "Primer recordatorio después de la infracción.", "Recordatorio 30 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
+                    { 2, 60, "Segundo recordatorio después de la infracción.", "Recordatorio 60 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
+                    { 3, 60, "Tercer recordatorio después de la infracción.", "Recordatorio 80 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
+                    { 4, 100, "cobrojuridico recordatorio después de la infracción", "Recordatorio 100 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false },
+                    { 5, 120, "CobroCoactivo recordatorio después de la infracción.", "Recordatorio 120 segundos", "SECONDS", null, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false }
                 });
 
             migrationBuilder.InsertData(
@@ -934,7 +982,8 @@ namespace Entity.Migrations
                     { 15, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 18, false, 2 },
                     { 16, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 19, false, 2 },
                     { 17, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 20, false, 2 },
-                    { 18, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 21, false, 5 }
+                    { 19, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 22, false, 2 },
+                    { 20, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), 23, false, 5 }
                 });
 
             migrationBuilder.InsertData(
@@ -1081,10 +1130,22 @@ namespace Entity.Migrations
                     { 124, 21, 4, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
                     { 125, 21, 5, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
                     { 126, 21, 6, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 127, 4, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 128, 18, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 129, 19, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
-                    { 130, 20, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
+                    { 127, 22, 1, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 128, 22, 2, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 129, 22, 3, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 130, 22, 4, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 131, 22, 5, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 132, 22, 6, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 133, 23, 1, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 134, 23, 2, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 135, 23, 3, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 136, 23, 4, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 137, 23, 5, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 138, 23, 6, 1, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 139, 4, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 140, 18, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 141, 19, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false },
+                    { 142, 20, 1, 2, false, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false }
                 });
 
             migrationBuilder.InsertData(
@@ -1120,13 +1181,13 @@ namespace Entity.Migrations
             migrationBuilder.InsertData(
                 schema: "Entities",
                 table: "userInfraction",
-                columns: new[] { "id", "InformationFine", "InfractionId", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "smldvValueAtCreation", "stateInfraction" },
+                columns: new[] { "id", "AccruedInterest", "CoactiveActivatedOn", "DaysOfDelay", "InformationFine", "InfractionId", "InitialAmount", "IsCoactive", "LastInterestAppliedOn", "StatusCollection", "TotalToPay", "UserId", "UserNotificationId", "active", "amountToPay", "created_date", "dateInfraction", "is_deleted", "numer_smldv", "paymentDue15Days", "paymentDue25Days", "paymentDue30Days", "paymentDue3Days", "paymentDue40Days", "smldvValueAtCreation", "stateInfraction" },
                 values: new object[,]
                 {
-                    { 1, null, 1, 1, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 },
-                    { 2, null, 14, 1, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 },
-                    { 3, null, 27, 2, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 },
-                    { 4, null, 40, 2, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 43500m, 0 }
+                    { 1, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 1, 174000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 0, 174000m, 1, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 0, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 2, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 14, 348000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 1, 348000m, 1, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 0, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 3, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 27, 696000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 2, 696000m, 2, 1, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 0, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 },
+                    { 4, 0m, new DateTime(2025, 1, 31, 0, 0, 0, 0, DateTimeKind.Utc), 0, null, 40, 1392000m, true, new DateTime(2025, 1, 30, 0, 0, 0, 0, DateTimeKind.Utc), 0, 1392000m, 2, 2, true, 0m, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, 0, new DateTime(2025, 1, 16, 0, 0, 0, 0, DateTimeKind.Utc), new DateTime(2025, 1, 26, 0, 0, 0, 0, DateTimeKind.Utc), null, new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Utc), null, 43500m, 0 }
                 });
 
             migrationBuilder.InsertData(
@@ -1426,6 +1487,9 @@ namespace Entity.Migrations
             migrationBuilder.DropTable(
                 name: "installmentSchedule",
                 schema: "Entities");
+
+            migrationBuilder.DropTable(
+                name: "notificationSetting");
 
             migrationBuilder.DropTable(
                 name: "refreshTokens");

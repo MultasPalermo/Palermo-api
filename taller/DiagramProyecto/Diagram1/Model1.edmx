@@ -20,7 +20,6 @@
           <EntitySet Name="StateInfrationSet" EntityType="Model1.StateInfration" />
           <EntitySet Name="PaymentAgreementSet" EntityType="Model1.PaymentAgreement" />
           <EntitySet Name="UserNotificationSet" EntityType="Model1.UserNotification" />
-          <EntitySet Name="AccessLogSet" EntityType="Model1.AccessLog" />
           <EntitySet Name="ModuleSet" EntityType="Model1.Module" />
           <EntitySet Name="PermissionSet" EntityType="Model1.Permission" />
           <EntitySet Name="FormSet" EntityType="Model1.Form" />
@@ -212,16 +211,6 @@
           <Property Name="ShippingDate" Type="String" Nullable="false" />
           <Property Name="State" Type="String" Nullable="false" />
           <NavigationProperty Name="UserInfraction" Relationship="Model1.UserNotificationUserInfraction" FromRole="UserNotification" ToRole="UserInfraction" />
-        </EntityType>
-        <EntityType Name="AccessLog">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Action" Type="String" Nullable="false" />
-          <Property Name="Timestamp" Type="String" Nullable="false" />
-          <Property Name="Status" Type="String" Nullable="false" />
-          <Property Name="Details" Type="String" Nullable="false" />
         </EntityType>
         <EntityType Name="Module">
           <Key>

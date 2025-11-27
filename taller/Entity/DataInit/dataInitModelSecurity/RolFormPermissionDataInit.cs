@@ -22,7 +22,7 @@ namespace Entity.DataInit.dataInitModelSecurity
             // ===========================
             // Permisos para Administrador
             // ===========================
-            for (int formId = 1; formId <= 21; formId++) // todos los formularios
+            for (int formId = 1; formId <= 23; formId++) // todos los formularios
             {
                 for (int permissionId = 1; permissionId <= 6; permissionId++) // todos los permisos
                 {
@@ -45,8 +45,8 @@ namespace Entity.DataInit.dataInitModelSecurity
             rolFormPermissions.Add(new RolFormPermission
             {
                 id = id++,
-                RolId = 2, 
-                FormId = 4, 
+                RolId = 2,
+                FormId = 4,
                 PermissionId = 1,
                 is_deleted = false,
                 created_date = seedDate
@@ -55,18 +55,18 @@ namespace Entity.DataInit.dataInitModelSecurity
             rolFormPermissions.Add(new RolFormPermission
             {
                 id = id++,
-                RolId = 2, 
+                RolId = 2,
                 FormId = 18,
-                PermissionId = 1, 
+                PermissionId = 1,
                 is_deleted = false,
                 created_date = seedDate
-            });         
+            });
             rolFormPermissions.Add(new RolFormPermission
             {
                 id = id++,
-                RolId = 2, 
+                RolId = 2,
                 FormId = 19,
-                PermissionId = 1, 
+                PermissionId = 1,
                 is_deleted = false,
                 created_date = seedDate
             });
