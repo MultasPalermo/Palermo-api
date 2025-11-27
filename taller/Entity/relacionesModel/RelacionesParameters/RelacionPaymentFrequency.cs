@@ -20,8 +20,6 @@ namespace Entity.relacionesModel.RelacionesParameters
                    .HasMaxLength(50)
                    .HasColumnType("varchar(50)");
 
-            builder.Property(x => x.dueDayOfMonth)
-                   .IsRequired();
 
 
             builder.HasIndex(x => x.intervalPage).IsUnique(false);

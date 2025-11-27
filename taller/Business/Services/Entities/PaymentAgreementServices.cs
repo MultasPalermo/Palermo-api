@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Business.Interfaces.IBusinessImplements.Entities;
+using Business.Interfaces.IBusinessImplements.parameters;
 using Business.Interfaces.Notificacion;
 using Business.Interfaces.PDF;
 using Business.Mensajeria.Email.implements;
@@ -10,6 +11,7 @@ using Business.validaciones.Entities.PaymentAgreement;
 using Data.Interfaces.IDataImplement.Entities;
 using Entity.Domain.Enums;
 using Entity.Domain.Models.Implements.Entities;
+using Entity.Domain.Models.Implements.parameters;
 using Entity.DTOs.Default.InstallmentSchedule;
 using Entity.DTOs.Default.Notificacion;
 using Entity.DTOs.Select.Entities;
@@ -37,6 +39,7 @@ namespace Business.Services.Entities
         private readonly ApplicationDbContext _context;
         private readonly EmailBackgroundQueue _emailQueue;
         private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IPaymentFrequencyServices _frequencyServices;
 
         public PaymentAgreementServices(
             IPaymentAgreementRepository paymentAgreementRepository,
@@ -44,7 +47,8 @@ namespace Business.Services.Entities
             ILogger<PaymentAgreementServices> logger,
             ApplicationDbContext context,
             EmailBackgroundQueue emailQueue,
-            IServiceScopeFactory scopeFactory
+            IServiceScopeFactory scopeFactory,
+            IPaymentFrequencyServices frequencyServices
         ) : base(paymentAgreementRepository, mapper, context)
         {
             _paymentAgreementRepository = paymentAgreementRepository;
@@ -52,8 +56,8 @@ namespace Business.Services.Entities
             _context = context;
             _emailQueue = emailQueue;
             _scopeFactory = scopeFactory;
+            _frequencyServices = frequencyServices;
         }
-
 
         public override async Task<IEnumerable<PaymentAgreementSelectDto>> GetAllAsync(GetAllType getAllType)
         {
@@ -87,37 +91,15 @@ namespace Business.Services.Entities
             }
         }
 
-        // Calcula la fecha final en función de la frecuencia y el número de cuotas
-        private DateTime CalculateEndDateWithInstallments(DateTime startDate, string frequency, int installments)
-        {
-            if (installments <= 0)
-                throw new BusinessException("La cantidad de cuotas debe ser mayor a cero.");
 
-            var frequencyMap = new Dictionary<string, Func<DateTime, DateTime>>(StringComparer.OrdinalIgnoreCase)
-            {
-                { "MENSUAL", date => date.AddMonths(1) },
-                { "QUINCENAL", date => date.AddDays(15) },
-                { "BIMESTRAL", date => date.AddMonths(2) }
-            };
-
-            if (!frequencyMap.TryGetValue(frequency, out var nextDateFunc))
-                throw new BusinessException($"Frecuencia de pago {frequency} no soportada.");
-
-            var nextPaymentDate = startDate;
-            for (int i = 0; i < installments; i++)
-                nextPaymentDate = nextDateFunc(nextPaymentDate);
-
-            return nextPaymentDate;
-        }
-
-        // ✅ Genera cronograma completo
-        private List<InstallmentSchedule> GenerateInstallmentScheduleEntities(
-     int paymentAgreementId,
-     DateTime startDate,
-     string frequency,
-     int installments,
-     decimal baseAmount,
-     decimal monthlyFee)
+        // Genera cronograma completo
+        private async Task<List<InstallmentSchedule>> GenerateInstallmentScheduleEntitiesAsync(
+          int paymentAgreementId,
+          DateTime startDate,
+          string frequencyInterval, // ✅ Cambié el nombre del parámetro para claridad
+          int installments,
+          decimal baseAmount,
+          decimal monthlyFee)
         {
             if (installments <= 0)
                 throw new BusinessException("El número de cuotas debe ser mayor a cero.");
@@ -125,22 +107,10 @@ namespace Business.Services.Entities
             if (monthlyFee <= 0)
                 throw new BusinessException("El valor de la cuota mensual debe ser mayor a cero.");
 
-            var frequencyMap = new Dictionary<string, Func<DateTime, DateTime>>(StringComparer.OrdinalIgnoreCase)
-    {
-        { "MENSUAL", date => date.AddMonths(1) },
-        { "QUINCENAL", date => date.AddDays(15) },
-        { "BIMESTRAL", date => date.AddMonths(2) }
-    };
-
-            frequency = frequency.Trim().ToUpper();
-
-            if (!frequencyMap.TryGetValue(frequency, out var nextDateFunc))
-                throw new BusinessException($"Frecuencia de pago {frequency} no soportada.");
-
             var scheduleEntities = new List<InstallmentSchedule>();
 
-            // ✅ Iniciar desde la SIGUIENTE fecha según la frecuencia
-            var nextPaymentDate = nextDateFunc(startDate);
+            // ✅ Calcular PRIMERA fecha de pago usando el servicio
+            var nextPaymentDate = await _frequencyServices.CalculateNextDateAsync(startDate, frequencyInterval);
             var remaining = baseAmount;
 
             for (int i = 1; i <= installments; i++)
@@ -158,7 +128,8 @@ namespace Business.Services.Entities
                     IsPaid = false
                 });
 
-                nextPaymentDate = nextDateFunc(nextPaymentDate);
+                // ✅ Calcular SIGUIENTE fecha usando el servicio
+                nextPaymentDate = await _frequencyServices.CalculateNextDateAsync(nextPaymentDate, frequencyInterval);
             }
 
             return scheduleEntities;
@@ -179,11 +150,12 @@ namespace Business.Services.Entities
             // -------------------------------------------------------------------
             // 📨 Envío de PDF y correo (background)
             // -------------------------------------------------------------------
-            await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+            await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
             {
                 try
                 {
-                    using var scope = _scopeFactory.CreateScope();
+                    using var scope = sp.CreateScope();
+
                     var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
                     var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
                     var repository = scope.ServiceProvider.GetRequiredService<IPaymentAgreementRepository>();
@@ -219,6 +191,7 @@ namespace Business.Services.Entities
                     _logger.LogError(ex, "Error enviando correo con acuerdo {Id}", entity.id);
                 }
             });
+
 
             // -------------------------------------------------------------------
             // 🔔 Crear notificación del sistema (realtime + registro) en background
@@ -291,8 +264,10 @@ namespace Business.Services.Entities
 
             var (baseAmount, installments, monthlyFee) = CalcularMontos(userInfraction, dto);
 
-            var startDate = DateTime.Now.Date;
-            var endDate = CalculateEndDateWithInstallments(startDate, frequency.intervalPage, installments);
+            var startDate = DateTime.Now.Date.AddDays(1);
+
+            // ✅ CAMBIO: Usar el servicio de frecuencias en lugar del método local
+            var endDate = await _frequencyServices.CalculateEndDateAsync(startDate, frequency.intervalPage, installments);
 
             var agreement = new PaymentAgreement
             {
@@ -315,7 +290,6 @@ namespace Business.Services.Entities
                 IsCoactive = false,
                 Installments = installments,
                 MonthlyFee = monthlyFee,
-
                 LastInterestAppliedOn = startDate.AddDays(-1)
             };
 
@@ -325,8 +299,8 @@ namespace Business.Services.Entities
             var created = await _paymentAgreementRepository.CreateAsync(agreement);
             await _context.SaveChangesAsync();
 
-            // Cronograma
-            var cronogramaEntities = GenerateInstallmentScheduleEntities(
+            // ✅ CAMBIO: Ahora es async
+            var cronogramaEntities = await GenerateInstallmentScheduleEntitiesAsync(
                 created.id,
                 startDate,
                 frequency.intervalPage,
@@ -365,14 +339,6 @@ namespace Business.Services.Entities
             int updated = 0;
             DateTime today = nowUtc.Date;
 
-            // Días permitidos según frecuencia del acuerdo
-            var frequencyDays = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase)
-    {
-        { "MENSUAL", 30 },
-        { "QUINCENAL", 15 },
-        { "BIMESTRAL", 60 }
-    };
-
             var agreements = await _context.paymentAgreement
                 .Where(a => !a.is_deleted && !a.IsPaid)
                 .Include(a => a.paymentFrequency)
@@ -380,27 +346,18 @@ namespace Business.Services.Entities
 
             foreach (var a in agreements)
             {
-                // Frecuencia real del acuerdo
-                string freq = a.paymentFrequency?.intervalPage?.Trim().ToUpper() ?? "MENSUAL";
+                // ✅ SIN AWAIT
+                int daysAllowed = CalculateFrequencyDays(a.paymentFrequency);
 
-                // Si no existe la frecuencia, usar 30 días por defecto
-                if (!frequencyDays.TryGetValue(freq, out int daysAllowed))
-                    daysAllowed = 30;
-
-                // Fecha límite para pagar la primera cuota según la frecuencia
                 DateTime coactiveDate = a.AgreementStart.Date.AddDays(daysAllowed);
 
-                // Si incumplió → entrar a coactivo
                 if (today >= coactiveDate && !a.IsCoactive)
                 {
                     a.IsCoactive = true;
                     a.CoactiveActivatedOn = coactiveDate;
-
-                    // Permite que el siguiente paso calcule días desde el día de incumplimiento
                     a.LastInterestAppliedOn = coactiveDate.AddDays(-1);
                 }
 
-                // Si está en coactivo → aplicar interés diario
                 if (a.IsCoactive)
                 {
                     DateTime lastApplied = a.LastInterestAppliedOn?.Date
@@ -410,14 +367,12 @@ namespace Business.Services.Entities
 
                     if (daysToAccrue > 0)
                     {
-                        decimal monthlyRate = 0.02m;   // 2% mensual
+                        decimal monthlyRate = 0.02m;
                         decimal dailyRate = monthlyRate / 30m;
-
                         decimal interestToAdd = a.OutstandingAmount * dailyRate * daysToAccrue;
 
                         a.AccruedInterest += interestToAdd;
                         a.OutstandingAmount = a.BaseAmount + a.AccruedInterest;
-
                         a.LastInterestAppliedOn = today;
                         updated++;
                     }
@@ -430,7 +385,33 @@ namespace Business.Services.Entities
             return updated;
         }
 
+        // ✅ CORRECTO - Es síncrono
+        private int CalculateFrequencyDays(PaymentFrequency? frequency)
+        {
+            if (frequency == null)
+            {
+                _logger.LogWarning("Frecuencia nula, usando 30 días por defecto");
+                return 30;
+            }
 
+            // Validar que tenga configuración
+            if (string.IsNullOrEmpty(frequency.IntervalType) || frequency.IntervalValue <= 0)
+            {
+                _logger.LogWarning(
+                    "Frecuencia {Frequency} sin configuración válida, usando 30 días por defecto",
+                    frequency.intervalPage);
+                return 30;
+            }
+
+            // Calcular días según el tipo de intervalo
+            return frequency.IntervalType.ToUpper() switch
+            {
+                "DAYS" => frequency.IntervalValue,
+                "MONTHS" => frequency.IntervalValue * 30,
+                "YEARS" => frequency.IntervalValue * 365,
+                _ => 30 // Default fallback
+            };
+        }
 
         public async Task<IEnumerable<PaymentAgreementInitDto>> GetInitDataAsync(int userId, int? infractionId = null)
         {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Business.Mensajeria.Email.implements
@@ -11,33 +11,72 @@ namespace Business.Mensajeria.Email.implements
     public class EmailBackgroundService : BackgroundService
     {
         private readonly EmailBackgroundQueue _queue;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ILogger<EmailBackgroundService> _logger;
+        private readonly int _maxConcurrentJobs;
 
-        public EmailBackgroundService(EmailBackgroundQueue queue, IServiceProvider serviceProvider)
+        public EmailBackgroundService(
+            EmailBackgroundQueue queue,
+            IServiceScopeFactory scopeFactory,
+            ILogger<EmailBackgroundService> logger)
         {
             _queue = queue;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;   // ← cambia esto
+            _logger = logger;
+            _maxConcurrentJobs = 20;
         }
+
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await foreach (var workItem in _queue.DequeueAsync(stoppingToken))
-            {
-                try
-                {
-                    // Crea un scope de DI (bueno si dentro del workItem necesitas servicios Scoped como DbContext)
-                    using var scope = _serviceProvider.CreateScope();
+            _logger.LogInformation($"🚀 EmailBackgroundService iniciado con {_maxConcurrentJobs} workers concurrentes");
 
-                    // Ejecuta la tarea
-                    await workItem();
-                }
-                catch (Exception ex)
+            // 🔥 Crear múltiples workers que procesan en paralelo
+            var workers = Enumerable.Range(0, _maxConcurrentJobs)
+                .Select(workerId => ProcessQueueAsync(workerId, stoppingToken))
+                .ToArray();
+
+            try
+            {
+                await Task.WhenAll(workers);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("🛑 EmailBackgroundService detenido correctamente");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "❌ Error crítico en EmailBackgroundService");
+                throw;
+            }
+        }
+
+        private async Task ProcessQueueAsync(int workerId, CancellationToken stoppingToken)
+        {
+            _logger.LogInformation($"worker {workerId} iniciado");
+
+            try
+            {
+                await foreach (var workItem in _queue.DequeueAsync(stoppingToken))
                 {
-                    Console.WriteLine($"❌ Error enviando correo: {ex.Message}");
+                    try
+                    {
+                        using var scope = _scopeFactory.CreateScope(); // ← cambia esto
+
+                        var scopedProvider = scope.ServiceProvider;
+
+                        await workItem(scopedProvider); // ← pásale el provider
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"worker {workerId} falló");
+                    }
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation($"worker {workerId} detenido");
             }
         }
     }
-
 }
-

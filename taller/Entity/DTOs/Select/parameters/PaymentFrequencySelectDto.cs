@@ -12,6 +12,7 @@ namespace Entity.Domain.Models.Implements.parameters
     {
         public int id { get; set; }
         public string intervalPage { get; set; }
-        public int dueDayOfMonth {get; set; }
+        public string IntervalType { get; set; }     
+        public int IntervalValue { get; set; }      
     }
 }

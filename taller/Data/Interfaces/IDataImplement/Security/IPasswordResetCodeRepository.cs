@@ -1,5 +1,6 @@
 ﻿using Data.Interfaces.DataBasic;
 using Data.Repositoy;
+using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.Auth.RestPasword;
 using System;
 using System.Collections.Generic;

@@ -20,6 +20,7 @@ using Entity.Domain.Models.Implements.ModelSecurity;
 using Entity.DTOs.Default.AnexarMulta;           // <- DTO especial para anexar multas con persona
 using Entity.DTOs.Default.EntitiesDto;
 using Entity.DTOs.Default.Notificacion;
+using Entity.DTOs.Select.Entities;
 using Helpers.Business.Business.Helpers.Validation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -251,33 +252,28 @@ public class UserInfractionServices
 
         // ---------------------
         // Post-commit: encolar correo con PDF (mantengo exactamente tu lógica)
-        // ---------------------
-        await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+        // ---------------------    
+        await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
         {
-            using var scope = _scopeFactory.CreateScope();
+            using var scope = sp.CreateScope();
+
             var emailService = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
             var pdfService = scope.ServiceProvider.GetRequiredService<IPdfGeneratorService>();
-            var userRepo = scope.ServiceProvider.GetRequiredService<IUserService>();
-            var infractionRepo = scope.ServiceProvider.GetRequiredService<IUserInfractionServices>();
+            var repo = scope.ServiceProvider.GetRequiredService<IPaymentAgreementRepository>();
 
-            // Traer el usuario y la infracción desde el SCOPE CORRECTO
-            var user = await userRepo.GetByIdAsync(dto.userId);
-            var infraction = await infractionRepo.GetByIdAsync(result.id);
+            var agreement = await repo.GetByIdAsync(dto.userId);
+            var dtoForPdf = _mapper.Map<PaymentAgreementSelectDto>(agreement);
 
-            // Generar el PDF dentro del scope
-            var pdfBytes = await pdfService.GeneratePdfAsync(infraction);
+            var pdfBytes = await pdfService.GeneratePaymentAgreementPdfAsync(dtoForPdf);
+            var builder = new PaymentAgreementEmailBuilder(dtoForPdf, pdfBytes);
 
-            var builder = new InfraccionEmailBuilder(
-                infraction,
-                pdfBytes
-            );
+            var email = agreement.userInfraction?.User?.email;
+            if (string.IsNullOrWhiteSpace(email))
+                return;
 
-            await emailService.SendEmailAsync(
-                user!.email,
-                builder.GetSubject(),
-                builder.GetBody()
-            );
+            await emailService.SendEmailAsync(email, builder.GetSubject(), builder.GetBody());
         });
+
 
         // Post-commit: crear notificación del sistema y push realtime (en background) con scope propio
         _ = Task.Run(async () =>
@@ -313,10 +309,7 @@ public class UserInfractionServices
         return result;
     }
 
-
-
-
-    // 🚨 Nuevo método: Crear multa con datos de persona (cuando no hay User todavía)
+    // 🚨 Método corregido: Crear multa con datos de persona
     public async Task<UserInfractionSelectDto> CreateWithPersonAsync(CreateInfractionRequestDto dto)
     {
         // 1. validación
@@ -338,7 +331,6 @@ public class UserInfractionServices
                 tipoUsuario = TipoUsuario.PersonaNormal
             };
 
-            // Evitar warning CS8602 usando null-forgiving en _context
             await _context!.persons.AddAsync(person);
             await _context.SaveChangesAsync();
 
@@ -366,7 +358,7 @@ public class UserInfractionServices
         var typeInfraction = await _types.GetByIdAsync(dto.TypeInfractionId)
             ?? throw new BusinessException("tipo de infracción inválido");
 
-        // 4. obtener smldv vigente (usar null-forgiving en _context para evitar CS8602)
+        // 4. obtener smldv vigente
         var smldv = await _context!.valueSmldv
             .OrderByDescending(v => v.created_date)
             .FirstOrDefaultAsync()
@@ -396,7 +388,6 @@ public class UserInfractionServices
             stateInfraction = EstadoMulta.Pendiente,
             InformationFine = typeInfraction.description,
 
-            // inicia con el valor base (sin descuento aplicado en esta capa)
             amountToPay = baseAmount,
             InitialAmount = baseAmount,
             TotalToPay = baseAmount,
@@ -416,58 +407,70 @@ public class UserInfractionServices
         await _repo.CreateAsync(infraction);
         await _context.SaveChangesAsync();
 
-        var infractionDto = _mapper.Map<UserInfractionSelectDto>(infraction);
+        _logger.LogInformation($"✅ Multa #{infraction.id} creada en BD. Iniciando proceso de notificación y descuento...");
+
+        // ========================================
+        // 🔥 CAMBIO CRÍTICO: APLICAR DESCUENTO PRIMERO
+        // ========================================
+        try
+        {
+            _logger.LogInformation($"💰 Aplicando descuento inicial para multa #{infraction.id}...");
+            await _discountRunner.RunOnceFor(infraction.id);
+            _logger.LogInformation($"✅ Descuento inicial aplicado para multa #{infraction.id}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"❌ Error al ejecutar el RunOnceFor para multa #{infraction.id}");
+        }
+
+        // 8. Recargar la entidad con el descuento ya aplicado
+        var updated = await _context.userInfraction
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.id == infraction.id);
+
+        if (updated == null)
+        {
+            _logger.LogError($"❌ No se pudo recargar la multa #{infraction.id} después del descuento");
+            throw new BusinessException($"Error al recargar multa #{infraction.id}");
+        }
+
+        // 9. Mapear el DTO con el monto CON descuento aplicado
+        var infractionDto = _mapper.Map<UserInfractionSelectDto>(updated);
         infractionDto.userEmail = user.email ?? string.Empty;
 
-        // 🚀 CORRECCIÓN CLAVE: Clonar el record (usando 'with {}') para 'dtoParaR0'.
-        // Esto previene que la tarea asíncrona de notificación inicial capture una referencia
-        // que podría ser sobrescrita por una segunda multa creada rápidamente.
-        var dtoParaR0 = infractionDto with { };
+        _logger.LogInformation($"📝 Multa #{infraction.id} recargada. Monto con descuento: {infractionDto.amountToPay:C}");
 
-        string jobIdInicial = $"Infraction_{dtoParaR0.id}_Status_{EstadoCobro.CobroPrejuridico}";
+        // 10. Programar notificación inicial (inmediata)
+        var dtoParaNotificacion = infractionDto with { };
+        string jobIdInicial = $"Infraction_{dtoParaNotificacion.id}_Status_{EstadoCobro.CobroPrejuridico}";
+
+        _logger.LogInformation($"📬 Programando notificación inicial para multa #{dtoParaNotificacion.id}");
 
         await _scheduler.ScheduleEmailAsync(
-            () => _emailOrchestrator.ProcesarNotificacionInicialAsync(dtoParaR0),
+            () => _emailOrchestrator.ProcesarNotificacionInicialAsync(dtoParaNotificacion),
             TimeSpan.Zero,
             jobIdInicial
         );
 
-
-        var reminderService = _scopeFactory.CreateScope()
-            .ServiceProvider
-            .GetRequiredService<ReminderEmailAppService>();
-
-
-        // ProgramarRecordatoriosAsync ya contiene su propia clonación defensiva.
-        await reminderService.ProgramarRecordatoriosAsync(infractionDto);
-
-        try
+        // 11. Programar recordatorios (con el monto YA con descuento)
+        using (var reminderScope = _scopeFactory.CreateScope())
         {
-            // 7. Ejecutar descuento inicial
-            await _discountRunner.RunOnceFor(infraction.id);
+            var reminderService = reminderScope.ServiceProvider
+                .GetRequiredService<ReminderEmailAppService>();
 
-            _logger.LogInformation("✅ Ejecución RunOnceFor completada con éxito. Descuento aplicado.");
+            var dtoParaRecordatorios = infractionDto with { };
 
-            var updated = await _context.userInfraction
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.id == infraction.id);
+            _logger.LogInformation($"📅 Programando recordatorios para multa #{infractionDto.id} con monto: {infractionDto.amountToPay:C}");
 
-            if (updated != null)
-            {
-                // Re-mapear el DTO de salida con la entidad que ya contiene el descuento.
-                infractionDto = _mapper.Map<UserInfractionSelectDto>(updated);
-                infractionDto.userEmail = user.email ?? string.Empty;
+            await reminderService.ProgramarRecordatoriosAsync(dtoParaRecordatorios);
 
-                _logger.LogInformation($"📝 Infracción #{infraction.id} recargada. Monto final con descuento: {infractionDto.amountToPay:C}");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "❌ Error al ejecutar el RunOnceFor para aplicar el descuento inicial.");
+            _logger.LogInformation($"✅ Recordatorios programados para multa #{infractionDto.id}");
         }
 
-        return infractionDto;
+        // 12. Retornar una copia clonada del DTO final
+        return infractionDto with { };
     }
+
 
 
     public async Task<int> ApplyInterestToInfractionsAsync(DateTime nowUtc, CancellationToken ct = default)                     

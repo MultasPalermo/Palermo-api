@@ -76,10 +76,7 @@ namespace Business.Mensajeria.Email.implements
 
             try
             {
-                    var builder = new VerificacionEmailBuilder(
-    u.Person?.firstName ?? "Usuario",
-    u.EmailVerificationCode
-);
+                    var builder = new VerificacionEmailBuilder(u.EmailVerificationCode);
 
                     await _email.SendEmailAsyncVerificacion(u.email!, builder);
 

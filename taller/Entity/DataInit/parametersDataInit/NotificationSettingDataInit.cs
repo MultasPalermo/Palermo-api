@@ -35,7 +35,7 @@ namespace Entity.DataInit.parametersDataInit
                 {
                     id = 3,
                     Name = "Recordatorio 80 segundos",
-                    Days = 60,
+                    Days = 80,
                     Description = "Tercer recordatorio después de la infracción.",
                     TimeUnit = "SECONDS",
                     active = true

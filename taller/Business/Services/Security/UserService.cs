@@ -88,10 +88,7 @@ namespace Business.Services.Security
                 {
                     try
                     {
-                        var builder = new VerificacionEmailBuilder(
-                            personCreated.firstName ?? "Usuario",
-                            code
-                        );
+                        var builder = new VerificacionEmailBuilder(code);
 
                         await _email.SendEmailAsyncVerificacion(dto.email, builder);
                     }
