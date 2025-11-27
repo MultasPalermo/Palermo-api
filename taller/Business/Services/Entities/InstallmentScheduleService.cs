@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Utilities.Exceptions;
 
 namespace Business.Services.Entities
 {
@@ -24,5 +25,27 @@ namespace Business.Services.Entities
             _data = data;
             _logger = logger;
         }
+
+        public async Task<bool> MarkInstallmentAsPaidAsync(int installmentId)
+        {
+            if (installmentId <= 0)
+                throw new BusinessException("El ID de la cuota es inválido.");
+
+            var cuota = await _data.GetByIdAsync(installmentId);
+
+            if (cuota == null)
+                throw new BusinessException($"La cuota {installmentId} no existe.");
+
+            if (cuota.IsPaid)
+                return true; // Ya estaba pagada
+
+            cuota.IsPaid = true;
+            cuota.RemainingBalance = 0;
+
+            await _data.UpdateAsync(cuota);
+
+            return true;
+        }
+
     }
 }
