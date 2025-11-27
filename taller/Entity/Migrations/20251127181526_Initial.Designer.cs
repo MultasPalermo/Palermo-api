@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<< HEAD:taller/Entity/Migrations/20251127052606_Initial.Designer.cs
 <<<<<<< HEAD:taller/Entity/Migrations/20251126230442_sqlserver.Designer.cs
 <<<<<<<< HEAD:taller/Entity/Migrations/20251114014744_AddUserInfractionPaymentColumns.Designer.cs
 <<<<<<<< HEAD:taller/Entity/Migrations/20251114014744_AddUserInfractionPaymentColumns.Designer.cs
@@ -31,6 +32,9 @@ namespace Entity.Migrations
 >>>>>>>> 3ea7252 (feat: seguimiento a las multas):taller/Entity/Migrations/20251115175530_sqlserver.Designer.cs
 =======
     [Migration("20251127052606_Initial")]
+=======
+    [Migration("20251127181526_Initial")]
+>>>>>>> 73942c0 (diagrams):taller/Entity/Migrations/20251127181526_Initial.Designer.cs
     partial class Initial
 >>>>>>> e312cf3 (cambios  de parametros):taller/Entity/Migrations/20251127052606_Initial.Designer.cs
     {
