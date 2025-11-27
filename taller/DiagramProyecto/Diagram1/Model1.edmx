@@ -4,180 +4,974 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl" Namespace="Model1.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2005">
-        <EntityContainer Name="Model1TargetContainer" >
+    <Schema Namespace="Model1.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="__EFMigrationsHistory">
+          <Key>
+            <PropertyRef Name="MigrationId" />
+          </Key>
+          <Property Name="MigrationId" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="ProductVersion" Type="nvarchar" MaxLength="32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Infraction">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TypeInfractionId" Type="int" Nullable="false" />
+          <Property Name="description" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="numer_smldv" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="notifications">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Title" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Message" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Type" Type="int" Nullable="false" />
+          <Property Name="Priority" Type="int" Nullable="false" />
+          <Property Name="Status" Type="int" Nullable="false" />
+          <Property Name="RecipientUserId" Type="int" Nullable="false" />
+          <Property Name="ActionRoute" Type="nvarchar(max)" />
+          <Property Name="ReadAt" Type="datetime2" Precision="7" />
+          <Property Name="ExpiresAt" Type="datetime2" Precision="7" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="notificationSetting">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="Days" Type="int" Nullable="false" />
+          <Property Name="Description" Type="nvarchar(max)" />
+          <Property Name="UpdatedAt" Type="datetime2" Precision="7" />
+          <Property Name="TimeUnit" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PasswordResetCodes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="email" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="code" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="expiration" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="isUsed" Type="bit" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="refreshTokens">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="TokenHash" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="ExpiresAt" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="IsRevoked" Type="bit" Nullable="false" />
+          <Property Name="ReplacedByTokenHash" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="DocumentInfraction">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="inspectoraReportId" Type="int" Nullable="false" />
+          <Property Name="PaymentAgreementId" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="FineCalculationDetail">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="formula" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="totalCalculation" Type="decimal" Precision="12" Scale="2" Nullable="false" />
+          <Property Name="valueSmldvId" Type="int" Nullable="false" />
+          <Property Name="typeInfractionId" Type="int" Nullable="false" />
+          <Property Name="SmldvValueAtCreation" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="InspectoraReport">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="report_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="total_fines" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="message" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="installmentSchedule">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Number" Type="int" Nullable="false" />
+          <Property Name="PaymentDate" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="Amount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="RemainingBalance" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="IsPaid" Type="bit" Nullable="false" />
+          <Property Name="PaymentAgreementId" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="paymentAgreement">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="address" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="neighborhood" Type="nvarchar" MaxLength="150" />
+          <Property Name="AgreementDescription" Type="nvarchar" MaxLength="500" />
+          <Property Name="expeditionCedula" Type="datetime2" Precision="7" />
+          <Property Name="PhoneNumber" Type="nvarchar" MaxLength="20" />
+          <Property Name="Email" Type="nvarchar" MaxLength="200" />
+          <Property Name="AgreementStart" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="AgreementEnd" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="userInfractionId" Type="int" Nullable="false" />
+          <Property Name="paymentFrequencyId" Type="int" Nullable="false" />
+          <Property Name="typePaymentId" Type="int" Nullable="false" />
+          <Property Name="BaseAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="AccruedInterest" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="OutstandingAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Installments" Type="int" />
+          <Property Name="MonthlyFee" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="IsPaid" Type="bit" Nullable="false" />
+          <Property Name="IsCoactive" Type="bit" Nullable="false" />
+          <Property Name="CoactiveActivatedOn" Type="datetime2" Precision="7" />
+          <Property Name="LastInterestAppliedOn" Type="datetime2" Precision="7" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TypeInfraction">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="typePayment">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="450" Nullable="false" />
+          <Property Name="paymentAgreementId" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="userInfraction">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="dateInfraction" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="stateInfraction" Type="int" Nullable="false" />
+          <Property Name="InformationFine" Type="nvarchar(max)" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="InfractionId" Type="int" Nullable="false" />
+          <Property Name="numer_smldv" Type="int" Nullable="false" />
+          <Property Name="UserNotificationId" Type="int" Nullable="false" />
+          <Property Name="amountToPay" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="smldvValueAtCreation" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="DiscountLocked" Type="bit" Nullable="false" />
+          <Property Name="IsCoactive" Type="bit" Nullable="false" />
+          <Property Name="CoactiveActivatedOn" Type="datetime2" Precision="7" />
+          <Property Name="LastInterestAppliedOn" Type="datetime2" Precision="7" />
+          <Property Name="AccruedInterest" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="InitialAmount" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="DaysOfDelay" Type="int" Nullable="false" />
+          <Property Name="TotalToPay" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="paymentDue3Days" Type="datetime2" Precision="7" />
+          <Property Name="paymentDue15Days" Type="datetime2" Precision="7" />
+          <Property Name="paymentDue25Days" Type="datetime2" Precision="7" />
+          <Property Name="paymentDue30Days" Type="datetime2" Precision="7" />
+          <Property Name="paymentDue40Days" Type="datetime2" Precision="7" />
+          <Property Name="StatusCollection" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="userNotification">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="message" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="shippingDate" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="valueSmldv">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="value_smldv" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Current_Year" Type="int" Nullable="false" />
+          <Property Name="minimunWage" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="AuthSession">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="SessionId" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="PersonId" Type="bigint" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="LastActivityAt" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="AbsoluteExpiresAt" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="IsRevoked" Type="bit" Nullable="false" />
+          <Property Name="Ip" Type="nvarchar" MaxLength="64" />
+          <Property Name="UserAgent" Type="nvarchar" MaxLength="512" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="form">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Route" Type="nvarchar(max)" />
+          <Property Name="Icon" Type="nvarchar(max)" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="description" Type="nvarchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="formmodule">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="formid" Type="int" Nullable="false" />
+          <Property Name="moduleid" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="module">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="description" Type="nvarchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="permission">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="description" Type="nvarchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="person">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="firstName" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="lastName" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="phoneNumber" Type="varchar" MaxLength="20" />
+          <Property Name="address" Type="varchar" MaxLength="100" />
+          <Property Name="tipoUsuario" Type="int" Nullable="false" />
+          <Property Name="municipalityId" Type="int" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="rol">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="100" Nullable="false" />
+          <Property Name="description" Type="nvarchar" MaxLength="250" Nullable="false" />
+        </EntityType>
+        <EntityType Name="rolformpermission">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="rolid" Type="int" Nullable="false" />
+          <Property Name="formid" Type="int" Nullable="false" />
+          <Property Name="permissionid" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="roluser">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="userId" Type="int" Nullable="false" />
+          <Property Name="rolId" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="user">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PasswordHash" Type="varchar" MaxLength="100" />
+          <Property Name="email" Type="varchar" MaxLength="150" />
+          <Property Name="PersonId" Type="int" />
+          <Property Name="documentTypeId" Type="int" />
+          <Property Name="documentNumber" Type="varchar" MaxLength="30" />
+          <Property Name="EmailVerified" Type="bit" Nullable="false" />
+          <Property Name="EmailVerificationCode" Type="varchar" MaxLength="6" />
+          <Property Name="EmailVerificationExpiresAt" Type="datetime2" Precision="7" />
+          <Property Name="EmailVerifiedAt" Type="datetime2" Precision="7" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="department">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="120" Nullable="false" />
+          <Property Name="daneCode" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="documentType">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="80" Nullable="false" />
+          <Property Name="abbreviation" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="municipality">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="varchar" MaxLength="120" Nullable="false" />
+          <Property Name="daneCode" Type="int" Nullable="false" />
+          <Property Name="departmentId" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="paymentFrequency">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="intervalPage" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="IntervalType" Type="nvarchar(max)" Nullable="false" />
+          <Property Name="IntervalValue" Type="int" Nullable="false" />
+          <Property Name="active" Type="bit" Nullable="false" />
+          <Property Name="is_deleted" Type="bit" Nullable="false" />
+          <Property Name="created_date" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_DocumentInfraction_InspectoraReport">
+          <End Role="InspectoraReport" Type="Self.InspectoraReport" Multiplicity="1" />
+          <End Role="DocumentInfraction" Type="Self.DocumentInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="InspectoraReport">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="DocumentInfraction">
+              <PropertyRef Name="inspectoraReportId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DocumentInfraction_PaymentAgreement">
+          <End Role="paymentAgreement" Type="Self.paymentAgreement" Multiplicity="1" />
+          <End Role="DocumentInfraction" Type="Self.DocumentInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="paymentAgreement">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="DocumentInfraction">
+              <PropertyRef Name="PaymentAgreementId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_FormModule_Form">
+          <End Role="form" Type="Self.form" Multiplicity="1" />
+          <End Role="formmodule" Type="Self.formmodule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="form">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="formmodule">
+              <PropertyRef Name="formid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_FormModule_Module">
+          <End Role="module" Type="Self.module" Multiplicity="1" />
+          <End Role="formmodule" Type="Self.formmodule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="module">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="formmodule">
+              <PropertyRef Name="moduleid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_InstallmentSchedule_PaymentAgreement">
+          <End Role="paymentAgreement" Type="Self.paymentAgreement" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="installmentSchedule" Type="Self.installmentSchedule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="paymentAgreement">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="installmentSchedule">
+              <PropertyRef Name="PaymentAgreementId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_municipality_department_departmentId">
+          <End Role="department" Type="Self.department" Multiplicity="1" />
+          <End Role="municipality" Type="Self.municipality" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="department">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="municipality">
+              <PropertyRef Name="departmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_notifications_user_RecipientUserId">
+          <End Role="user" Type="Self.user" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="notifications" Type="Self.notifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notifications">
+              <PropertyRef Name="RecipientUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_paymentAgreement_paymentFrequency_paymentFrequencyId">
+          <End Role="paymentFrequency" Type="Self.paymentFrequency" Multiplicity="1" />
+          <End Role="paymentAgreement" Type="Self.paymentAgreement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="paymentFrequency">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="paymentAgreement">
+              <PropertyRef Name="paymentFrequencyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PaymentAgreement_TypePayment">
+          <End Role="typePayment" Type="Self.typePayment" Multiplicity="1" />
+          <End Role="paymentAgreement" Type="Self.paymentAgreement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="typePayment">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="paymentAgreement">
+              <PropertyRef Name="typePaymentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PaymentAgreement_UserInfraction">
+          <End Role="userInfraction" Type="Self.userInfraction" Multiplicity="1" />
+          <End Role="paymentAgreement" Type="Self.paymentAgreement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="userInfraction">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="paymentAgreement">
+              <PropertyRef Name="userInfractionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_person_municipality_municipalityId">
+          <End Role="municipality" Type="Self.municipality" Multiplicity="0..1" />
+          <End Role="person" Type="Self.person" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="municipality">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="person">
+              <PropertyRef Name="municipalityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolFormPermission_Form">
+          <End Role="form" Type="Self.form" Multiplicity="1" />
+          <End Role="rolformpermission" Type="Self.rolformpermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="form">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="rolformpermission">
+              <PropertyRef Name="formid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolFormPermission_Permission">
+          <End Role="permission" Type="Self.permission" Multiplicity="1" />
+          <End Role="rolformpermission" Type="Self.rolformpermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="permission">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="rolformpermission">
+              <PropertyRef Name="permissionid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolFormPermission_Rol">
+          <End Role="rol" Type="Self.rol" Multiplicity="1" />
+          <End Role="rolformpermission" Type="Self.rolformpermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="rol">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="rolformpermission">
+              <PropertyRef Name="rolid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolUser_Rol">
+          <End Role="rol" Type="Self.rol" Multiplicity="1" />
+          <End Role="roluser" Type="Self.roluser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="rol">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="roluser">
+              <PropertyRef Name="rolId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolUser_User">
+          <End Role="user" Type="Self.user" Multiplicity="1" />
+          <End Role="roluser" Type="Self.roluser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="roluser">
+              <PropertyRef Name="userId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TypeInfraction_FineCalculationDetail">
+          <End Role="Infraction" Type="Self.Infraction" Multiplicity="1" />
+          <End Role="FineCalculationDetail" Type="Self.FineCalculationDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Infraction">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="FineCalculationDetail">
+              <PropertyRef Name="typeInfractionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TypeInfraction_Infraction">
+          <End Role="TypeInfraction" Type="Self.TypeInfraction" Multiplicity="1" />
+          <End Role="Infraction" Type="Self.Infraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TypeInfraction">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="Infraction">
+              <PropertyRef Name="TypeInfractionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_user_documentType_documentTypeId">
+          <End Role="documentType" Type="Self.documentType" Multiplicity="0..1" />
+          <End Role="user" Type="Self.user" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="documentType">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="user">
+              <PropertyRef Name="documentTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_Person">
+          <End Role="person" Type="Self.person" Multiplicity="0..1" />
+          <End Role="user" Type="Self.user" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="person">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="user">
+              <PropertyRef Name="PersonId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_userInfraction_Infraction_InfractionId">
+          <End Role="Infraction" Type="Self.Infraction" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="userInfraction" Type="Self.userInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Infraction">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="userInfraction">
+              <PropertyRef Name="InfractionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_userInfraction_user_UserId">
+          <End Role="user" Type="Self.user" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="userInfraction" Type="Self.userInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="userInfraction">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_userInfraction_userNotification_UserNotificationId">
+          <End Role="userNotification" Type="Self.userNotification" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="userInfraction" Type="Self.userInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="userNotification">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="userInfraction">
+              <PropertyRef Name="UserNotificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ValueSmldv_FineCalculationDetail">
+          <End Role="valueSmldv" Type="Self.valueSmldv" Multiplicity="1" />
+          <End Role="FineCalculationDetail" Type="Self.FineCalculationDetail" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="valueSmldv">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="FineCalculationDetail">
+              <PropertyRef Name="valueSmldvId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="Model1StoreContainer">
+          <EntitySet Name="__EFMigrationsHistory" EntityType="Self.__EFMigrationsHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Infraction" EntityType="Self.Infraction" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="notifications" EntityType="Self.notifications" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="notificationSetting" EntityType="Self.notificationSetting" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PasswordResetCodes" EntityType="Self.PasswordResetCodes" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="refreshTokens" EntityType="Self.refreshTokens" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DocumentInfraction" EntityType="Self.DocumentInfraction" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="FineCalculationDetail" EntityType="Self.FineCalculationDetail" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="InspectoraReport" EntityType="Self.InspectoraReport" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="installmentSchedule" EntityType="Self.installmentSchedule" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="paymentAgreement" EntityType="Self.paymentAgreement" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="TypeInfraction" EntityType="Self.TypeInfraction" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="typePayment" EntityType="Self.typePayment" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="userInfraction" EntityType="Self.userInfraction" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="userNotification" EntityType="Self.userNotification" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="valueSmldv" EntityType="Self.valueSmldv" Schema="Entities" store:Type="Tables" />
+          <EntitySet Name="AuthSession" EntityType="Self.AuthSession" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="form" EntityType="Self.form" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="formmodule" EntityType="Self.formmodule" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="module" EntityType="Self.module" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="permission" EntityType="Self.permission" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="person" EntityType="Self.person" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="rol" EntityType="Self.rol" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="rolformpermission" EntityType="Self.rolformpermission" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="roluser" EntityType="Self.roluser" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="user" EntityType="Self.user" Schema="ModelSecurity" store:Type="Tables" />
+          <EntitySet Name="department" EntityType="Self.department" Schema="Parameters" store:Type="Tables" />
+          <EntitySet Name="documentType" EntityType="Self.documentType" Schema="Parameters" store:Type="Tables" />
+          <EntitySet Name="municipality" EntityType="Self.municipality" Schema="Parameters" store:Type="Tables" />
+          <EntitySet Name="paymentFrequency" EntityType="Self.paymentFrequency" Schema="Parameters" store:Type="Tables" />
+          <AssociationSet Name="FK_DocumentInfraction_InspectoraReport" Association="Self.FK_DocumentInfraction_InspectoraReport">
+            <End Role="InspectoraReport" EntitySet="InspectoraReport" />
+            <End Role="DocumentInfraction" EntitySet="DocumentInfraction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DocumentInfraction_PaymentAgreement" Association="Self.FK_DocumentInfraction_PaymentAgreement">
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+            <End Role="DocumentInfraction" EntitySet="DocumentInfraction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_FormModule_Form" Association="Self.FK_FormModule_Form">
+            <End Role="form" EntitySet="form" />
+            <End Role="formmodule" EntitySet="formmodule" />
+          </AssociationSet>
+          <AssociationSet Name="FK_FormModule_Module" Association="Self.FK_FormModule_Module">
+            <End Role="module" EntitySet="module" />
+            <End Role="formmodule" EntitySet="formmodule" />
+          </AssociationSet>
+          <AssociationSet Name="FK_InstallmentSchedule_PaymentAgreement" Association="Self.FK_InstallmentSchedule_PaymentAgreement">
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+            <End Role="installmentSchedule" EntitySet="installmentSchedule" />
+          </AssociationSet>
+          <AssociationSet Name="FK_municipality_department_departmentId" Association="Self.FK_municipality_department_departmentId">
+            <End Role="department" EntitySet="department" />
+            <End Role="municipality" EntitySet="municipality" />
+          </AssociationSet>
+          <AssociationSet Name="FK_notifications_user_RecipientUserId" Association="Self.FK_notifications_user_RecipientUserId">
+            <End Role="user" EntitySet="user" />
+            <End Role="notifications" EntitySet="notifications" />
+          </AssociationSet>
+          <AssociationSet Name="FK_paymentAgreement_paymentFrequency_paymentFrequencyId" Association="Self.FK_paymentAgreement_paymentFrequency_paymentFrequencyId">
+            <End Role="paymentFrequency" EntitySet="paymentFrequency" />
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PaymentAgreement_TypePayment" Association="Self.FK_PaymentAgreement_TypePayment">
+            <End Role="typePayment" EntitySet="typePayment" />
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PaymentAgreement_UserInfraction" Association="Self.FK_PaymentAgreement_UserInfraction">
+            <End Role="userInfraction" EntitySet="userInfraction" />
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+          </AssociationSet>
+          <AssociationSet Name="FK_person_municipality_municipalityId" Association="Self.FK_person_municipality_municipalityId">
+            <End Role="municipality" EntitySet="municipality" />
+            <End Role="person" EntitySet="person" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RolFormPermission_Form" Association="Self.FK_RolFormPermission_Form">
+            <End Role="form" EntitySet="form" />
+            <End Role="rolformpermission" EntitySet="rolformpermission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RolFormPermission_Permission" Association="Self.FK_RolFormPermission_Permission">
+            <End Role="permission" EntitySet="permission" />
+            <End Role="rolformpermission" EntitySet="rolformpermission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RolFormPermission_Rol" Association="Self.FK_RolFormPermission_Rol">
+            <End Role="rol" EntitySet="rol" />
+            <End Role="rolformpermission" EntitySet="rolformpermission" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RolUser_Rol" Association="Self.FK_RolUser_Rol">
+            <End Role="rol" EntitySet="rol" />
+            <End Role="roluser" EntitySet="roluser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_RolUser_User" Association="Self.FK_RolUser_User">
+            <End Role="user" EntitySet="user" />
+            <End Role="roluser" EntitySet="roluser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TypeInfraction_FineCalculationDetail" Association="Self.FK_TypeInfraction_FineCalculationDetail">
+            <End Role="Infraction" EntitySet="Infraction" />
+            <End Role="FineCalculationDetail" EntitySet="FineCalculationDetail" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TypeInfraction_Infraction" Association="Self.FK_TypeInfraction_Infraction">
+            <End Role="TypeInfraction" EntitySet="TypeInfraction" />
+            <End Role="Infraction" EntitySet="Infraction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_user_documentType_documentTypeId" Association="Self.FK_user_documentType_documentTypeId">
+            <End Role="documentType" EntitySet="documentType" />
+            <End Role="user" EntitySet="user" />
+          </AssociationSet>
+          <AssociationSet Name="FK_User_Person" Association="Self.FK_User_Person">
+            <End Role="person" EntitySet="person" />
+            <End Role="user" EntitySet="user" />
+          </AssociationSet>
+          <AssociationSet Name="FK_userInfraction_Infraction_InfractionId" Association="Self.FK_userInfraction_Infraction_InfractionId">
+            <End Role="Infraction" EntitySet="Infraction" />
+            <End Role="userInfraction" EntitySet="userInfraction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_userInfraction_user_UserId" Association="Self.FK_userInfraction_user_UserId">
+            <End Role="user" EntitySet="user" />
+            <End Role="userInfraction" EntitySet="userInfraction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_userInfraction_userNotification_UserNotificationId" Association="Self.FK_userInfraction_userNotification_UserNotificationId">
+            <End Role="userNotification" EntitySet="userNotification" />
+            <End Role="userInfraction" EntitySet="userInfraction" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ValueSmldv_FineCalculationDetail" Association="Self.FK_ValueSmldv_FineCalculationDetail">
+            <End Role="valueSmldv" EntitySet="valueSmldv" />
+            <End Role="FineCalculationDetail" EntitySet="FineCalculationDetail" />
+          </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema xmlns="http://schemas.microsoft.com/ado/2009/11/edm" xmlns:cg="http://schemas.microsoft.com/ado/2006/04/codegeneration" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" Namespace="Model1" Alias="Self" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" annotation:UseStrongSpatialTypes="false">
         <EntityContainer Name="Model1Container" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="UserSet" EntityType="Model1.User" />
-          <EntitySet Name="RolSet" EntityType="Model1.Rol" />
-          <EntitySet Name="personSet" EntityType="Model1.person" />
-          <EntitySet Name="TypeInfractionSet" EntityType="Model1.TypeInfraction" />
           <EntitySet Name="StateInfrationSet" EntityType="Model1.StateInfration" />
-          <EntitySet Name="PaymentAgreementSet" EntityType="Model1.PaymentAgreement" />
-          <EntitySet Name="UserNotificationSet" EntityType="Model1.UserNotification" />
-          <EntitySet Name="AccessLogSet" EntityType="Model1.AccessLog" />
-          <EntitySet Name="ModuleSet" EntityType="Model1.Module" />
-          <EntitySet Name="PermissionSet" EntityType="Model1.Permission" />
-          <EntitySet Name="FormSet" EntityType="Model1.Form" />
-          <EntitySet Name="TypePaymentSet" EntityType="Model1.TypePayment" />
-          <EntitySet Name="ModuloFormSet" EntityType="Model1.ModuloForm" />
-          <EntitySet Name="RolUserSet" EntityType="Model1.RolUser" />
-          <EntitySet Name="RolFormPermissionSet" EntityType="Model1.RolFormPermission" />
-          <AssociationSet Name="TypeInfractionStateInfration" Association="Model1.TypeInfractionStateInfration">
-            <End EntitySet="TypeInfractionSet" Role="TypeInfraction" />
-            <End EntitySet="StateInfrationSet" Role="StateInfration" />
+          <EntitySet Name="C__EFMigrationsHistory" EntityType="Model1.C__EFMigrationsHistory" />
+          <EntitySet Name="Infraction" EntityType="Model1.Infraction" />
+          <EntitySet Name="notifications" EntityType="Model1.notifications" />
+          <EntitySet Name="notificationSetting" EntityType="Model1.notificationSetting" />
+          <EntitySet Name="PasswordResetCodes" EntityType="Model1.PasswordResetCodes" />
+          <EntitySet Name="refreshTokens" EntityType="Model1.refreshTokens" />
+          <EntitySet Name="DocumentInfraction" EntityType="Model1.DocumentInfraction" />
+          <EntitySet Name="FineCalculationDetail" EntityType="Model1.FineCalculationDetail" />
+          <EntitySet Name="InspectoraReport" EntityType="Model1.InspectoraReport" />
+          <EntitySet Name="installmentSchedule" EntityType="Model1.installmentSchedule" />
+          <EntitySet Name="paymentAgreement" EntityType="Model1.paymentAgreement" />
+          <EntitySet Name="TypeInfraction" EntityType="Model1.TypeInfraction" />
+          <EntitySet Name="typePayment" EntityType="Model1.typePayment" />
+          <EntitySet Name="userInfraction" EntityType="Model1.userInfraction" />
+          <EntitySet Name="userNotification" EntityType="Model1.userNotification" />
+          <EntitySet Name="valueSmldv" EntityType="Model1.valueSmldv" />
+          <EntitySet Name="AuthSession" EntityType="Model1.AuthSession" />
+          <EntitySet Name="form" EntityType="Model1.form" />
+          <EntitySet Name="formmodule" EntityType="Model1.formmodule" />
+          <EntitySet Name="module" EntityType="Model1.module" />
+          <EntitySet Name="permission" EntityType="Model1.permission" />
+          <EntitySet Name="person" EntityType="Model1.person" />
+          <EntitySet Name="rol" EntityType="Model1.rol" />
+          <EntitySet Name="rolformpermission" EntityType="Model1.rolformpermission" />
+          <EntitySet Name="roluser" EntityType="Model1.roluser" />
+          <EntitySet Name="user" EntityType="Model1.user" />
+          <EntitySet Name="department" EntityType="Model1.department" />
+          <EntitySet Name="documentType" EntityType="Model1.documentType" />
+          <EntitySet Name="municipality" EntityType="Model1.municipality" />
+          <EntitySet Name="paymentFrequency" EntityType="Model1.paymentFrequency" />
+          <AssociationSet Name="FK_TypeInfraction_FineCalculationDetail" Association="Model1.FK_TypeInfraction_FineCalculationDetail">
+            <End Role="Infraction" EntitySet="Infraction" />
+            <End Role="FineCalculationDetail" EntitySet="FineCalculationDetail" />
           </AssociationSet>
-          <AssociationSet Name="FormRolFormPermission" Association="Model1.FormRolFormPermission">
-            <End Role="Form" EntitySet="FormSet" />
-            <End Role="RolFormPermission" EntitySet="RolFormPermissionSet" />
+          <AssociationSet Name="FK_TypeInfraction_Infraction" Association="Model1.FK_TypeInfraction_Infraction">
+            <End Role="TypeInfraction" EntitySet="TypeInfraction" />
+            <End Role="Infraction" EntitySet="Infraction" />
           </AssociationSet>
-          <AssociationSet Name="FormModuloForm" Association="Model1.FormModuloForm">
-            <End Role="Form" EntitySet="FormSet" />
-            <End Role="ModuloForm" EntitySet="ModuloFormSet" />
+          <AssociationSet Name="FK_userInfraction_Infraction_InfractionId" Association="Model1.FK_userInfraction_Infraction_InfractionId">
+            <End Role="Infraction" EntitySet="Infraction" />
+            <End Role="userInfraction" EntitySet="userInfraction" />
           </AssociationSet>
-          <AssociationSet Name="RolRolFormPermission" Association="Model1.RolRolFormPermission">
-            <End Role="Rol" EntitySet="RolSet" />
-            <End Role="RolFormPermission" EntitySet="RolFormPermissionSet" />
+          <AssociationSet Name="FK_notifications_user_RecipientUserId" Association="Model1.FK_notifications_user_RecipientUserId">
+            <End Role="user" EntitySet="user" />
+            <End Role="notifications" EntitySet="notifications" />
           </AssociationSet>
-          <AssociationSet Name="RolRolUser" Association="Model1.RolRolUser">
-            <End Role="Rol" EntitySet="RolSet" />
-            <End Role="RolUser" EntitySet="RolUserSet" />
+          <AssociationSet Name="FK_DocumentInfraction_InspectoraReport" Association="Model1.FK_DocumentInfraction_InspectoraReport">
+            <End Role="InspectoraReport" EntitySet="InspectoraReport" />
+            <End Role="DocumentInfraction" EntitySet="DocumentInfraction" />
           </AssociationSet>
-          <EntitySet Name="FineCalculationDetailSet" EntityType="Model1.FineCalculationDetail" />
-          <EntitySet Name="DocumentInfractionSet" EntityType="Model1.DocumentInfraction" />
-          <EntitySet Name="UserInfractionSet" EntityType="Model1.UserInfraction" />
-          <EntitySet Name="valueSmldvSet" EntityType="Model1.valueSmldv" />
-          <AssociationSet Name="PaymentAgreementTypePayment" Association="Model1.PaymentAgreementTypePayment">
-            <End Role="PaymentAgreement" EntitySet="PaymentAgreementSet" />
-            <End Role="TypePayment" EntitySet="TypePaymentSet" />
+          <AssociationSet Name="FK_DocumentInfraction_PaymentAgreement" Association="Model1.FK_DocumentInfraction_PaymentAgreement">
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+            <End Role="DocumentInfraction" EntitySet="DocumentInfraction" />
           </AssociationSet>
-          <AssociationSet Name="ModuleModuloForm" Association="Model1.ModuleModuloForm">
-            <End Role="Module" EntitySet="ModuleSet" />
-            <End Role="ModuloForm" EntitySet="ModuloFormSet" />
+          <AssociationSet Name="FK_ValueSmldv_FineCalculationDetail" Association="Model1.FK_ValueSmldv_FineCalculationDetail">
+            <End Role="valueSmldv" EntitySet="valueSmldv" />
+            <End Role="FineCalculationDetail" EntitySet="FineCalculationDetail" />
           </AssociationSet>
-          <AssociationSet Name="PermissionRolFormPermission" Association="Model1.PermissionRolFormPermission">
-            <End Role="Permission" EntitySet="PermissionSet" />
-            <End Role="RolFormPermission" EntitySet="RolFormPermissionSet" />
+          <AssociationSet Name="FK_InstallmentSchedule_PaymentAgreement" Association="Model1.FK_InstallmentSchedule_PaymentAgreement">
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
+            <End Role="installmentSchedule" EntitySet="installmentSchedule" />
           </AssociationSet>
-          <AssociationSet Name="UserRolUser" Association="Model1.UserRolUser">
-            <End Role="User" EntitySet="UserSet" />
-            <End Role="RolUser" EntitySet="RolUserSet" />
+          <AssociationSet Name="FK_paymentAgreement_paymentFrequency_paymentFrequencyId" Association="Model1.FK_paymentAgreement_paymentFrequency_paymentFrequencyId">
+            <End Role="paymentFrequency" EntitySet="paymentFrequency" />
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
           </AssociationSet>
-          <AssociationSet Name="Userperson" Association="Model1.Userperson">
-            <End Role="User" EntitySet="UserSet" />
-            <End Role="person" EntitySet="personSet" />
+          <AssociationSet Name="FK_PaymentAgreement_TypePayment" Association="Model1.FK_PaymentAgreement_TypePayment">
+            <End Role="typePayment" EntitySet="typePayment" />
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
           </AssociationSet>
-          <AssociationSet Name="UserUserInfraction" Association="Model1.UserUserInfraction">
-            <End Role="User" EntitySet="UserSet" />
-            <End Role="UserInfraction" EntitySet="UserInfractionSet" />
+          <AssociationSet Name="FK_PaymentAgreement_UserInfraction" Association="Model1.FK_PaymentAgreement_UserInfraction">
+            <End Role="userInfraction" EntitySet="userInfraction" />
+            <End Role="paymentAgreement" EntitySet="paymentAgreement" />
           </AssociationSet>
-          <AssociationSet Name="TypeInfractionUserInfraction" Association="Model1.TypeInfractionUserInfraction">
-            <End Role="TypeInfraction" EntitySet="TypeInfractionSet" />
-            <End Role="UserInfraction" EntitySet="UserInfractionSet" />
+          <AssociationSet Name="FK_userInfraction_user_UserId" Association="Model1.FK_userInfraction_user_UserId">
+            <End Role="user" EntitySet="user" />
+            <End Role="userInfraction" EntitySet="userInfraction" />
           </AssociationSet>
-          <EntitySet Name="InspectoraReportSet" EntityType="Model1.InspectoraReport" />
-          <AssociationSet Name="HaciendaReportDocumentInfraction" Association="Model1.HaciendaReportDocumentInfraction">
-            <End Role="HaciendaReport" EntitySet="InspectoraReportSet" />
-            <End Role="DocumentInfraction" EntitySet="DocumentInfractionSet" />
+          <AssociationSet Name="FK_userInfraction_userNotification_UserNotificationId" Association="Model1.FK_userInfraction_userNotification_UserNotificationId">
+            <End Role="userNotification" EntitySet="userNotification" />
+            <End Role="userInfraction" EntitySet="userInfraction" />
           </AssociationSet>
-          <AssociationSet Name="PaymentAgreementDocumentInfraction" Association="Model1.PaymentAgreementDocumentInfraction">
-            <End Role="PaymentAgreement" EntitySet="PaymentAgreementSet" />
-            <End Role="DocumentInfraction" EntitySet="DocumentInfractionSet" />
+          <AssociationSet Name="FK_FormModule_Form" Association="Model1.FK_FormModule_Form">
+            <End Role="form" EntitySet="form" />
+            <End Role="formmodule" EntitySet="formmodule" />
           </AssociationSet>
-          <AssociationSet Name="UserNotificationUserInfraction" Association="Model1.UserNotificationUserInfraction">
-            <End Role="UserNotification" EntitySet="UserNotificationSet" />
-            <End Role="UserInfraction" EntitySet="UserInfractionSet" />
+          <AssociationSet Name="FK_RolFormPermission_Form" Association="Model1.FK_RolFormPermission_Form">
+            <End Role="form" EntitySet="form" />
+            <End Role="rolformpermission" EntitySet="rolformpermission" />
           </AssociationSet>
-          <AssociationSet Name="UserInfractionPaymentAgreement" Association="Model1.UserInfractionPaymentAgreement">
-            <End Role="UserInfraction" EntitySet="UserInfractionSet" />
-            <End Role="PaymentAgreement" EntitySet="PaymentAgreementSet" />
+          <AssociationSet Name="FK_FormModule_Module" Association="Model1.FK_FormModule_Module">
+            <End Role="module" EntitySet="module" />
+            <End Role="formmodule" EntitySet="formmodule" />
           </AssociationSet>
-          <AssociationSet Name="valueSmldvFineCalculationDetail" Association="Model1.valueSmldvFineCalculationDetail">
-            <End Role="valueSmldv" EntitySet="valueSmldvSet" />
-            <End Role="FineCalculationDetail" EntitySet="FineCalculationDetailSet" />
+          <AssociationSet Name="FK_RolFormPermission_Permission" Association="Model1.FK_RolFormPermission_Permission">
+            <End Role="permission" EntitySet="permission" />
+            <End Role="rolformpermission" EntitySet="rolformpermission" />
           </AssociationSet>
-          <AssociationSet Name="TypeInfractionFineCalculationDetail" Association="Model1.TypeInfractionFineCalculationDetail">
-            <End Role="TypeInfraction" EntitySet="TypeInfractionSet" />
-            <End Role="FineCalculationDetail" EntitySet="FineCalculationDetailSet" />
+          <AssociationSet Name="FK_person_municipality_municipalityId" Association="Model1.FK_person_municipality_municipalityId">
+            <End Role="municipality" EntitySet="municipality" />
+            <End Role="person" EntitySet="person" />
           </AssociationSet>
-          <EntitySet Name="PaymentFrequencySet" EntityType="Model1.PaymentFrequency" />
-          <EntitySet Name="documentTypeSet" EntityType="Model1.documentType" />
-          <EntitySet Name="departmentSet" EntityType="Model1.department" />
-          <EntitySet Name="municipalitySet" EntityType="Model1.municipality" />
-          <AssociationSet Name="PaymentAgreementPaymentFrequency" Association="Model1.PaymentAgreementPaymentFrequency">
-            <End Role="PaymentAgreement" EntitySet="PaymentAgreementSet" />
-            <End Role="PaymentFrequency" EntitySet="PaymentFrequencySet" />
+          <AssociationSet Name="FK_User_Person" Association="Model1.FK_User_Person">
+            <End Role="person" EntitySet="person" />
+            <End Role="user" EntitySet="user" />
           </AssociationSet>
-          <AssociationSet Name="departmentmunicipality" Association="Model1.departmentmunicipality">
-            <End Role="department" EntitySet="departmentSet" />
-            <End Role="municipality" EntitySet="municipalitySet" />
+          <AssociationSet Name="FK_RolFormPermission_Rol" Association="Model1.FK_RolFormPermission_Rol">
+            <End Role="rol" EntitySet="rol" />
+            <End Role="rolformpermission" EntitySet="rolformpermission" />
           </AssociationSet>
-          <AssociationSet Name="municipalityUser" Association="Model1.municipalityUser">
-            <End Role="municipality" EntitySet="municipalitySet" />
-            <End Role="User" EntitySet="UserSet" />
+          <AssociationSet Name="FK_RolUser_Rol" Association="Model1.FK_RolUser_Rol">
+            <End Role="rol" EntitySet="rol" />
+            <End Role="roluser" EntitySet="roluser" />
           </AssociationSet>
-          <AssociationSet Name="documentTypeperson" Association="Model1.documentTypeperson">
-            <End Role="documentType" EntitySet="documentTypeSet" />
-            <End Role="person" EntitySet="personSet" />
+          <AssociationSet Name="FK_RolUser_User" Association="Model1.FK_RolUser_User">
+            <End Role="user" EntitySet="user" />
+            <End Role="roluser" EntitySet="roluser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_user_documentType_documentTypeId" Association="Model1.FK_user_documentType_documentTypeId">
+            <End Role="documentType" EntitySet="documentType" />
+            <End Role="user" EntitySet="user" />
+          </AssociationSet>
+          <AssociationSet Name="FK_municipality_department_departmentId" Association="Model1.FK_municipality_department_departmentId">
+            <End Role="department" EntitySet="department" />
+            <End Role="municipality" EntitySet="municipality" />
           </AssociationSet>
           </EntityContainer>
-        <EntityType Name="User">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="user" Type="String" Nullable="false" />
-          <Property Name="password" Type="String" Nullable="false" />
-          <Property Name="gmail" Type="String" Nullable="false" />
-          <Property Name="registrationDate" Type="String" Nullable="false" />
-          <NavigationProperty Name="RolUser" Relationship="Model1.UserRolUser" FromRole="User" ToRole="RolUser" />
-          <NavigationProperty Name="person" Relationship="Model1.Userperson" FromRole="User" ToRole="person" />
-          <NavigationProperty Name="UserInfraction" Relationship="Model1.UserUserInfraction" FromRole="User" ToRole="UserInfraction" />
-          <NavigationProperty Name="municipality" Relationship="Model1.municipalityUser" FromRole="User" ToRole="municipality" />
-          <Property Name="municipalityId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Rol">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="role" Type="String" Nullable="false" />
-          <Property Name="description" Type="String" Nullable="false" />
-          <NavigationProperty Name="RolFormPermission" Relationship="Model1.RolRolFormPermission" FromRole="Rol" ToRole="RolFormPermission" />
-          <NavigationProperty Name="RolUser" Relationship="Model1.RolRolUser" FromRole="Rol" ToRole="RolUser" />
-          <Property Name="UserId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="person">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" Nullable="false" />
-          <Property Name="lastName" Type="String" Nullable="false" />
-          <Property Name="phone" Type="String" Nullable="false" />
-          <NavigationProperty Name="User" Relationship="Model1.Userperson" FromRole="person" ToRole="User" />
-          <Property Name="documentNumber" Type="String" Nullable="false" />
-          <NavigationProperty Name="documentType" Relationship="Model1.documentTypeperson" FromRole="person" ToRole="documentType" />
-          <Property Name="documentTypeId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="TypeInfraction">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Type_Infraction" Type="String" Nullable="false" />
-          <Property Name="Numer_smldv" Type="String" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" />
-          <Property Name="UserId" Type="Int32" Nullable="false" />
-          <Property Name="DocumentInfractionId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="UserInfraction" Relationship="Model1.TypeInfractionUserInfraction" FromRole="TypeInfraction" ToRole="UserInfraction" />
-          <NavigationProperty Name="FineCalculationDetail" Relationship="Model1.TypeInfractionFineCalculationDetail" FromRole="TypeInfraction" ToRole="FineCalculationDetail" />
-        </EntityType>
         <EntityType Name="StateInfration">
           <Key>
             <PropertyRef Name="Id" />
@@ -186,454 +980,1207 @@
           <Property Name="DateInfaction" Nullable="false" Type="String" />
           <Property Name="FineValue" Nullable="false" Type="String" />
           <Property Name="State" Nullable="false" Type="String" />
-          <NavigationProperty Name="TypeInfraction" Relationship="Model1.TypeInfractionStateInfration" FromRole="StateInfration" ToRole="TypeInfraction" />
         </EntityType>
-        <EntityType Name="PaymentAgreement">
+        <EntityType Name="C__EFMigrationsHistory">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="MigrationId" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Address" Type="String" Nullable="false" />
-          <Property Name="Neighborhood" Type="String" Nullable="false" />
-          <Property Name="FinanceAmount" Type="String" Nullable="false" />
-          <Property Name="AgreementDescription" Type="String" Nullable="false" />
-          <NavigationProperty Name="TypePayment" Relationship="Model1.PaymentAgreementTypePayment" FromRole="PaymentAgreement" ToRole="TypePayment" />
-          <NavigationProperty Name="DocumentInfraction" Relationship="Model1.PaymentAgreementDocumentInfraction" FromRole="PaymentAgreement" ToRole="DocumentInfraction" />
-          <NavigationProperty Name="UserInfraction" Relationship="Model1.UserInfractionPaymentAgreement" FromRole="PaymentAgreement" ToRole="UserInfraction" />
-          <Property Name="UserInfractionId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="PaymentFrequency" Relationship="Model1.PaymentAgreementPaymentFrequency" FromRole="PaymentAgreement" ToRole="PaymentFrequency" />
+          <Property Name="MigrationId" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="ProductVersion" Type="String" Nullable="false" MaxLength="32" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="UserNotification">
+        <EntityType Name="Infraction">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Message" Type="String" Nullable="false" />
-          <Property Name="ShippingDate" Type="String" Nullable="false" />
-          <Property Name="State" Type="String" Nullable="false" />
-          <NavigationProperty Name="UserInfraction" Relationship="Model1.UserNotificationUserInfraction" FromRole="UserNotification" ToRole="UserInfraction" />
-        </EntityType>
-        <EntityType Name="AccessLog">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Action" Type="String" Nullable="false" />
-          <Property Name="Timestamp" Type="String" Nullable="false" />
-          <Property Name="Status" Type="String" Nullable="false" />
-          <Property Name="Details" Type="String" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Module">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" />
-          <Property Name="Statu" Type="String" Nullable="false" />
-          <NavigationProperty Name="ModuloForm" Relationship="Model1.ModuleModuloForm" FromRole="Module" ToRole="ModuloForm" />
-        </EntityType>
-        <EntityType Name="Permission">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
-          <Property Name="Descripcion" Type="String" Nullable="false" />
-          <NavigationProperty Name="RolFormPermission" Relationship="Model1.PermissionRolFormPermission" FromRole="Permission" ToRole="RolFormPermission" />
-        </EntityType>
-        <EntityType Name="Form">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" />
-          <Property Name="DateCreation" Type="String" Nullable="false" />
-          <Property Name="Status" Type="String" Nullable="false" />
-          <NavigationProperty Name="RolFormPermission" Relationship="Model1.FormRolFormPermission" FromRole="Form" ToRole="RolFormPermission" />
-          <NavigationProperty Name="ModuloForm" Relationship="Model1.FormModuloForm" FromRole="Form" ToRole="ModuloForm" />
-        </EntityType>
-        <EntityType Name="TypePayment">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Name" Type="String" Nullable="false" />
-          <Property Name="Description" Type="String" Nullable="false" />
-          <Property Name="PaymentUserId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="PaymentAgreement" Relationship="Model1.PaymentAgreementTypePayment" FromRole="TypePayment" ToRole="PaymentAgreement" />
-          <Property Name="PaymentAgreementId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="ModuloForm">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <NavigationProperty Name="IdForm" Relationship="Model1.FormModuloForm" FromRole="ModuloForm" ToRole="Form" />
-          <Property Name="FormId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Module" Relationship="Model1.ModuleModuloForm" FromRole="ModuloForm" ToRole="Module" />
-          <Property Name="ModuleId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="RolUser">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <NavigationProperty Name="IdRol" Relationship="Model1.RolRolUser" FromRole="RolUser" ToRole="Rol" />
-          <Property Name="RolId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="User" Relationship="Model1.UserRolUser" FromRole="RolUser" ToRole="User" />
-          <Property Name="UserId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="RolFormPermission">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <NavigationProperty Name="IdForm" Relationship="Model1.FormRolFormPermission" FromRole="RolFormPermission" ToRole="Form" />
-          <Property Name="FormId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="IdRol" Relationship="Model1.RolRolFormPermission" FromRole="RolFormPermission" ToRole="Rol" />
-          <Property Name="RolId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Permission" Relationship="Model1.PermissionRolFormPermission" FromRole="RolFormPermission" ToRole="Permission" />
-          <Property Name="PermissionId" Type="Int32" Nullable="false" />
-        </EntityType>
-        <Association Name="TypeInfractionStateInfration">
-          <End Type="Model1.TypeInfraction" Multiplicity="*" Role="TypeInfraction" />
-          <End Type="Model1.StateInfration" Multiplicity="1" Role="StateInfration" />
-        </Association>
-        <Association Name="FormRolFormPermission">
-          <End Type="Model1.Form" Role="Form" Multiplicity="1" />
-          <End Type="Model1.RolFormPermission" Role="RolFormPermission" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Form">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="RolFormPermission">
-              <PropertyRef Name="FormId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FormModuloForm">
-          <End Type="Model1.Form" Role="Form" Multiplicity="1" />
-          <End Type="Model1.ModuloForm" Role="ModuloForm" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Form">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ModuloForm">
-              <PropertyRef Name="FormId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="RolRolFormPermission">
-          <End Type="Model1.Rol" Role="Rol" Multiplicity="1" />
-          <End Type="Model1.RolFormPermission" Role="RolFormPermission" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Rol">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="RolFormPermission">
-              <PropertyRef Name="RolId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="RolRolUser">
-          <End Type="Model1.Rol" Role="Rol" Multiplicity="1" />
-          <End Type="Model1.RolUser" Role="RolUser" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Rol">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="RolUser">
-              <PropertyRef Name="RolId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="FineCalculationDetail">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="formulario" Type="String" Nullable="false" />
-          <Property Name="percentage" Type="String" Nullable="false" />
-          <Property Name="TotalCalculo" Type="String" Nullable="false" />
-          <Property Name="InformationInfractionsId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="valueSmldv" Relationship="Model1.valueSmldvFineCalculationDetail" FromRole="FineCalculationDetail" ToRole="valueSmldv" />
-          <Property Name="valueSmldvId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="TypeInfraction" Relationship="Model1.TypeInfractionFineCalculationDetail" FromRole="FineCalculationDetail" ToRole="TypeInfraction" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TypeInfractionId" Type="Int32" Nullable="false" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="numer_smldv" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="FineCalculationDetail" Relationship="Model1.FK_TypeInfraction_FineCalculationDetail" FromRole="Infraction" ToRole="FineCalculationDetail" />
+          <NavigationProperty Name="TypeInfraction" Relationship="Model1.FK_TypeInfraction_Infraction" FromRole="Infraction" ToRole="TypeInfraction" />
+          <NavigationProperty Name="userInfraction" Relationship="Model1.FK_userInfraction_Infraction_InfractionId" FromRole="Infraction" ToRole="userInfraction" />
+        </EntityType>
+        <EntityType Name="notifications">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Title" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Message" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Type" Type="Int32" Nullable="false" />
+          <Property Name="Priority" Type="Int32" Nullable="false" />
+          <Property Name="Status" Type="Int32" Nullable="false" />
+          <Property Name="RecipientUserId" Type="Int32" Nullable="false" />
+          <Property Name="ActionRoute" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="ReadAt" Type="DateTime" Precision="7" />
+          <Property Name="ExpiresAt" Type="DateTime" Precision="7" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="user" Relationship="Model1.FK_notifications_user_RecipientUserId" FromRole="notifications" ToRole="user" />
+        </EntityType>
+        <EntityType Name="notificationSetting">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Days" Type="Int32" Nullable="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="UpdatedAt" Type="DateTime" Precision="7" />
+          <Property Name="TimeUnit" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+        </EntityType>
+        <EntityType Name="PasswordResetCodes">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="email" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="code" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="expiration" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="isUsed" Type="Boolean" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+        </EntityType>
+        <EntityType Name="refreshTokens">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="TokenHash" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="ExpiresAt" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="IsRevoked" Type="Boolean" Nullable="false" />
+          <Property Name="ReplacedByTokenHash" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="DocumentInfraction">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <NavigationProperty Name="InspectoraReport" Relationship="Model1.HaciendaReportDocumentInfraction" FromRole="DocumentInfraction" ToRole="HaciendaReport" />
-          <Property Name="InspectoraReportId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="PaymentAgreement" Relationship="Model1.PaymentAgreementDocumentInfraction" FromRole="DocumentInfraction" ToRole="PaymentAgreement" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="inspectoraReportId" Type="Int32" Nullable="false" />
           <Property Name="PaymentAgreementId" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="InspectoraReport" Relationship="Model1.FK_DocumentInfraction_InspectoraReport" FromRole="DocumentInfraction" ToRole="InspectoraReport" />
+          <NavigationProperty Name="paymentAgreement" Relationship="Model1.FK_DocumentInfraction_PaymentAgreement" FromRole="DocumentInfraction" ToRole="paymentAgreement" />
         </EntityType>
-        <EntityType Name="UserInfraction">
+        <EntityType Name="FineCalculationDetail">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DateInfraction" Type="String" Nullable="false" />
-          <Property Name="stateInfraction" Type="String" Nullable="false" />
-          <Property Name="observations" Type="String" Nullable="false" />
-          <NavigationProperty Name="User" Relationship="Model1.UserUserInfraction" FromRole="UserInfraction" ToRole="User" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="formula" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="totalCalculation" Type="Decimal" Nullable="false" Precision="12" Scale="2" />
+          <Property Name="valueSmldvId" Type="Int32" Nullable="false" />
+          <Property Name="typeInfractionId" Type="Int32" Nullable="false" />
+          <Property Name="SmldvValueAtCreation" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="Infraction" Relationship="Model1.FK_TypeInfraction_FineCalculationDetail" FromRole="FineCalculationDetail" ToRole="Infraction" />
+          <NavigationProperty Name="valueSmldv" Relationship="Model1.FK_ValueSmldv_FineCalculationDetail" FromRole="FineCalculationDetail" ToRole="valueSmldv" />
+        </EntityType>
+        <EntityType Name="InspectoraReport">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="report_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="total_fines" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="message" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="DocumentInfraction" Relationship="Model1.FK_DocumentInfraction_InspectoraReport" FromRole="InspectoraReport" ToRole="DocumentInfraction" />
+        </EntityType>
+        <EntityType Name="installmentSchedule">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Number" Type="Int32" Nullable="false" />
+          <Property Name="PaymentDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="Amount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="RemainingBalance" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="IsPaid" Type="Boolean" Nullable="false" />
+          <Property Name="PaymentAgreementId" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="paymentAgreement" Relationship="Model1.FK_InstallmentSchedule_PaymentAgreement" FromRole="installmentSchedule" ToRole="paymentAgreement" />
+        </EntityType>
+        <EntityType Name="paymentAgreement">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="address" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="neighborhood" Type="String" MaxLength="150" FixedLength="false" Unicode="true" />
+          <Property Name="AgreementDescription" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="expeditionCedula" Type="DateTime" Precision="7" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <Property Name="Email" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="AgreementStart" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="AgreementEnd" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="userInfractionId" Type="Int32" Nullable="false" />
+          <Property Name="paymentFrequencyId" Type="Int32" Nullable="false" />
+          <Property Name="typePaymentId" Type="Int32" Nullable="false" />
+          <Property Name="BaseAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="AccruedInterest" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="OutstandingAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Installments" Type="Int32" />
+          <Property Name="MonthlyFee" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="IsPaid" Type="Boolean" Nullable="false" />
+          <Property Name="IsCoactive" Type="Boolean" Nullable="false" />
+          <Property Name="CoactiveActivatedOn" Type="DateTime" Precision="7" />
+          <Property Name="LastInterestAppliedOn" Type="DateTime" Precision="7" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="DocumentInfraction" Relationship="Model1.FK_DocumentInfraction_PaymentAgreement" FromRole="paymentAgreement" ToRole="DocumentInfraction" />
+          <NavigationProperty Name="installmentSchedule" Relationship="Model1.FK_InstallmentSchedule_PaymentAgreement" FromRole="paymentAgreement" ToRole="installmentSchedule" />
+          <NavigationProperty Name="paymentFrequency" Relationship="Model1.FK_paymentAgreement_paymentFrequency_paymentFrequencyId" FromRole="paymentAgreement" ToRole="paymentFrequency" />
+          <NavigationProperty Name="typePayment" Relationship="Model1.FK_PaymentAgreement_TypePayment" FromRole="paymentAgreement" ToRole="typePayment" />
+          <NavigationProperty Name="userInfraction" Relationship="Model1.FK_PaymentAgreement_UserInfraction" FromRole="paymentAgreement" ToRole="userInfraction" />
+        </EntityType>
+        <EntityType Name="TypeInfraction">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="Infraction" Relationship="Model1.FK_TypeInfraction_Infraction" FromRole="TypeInfraction" ToRole="Infraction" />
+        </EntityType>
+        <EntityType Name="typePayment">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="450" FixedLength="false" Unicode="true" />
+          <Property Name="paymentAgreementId" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="paymentAgreement" Relationship="Model1.FK_PaymentAgreement_TypePayment" FromRole="typePayment" ToRole="paymentAgreement" />
+        </EntityType>
+        <EntityType Name="userInfraction">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="dateInfraction" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="stateInfraction" Type="Int32" Nullable="false" />
+          <Property Name="InformationFine" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <Property Name="UserId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="TypeInfraction" Relationship="Model1.TypeInfractionUserInfraction" FromRole="UserInfraction" ToRole="TypeInfraction" />
-          <Property Name="TypeInfractionId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="UserNotification" Relationship="Model1.UserNotificationUserInfraction" FromRole="UserInfraction" ToRole="UserNotification" />
-          <NavigationProperty Name="PaymentAgreement" Relationship="Model1.UserInfractionPaymentAgreement" FromRole="UserInfraction" ToRole="PaymentAgreement" />
+          <Property Name="InfractionId" Type="Int32" Nullable="false" />
+          <Property Name="numer_smldv" Type="Int32" Nullable="false" />
+          <Property Name="UserNotificationId" Type="Int32" Nullable="false" />
+          <Property Name="amountToPay" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="smldvValueAtCreation" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="DiscountLocked" Type="Boolean" Nullable="false" />
+          <Property Name="IsCoactive" Type="Boolean" Nullable="false" />
+          <Property Name="CoactiveActivatedOn" Type="DateTime" Precision="7" />
+          <Property Name="LastInterestAppliedOn" Type="DateTime" Precision="7" />
+          <Property Name="AccruedInterest" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="InitialAmount" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="DaysOfDelay" Type="Int32" Nullable="false" />
+          <Property Name="TotalToPay" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="paymentDue3Days" Type="DateTime" Precision="7" />
+          <Property Name="paymentDue15Days" Type="DateTime" Precision="7" />
+          <Property Name="paymentDue25Days" Type="DateTime" Precision="7" />
+          <Property Name="paymentDue30Days" Type="DateTime" Precision="7" />
+          <Property Name="paymentDue40Days" Type="DateTime" Precision="7" />
+          <Property Name="StatusCollection" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="Infraction" Relationship="Model1.FK_userInfraction_Infraction_InfractionId" FromRole="userInfraction" ToRole="Infraction" />
+          <NavigationProperty Name="paymentAgreement" Relationship="Model1.FK_PaymentAgreement_UserInfraction" FromRole="userInfraction" ToRole="paymentAgreement" />
+          <NavigationProperty Name="user" Relationship="Model1.FK_userInfraction_user_UserId" FromRole="userInfraction" ToRole="user" />
+          <NavigationProperty Name="userNotification" Relationship="Model1.FK_userInfraction_userNotification_UserNotificationId" FromRole="userInfraction" ToRole="userNotification" />
+        </EntityType>
+        <EntityType Name="userNotification">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="message" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="shippingDate" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="userInfraction" Relationship="Model1.FK_userInfraction_userNotification_UserNotificationId" FromRole="userNotification" ToRole="userInfraction" />
         </EntityType>
         <EntityType Name="valueSmldv">
           <Key>
-            <PropertyRef Name="Id" />
+            <PropertyRef Name="id" />
           </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Value_smldv" Type="String" Nullable="false" />
-          <Property Name="Current_Year" Type="String" Nullable="false" />
-          <Property Name="MinimunWage" Type="String" Nullable="false" />
-          <NavigationProperty Name="FineCalculationDetail" Relationship="Model1.valueSmldvFineCalculationDetail" FromRole="valueSmldv" ToRole="FineCalculationDetail" />
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="value_smldv" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="Current_Year" Type="Int32" Nullable="false" />
+          <Property Name="minimunWage" Type="Decimal" Nullable="false" Precision="18" Scale="2" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="FineCalculationDetail" Relationship="Model1.FK_ValueSmldv_FineCalculationDetail" FromRole="valueSmldv" ToRole="FineCalculationDetail" />
         </EntityType>
-        <Association Name="PaymentAgreementTypePayment">
-          <End Type="Model1.PaymentAgreement" Role="PaymentAgreement" Multiplicity="1" />
-          <End Type="Model1.TypePayment" Role="TypePayment" Multiplicity="*" />
+        <EntityType Name="AuthSession">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="SessionId" Type="Guid" Nullable="false" />
+          <Property Name="PersonId" Type="Int64" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="LastActivityAt" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="AbsoluteExpiresAt" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="IsRevoked" Type="Boolean" Nullable="false" />
+          <Property Name="Ip" Type="String" MaxLength="64" FixedLength="false" Unicode="true" />
+          <Property Name="UserAgent" Type="String" MaxLength="512" FixedLength="false" Unicode="true" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+        </EntityType>
+        <EntityType Name="form">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Route" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Icon" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="formmodule" Relationship="Model1.FK_FormModule_Form" FromRole="form" ToRole="formmodule" />
+          <NavigationProperty Name="rolformpermission" Relationship="Model1.FK_RolFormPermission_Form" FromRole="form" ToRole="rolformpermission" />
+        </EntityType>
+        <EntityType Name="formmodule">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="formid" Type="Int32" Nullable="false" />
+          <Property Name="moduleid" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="form" Relationship="Model1.FK_FormModule_Form" FromRole="formmodule" ToRole="form" />
+          <NavigationProperty Name="module" Relationship="Model1.FK_FormModule_Module" FromRole="formmodule" ToRole="module" />
+        </EntityType>
+        <EntityType Name="module">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="formmodule" Relationship="Model1.FK_FormModule_Module" FromRole="module" ToRole="formmodule" />
+        </EntityType>
+        <EntityType Name="permission">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="rolformpermission" Relationship="Model1.FK_RolFormPermission_Permission" FromRole="permission" ToRole="rolformpermission" />
+        </EntityType>
+        <EntityType Name="person">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="firstName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="lastName" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="phoneNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="address" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="tipoUsuario" Type="Int32" Nullable="false" />
+          <Property Name="municipalityId" Type="Int32" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="municipality" Relationship="Model1.FK_person_municipality_municipalityId" FromRole="person" ToRole="municipality" />
+          <NavigationProperty Name="user" Relationship="Model1.FK_User_Person" FromRole="person" ToRole="user" />
+        </EntityType>
+        <EntityType Name="rol">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="250" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="rolformpermission" Relationship="Model1.FK_RolFormPermission_Rol" FromRole="rol" ToRole="rolformpermission" />
+          <NavigationProperty Name="roluser" Relationship="Model1.FK_RolUser_Rol" FromRole="rol" ToRole="roluser" />
+        </EntityType>
+        <EntityType Name="rolformpermission">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="rolid" Type="Int32" Nullable="false" />
+          <Property Name="formid" Type="Int32" Nullable="false" />
+          <Property Name="permissionid" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="form" Relationship="Model1.FK_RolFormPermission_Form" FromRole="rolformpermission" ToRole="form" />
+          <NavigationProperty Name="permission" Relationship="Model1.FK_RolFormPermission_Permission" FromRole="rolformpermission" ToRole="permission" />
+          <NavigationProperty Name="rol" Relationship="Model1.FK_RolFormPermission_Rol" FromRole="rolformpermission" ToRole="rol" />
+        </EntityType>
+        <EntityType Name="roluser">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="userId" Type="Int32" Nullable="false" />
+          <Property Name="rolId" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="rol" Relationship="Model1.FK_RolUser_Rol" FromRole="roluser" ToRole="rol" />
+          <NavigationProperty Name="user" Relationship="Model1.FK_RolUser_User" FromRole="roluser" ToRole="user" />
+        </EntityType>
+        <EntityType Name="user">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PasswordHash" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="email" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PersonId" Type="Int32" />
+          <Property Name="documentTypeId" Type="Int32" />
+          <Property Name="documentNumber" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EmailVerified" Type="Boolean" Nullable="false" />
+          <Property Name="EmailVerificationCode" Type="String" MaxLength="6" FixedLength="false" Unicode="false" />
+          <Property Name="EmailVerificationExpiresAt" Type="DateTime" Precision="7" />
+          <Property Name="EmailVerifiedAt" Type="DateTime" Precision="7" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="notifications" Relationship="Model1.FK_notifications_user_RecipientUserId" FromRole="user" ToRole="notifications" />
+          <NavigationProperty Name="userInfraction" Relationship="Model1.FK_userInfraction_user_UserId" FromRole="user" ToRole="userInfraction" />
+          <NavigationProperty Name="person" Relationship="Model1.FK_User_Person" FromRole="user" ToRole="person" />
+          <NavigationProperty Name="roluser" Relationship="Model1.FK_RolUser_User" FromRole="user" ToRole="roluser" />
+          <NavigationProperty Name="documentType" Relationship="Model1.FK_user_documentType_documentTypeId" FromRole="user" ToRole="documentType" />
+        </EntityType>
+        <EntityType Name="department">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="daneCode" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="municipality" Relationship="Model1.FK_municipality_department_departmentId" FromRole="department" ToRole="municipality" />
+        </EntityType>
+        <EntityType Name="documentType">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="abbreviation" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="user" Relationship="Model1.FK_user_documentType_documentTypeId" FromRole="documentType" ToRole="user" />
+        </EntityType>
+        <EntityType Name="municipality">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="false" />
+          <Property Name="daneCode" Type="Int32" Nullable="false" />
+          <Property Name="departmentId" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="person" Relationship="Model1.FK_person_municipality_municipalityId" FromRole="municipality" ToRole="person" />
+          <NavigationProperty Name="department" Relationship="Model1.FK_municipality_department_departmentId" FromRole="municipality" ToRole="department" />
+        </EntityType>
+        <EntityType Name="paymentFrequency">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="intervalPage" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IntervalType" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="IntervalValue" Type="Int32" Nullable="false" />
+          <Property Name="active" Type="Boolean" Nullable="false" />
+          <Property Name="is_deleted" Type="Boolean" Nullable="false" />
+          <Property Name="created_date" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="paymentAgreement" Relationship="Model1.FK_paymentAgreement_paymentFrequency_paymentFrequencyId" FromRole="paymentFrequency" ToRole="paymentAgreement" />
+        </EntityType>
+        <Association Name="FK_TypeInfraction_FineCalculationDetail">
+          <End Type="Model1.Infraction" Role="Infraction" Multiplicity="1" />
+          <End Type="Model1.FineCalculationDetail" Role="FineCalculationDetail" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="PaymentAgreement">
-              <PropertyRef Name="Id" />
+            <Principal Role="Infraction">
+              <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="TypePayment">
-              <PropertyRef Name="PaymentAgreementId" />
+            <Dependent Role="FineCalculationDetail">
+              <PropertyRef Name="typeInfractionId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="ModuleModuloForm">
-          <End Type="Model1.Module" Role="Module" Multiplicity="1" />
-          <End Type="Model1.ModuloForm" Role="ModuloForm" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Module">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="ModuloForm">
-              <PropertyRef Name="ModuleId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="PermissionRolFormPermission">
-          <End Type="Model1.Permission" Role="Permission" Multiplicity="1" />
-          <End Type="Model1.RolFormPermission" Role="RolFormPermission" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Permission">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="RolFormPermission">
-              <PropertyRef Name="PermissionId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="UserRolUser">
-          <End Type="Model1.User" Role="User" Multiplicity="1" />
-          <End Type="Model1.RolUser" Role="RolUser" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="RolUser">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="Userperson">
-          <End Type="Model1.User" Role="User" Multiplicity="1" />
-          <End Type="Model1.person" Role="person" Multiplicity="1" />
-        </Association>
-        <Association Name="UserUserInfraction">
-          <End Type="Model1.User" Role="User" Multiplicity="1" />
-          <End Type="Model1.UserInfraction" Role="UserInfraction" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="User">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="UserInfraction">
-              <PropertyRef Name="UserId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="TypeInfractionUserInfraction">
+        <Association Name="FK_TypeInfraction_Infraction">
           <End Type="Model1.TypeInfraction" Role="TypeInfraction" Multiplicity="1" />
-          <End Type="Model1.UserInfraction" Role="UserInfraction" Multiplicity="*" />
+          <End Type="Model1.Infraction" Role="Infraction" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TypeInfraction">
-              <PropertyRef Name="Id" />
+              <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="UserInfraction">
+            <Dependent Role="Infraction">
               <PropertyRef Name="TypeInfractionId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="InspectoraReport">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="report_date" Type="String" Nullable="false" />
-          <Property Name="total_fines" Type="String" Nullable="false" />
-          <NavigationProperty Name="DocumentInfraction" Relationship="Model1.HaciendaReportDocumentInfraction" FromRole="HaciendaReport" ToRole="DocumentInfraction" />
-          <Property Name="Message" Type="String" Nullable="false" />
-        </EntityType>
-        <Association Name="HaciendaReportDocumentInfraction">
-          <End Type="Model1.InspectoraReport" Role="HaciendaReport" Multiplicity="1" />
-          <End Type="Model1.DocumentInfraction" Role="DocumentInfraction" Multiplicity="*" />
+        <Association Name="FK_userInfraction_Infraction_InfractionId">
+          <End Type="Model1.Infraction" Role="Infraction" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model1.userInfraction" Role="userInfraction" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="HaciendaReport">
-              <PropertyRef Name="Id" />
+            <Principal Role="Infraction">
+              <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="DocumentInfraction">
-              <PropertyRef Name="InspectoraReportId" />
+            <Dependent Role="userInfraction">
+              <PropertyRef Name="InfractionId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="PaymentAgreementDocumentInfraction">
-          <End Type="Model1.PaymentAgreement" Role="PaymentAgreement" Multiplicity="1" />
+        <Association Name="FK_notifications_user_RecipientUserId">
+          <End Type="Model1.user" Role="user" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model1.notifications" Role="notifications" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="notifications">
+              <PropertyRef Name="RecipientUserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DocumentInfraction_InspectoraReport">
+          <End Type="Model1.InspectoraReport" Role="InspectoraReport" Multiplicity="1" />
           <End Type="Model1.DocumentInfraction" Role="DocumentInfraction" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="PaymentAgreement">
-              <PropertyRef Name="Id" />
+            <Principal Role="InspectoraReport">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="DocumentInfraction">
+              <PropertyRef Name="inspectoraReportId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DocumentInfraction_PaymentAgreement">
+          <End Type="Model1.paymentAgreement" Role="paymentAgreement" Multiplicity="1" />
+          <End Type="Model1.DocumentInfraction" Role="DocumentInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="paymentAgreement">
+              <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="DocumentInfraction">
               <PropertyRef Name="PaymentAgreementId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="UserNotificationUserInfraction">
-          <End Type="Model1.UserNotification" Role="UserNotification" Multiplicity="1" />
-          <End Type="Model1.UserInfraction" Role="UserInfraction" Multiplicity="*" />
-        </Association>
-        <Association Name="UserInfractionPaymentAgreement">
-          <End Type="Model1.UserInfraction" Role="UserInfraction" Multiplicity="1" />
-          <End Type="Model1.PaymentAgreement" Role="PaymentAgreement" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="UserInfraction">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="PaymentAgreement">
-              <PropertyRef Name="UserInfractionId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="valueSmldvFineCalculationDetail">
+        <Association Name="FK_ValueSmldv_FineCalculationDetail">
           <End Type="Model1.valueSmldv" Role="valueSmldv" Multiplicity="1" />
           <End Type="Model1.FineCalculationDetail" Role="FineCalculationDetail" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="valueSmldv">
-              <PropertyRef Name="Id" />
+              <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="FineCalculationDetail">
               <PropertyRef Name="valueSmldvId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="TypeInfractionFineCalculationDetail">
-          <End Type="Model1.TypeInfraction" Role="TypeInfraction" Multiplicity="1" />
-          <End Type="Model1.FineCalculationDetail" Role="FineCalculationDetail" Multiplicity="*" />
+        <Association Name="FK_InstallmentSchedule_PaymentAgreement">
+          <End Type="Model1.paymentAgreement" Role="paymentAgreement" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model1.installmentSchedule" Role="installmentSchedule" Multiplicity="*" />
           <ReferentialConstraint>
-            <Principal Role="TypeInfraction">
-              <PropertyRef Name="Id" />
+            <Principal Role="paymentAgreement">
+              <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="FineCalculationDetail">
-              <PropertyRef Name="TypeInfractionId" />
+            <Dependent Role="installmentSchedule">
+              <PropertyRef Name="PaymentAgreementId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="PaymentFrequency">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="IntervalPage" Type="String" Nullable="false" />
-          <Property Name="DueDayOfMonth" Type="String" Nullable="false" />
-          <NavigationProperty Name="PaymentAgreement" Relationship="Model1.PaymentAgreementPaymentFrequency" FromRole="PaymentFrequency" ToRole="PaymentAgreement" />
-        </EntityType>
-        <EntityType Name="documentType">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Abbreviation" Type="String" Nullable="false" />
-          <Property Name="Name" Type="String" Nullable="false" />
-          <NavigationProperty Name="person" Relationship="Model1.documentTypeperson" FromRole="documentType" ToRole="person" />
-        </EntityType>
-        <EntityType Name="department">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="DaneCode" Type="String" Nullable="false" />
-          <Property Name="name" Type="String" Nullable="false" />
-          <NavigationProperty Name="municipality" Relationship="Model1.departmentmunicipality" FromRole="department" ToRole="municipality" />
-        </EntityType>
-        <EntityType Name="municipality">
-          <Key>
-            <PropertyRef Name="Id" />
-          </Key>
-          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" Nullable="false" />
-          <Property Name="DaneCode" Type="String" Nullable="false" />
-          <NavigationProperty Name="department" Relationship="Model1.departmentmunicipality" FromRole="municipality" ToRole="department" />
-          <Property Name="departmentId" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="User" Relationship="Model1.municipalityUser" FromRole="municipality" ToRole="User" />
-        </EntityType>
-        <Association Name="PaymentAgreementPaymentFrequency">
-          <End Type="Model1.PaymentAgreement" Role="PaymentAgreement" Multiplicity="*" />
-          <End Type="Model1.PaymentFrequency" Role="PaymentFrequency" Multiplicity="1" />
+        <Association Name="FK_paymentAgreement_paymentFrequency_paymentFrequencyId">
+          <End Type="Model1.paymentFrequency" Role="paymentFrequency" Multiplicity="1" />
+          <End Type="Model1.paymentAgreement" Role="paymentAgreement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="paymentFrequency">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="paymentAgreement">
+              <PropertyRef Name="paymentFrequencyId" />
+            </Dependent>
+          </ReferentialConstraint>
         </Association>
-        <Association Name="departmentmunicipality">
+        <Association Name="FK_PaymentAgreement_TypePayment">
+          <End Type="Model1.typePayment" Role="typePayment" Multiplicity="1" />
+          <End Type="Model1.paymentAgreement" Role="paymentAgreement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="typePayment">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="paymentAgreement">
+              <PropertyRef Name="typePaymentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PaymentAgreement_UserInfraction">
+          <End Type="Model1.userInfraction" Role="userInfraction" Multiplicity="1" />
+          <End Type="Model1.paymentAgreement" Role="paymentAgreement" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="userInfraction">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="paymentAgreement">
+              <PropertyRef Name="userInfractionId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_userInfraction_user_UserId">
+          <End Type="Model1.user" Role="user" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model1.userInfraction" Role="userInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="userInfraction">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_userInfraction_userNotification_UserNotificationId">
+          <End Type="Model1.userNotification" Role="userNotification" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model1.userInfraction" Role="userInfraction" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="userNotification">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="userInfraction">
+              <PropertyRef Name="UserNotificationId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_FormModule_Form">
+          <End Type="Model1.form" Role="form" Multiplicity="1" />
+          <End Type="Model1.formmodule" Role="formmodule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="form">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="formmodule">
+              <PropertyRef Name="formid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolFormPermission_Form">
+          <End Type="Model1.form" Role="form" Multiplicity="1" />
+          <End Type="Model1.rolformpermission" Role="rolformpermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="form">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="rolformpermission">
+              <PropertyRef Name="formid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_FormModule_Module">
+          <End Type="Model1.module" Role="module" Multiplicity="1" />
+          <End Type="Model1.formmodule" Role="formmodule" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="module">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="formmodule">
+              <PropertyRef Name="moduleid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolFormPermission_Permission">
+          <End Type="Model1.permission" Role="permission" Multiplicity="1" />
+          <End Type="Model1.rolformpermission" Role="rolformpermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="permission">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="rolformpermission">
+              <PropertyRef Name="permissionid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_person_municipality_municipalityId">
+          <End Type="Model1.municipality" Role="municipality" Multiplicity="0..1" />
+          <End Type="Model1.person" Role="person" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="municipality">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="person">
+              <PropertyRef Name="municipalityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_User_Person">
+          <End Type="Model1.person" Role="person" Multiplicity="0..1" />
+          <End Type="Model1.user" Role="user" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="person">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="user">
+              <PropertyRef Name="PersonId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolFormPermission_Rol">
+          <End Type="Model1.rol" Role="rol" Multiplicity="1" />
+          <End Type="Model1.rolformpermission" Role="rolformpermission" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="rol">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="rolformpermission">
+              <PropertyRef Name="rolid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolUser_Rol">
+          <End Type="Model1.rol" Role="rol" Multiplicity="1" />
+          <End Type="Model1.roluser" Role="roluser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="rol">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="roluser">
+              <PropertyRef Name="rolId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_RolUser_User">
+          <End Type="Model1.user" Role="user" Multiplicity="1" />
+          <End Type="Model1.roluser" Role="roluser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="user">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="roluser">
+              <PropertyRef Name="userId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_user_documentType_documentTypeId">
+          <End Type="Model1.documentType" Role="documentType" Multiplicity="0..1" />
+          <End Type="Model1.user" Role="user" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="documentType">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="user">
+              <PropertyRef Name="documentTypeId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_municipality_department_departmentId">
           <End Type="Model1.department" Role="department" Multiplicity="1" />
           <End Type="Model1.municipality" Role="municipality" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="department">
-              <PropertyRef Name="Id" />
+              <PropertyRef Name="id" />
             </Principal>
             <Dependent Role="municipality">
               <PropertyRef Name="departmentId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="municipalityUser">
-          <End Type="Model1.municipality" Role="municipality" Multiplicity="1" />
-          <End Type="Model1.User" Role="User" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="municipality">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="User">
-              <PropertyRef Name="municipalityId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="documentTypeperson">
-          <End Type="Model1.documentType" Role="documentType" Multiplicity="1" />
-          <End Type="Model1.person" Role="person" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="documentType">
-              <PropertyRef Name="Id" />
-            </Principal>
-            <Dependent Role="person">
-              <PropertyRef Name="documentTypeId" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs" Space="C-S">
         <Alias Key="Model" Value="Model1" />
         <Alias Key="Target" Value="Model1.Store" />
-        <EntityContainerMapping CdmEntityContainer="Model1Container" StorageEntityContainer="Model1TargetContainer">
+        <EntityContainerMapping CdmEntityContainer="Model1Container" StorageEntityContainer="Model1StoreContainer">
+          <EntitySetMapping Name="C__EFMigrationsHistory">
+            <EntityTypeMapping TypeName="Model1.C__EFMigrationsHistory">
+              <MappingFragment StoreEntitySet="__EFMigrationsHistory">
+                <ScalarProperty Name="ProductVersion" ColumnName="ProductVersion" />
+                <ScalarProperty Name="MigrationId" ColumnName="MigrationId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Infraction">
+            <EntityTypeMapping TypeName="Model1.Infraction">
+              <MappingFragment StoreEntitySet="Infraction">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="numer_smldv" ColumnName="numer_smldv" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="TypeInfractionId" ColumnName="TypeInfractionId" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="notifications">
+            <EntityTypeMapping TypeName="Model1.notifications">
+              <MappingFragment StoreEntitySet="notifications">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="ExpiresAt" ColumnName="ExpiresAt" />
+                <ScalarProperty Name="ReadAt" ColumnName="ReadAt" />
+                <ScalarProperty Name="ActionRoute" ColumnName="ActionRoute" />
+                <ScalarProperty Name="RecipientUserId" ColumnName="RecipientUserId" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Priority" ColumnName="Priority" />
+                <ScalarProperty Name="Type" ColumnName="Type" />
+                <ScalarProperty Name="Message" ColumnName="Message" />
+                <ScalarProperty Name="Title" ColumnName="Title" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="notificationSetting">
+            <EntityTypeMapping TypeName="Model1.notificationSetting">
+              <MappingFragment StoreEntitySet="notificationSetting">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="TimeUnit" ColumnName="TimeUnit" />
+                <ScalarProperty Name="UpdatedAt" ColumnName="UpdatedAt" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="Days" ColumnName="Days" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PasswordResetCodes">
+            <EntityTypeMapping TypeName="Model1.PasswordResetCodes">
+              <MappingFragment StoreEntitySet="PasswordResetCodes">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="isUsed" ColumnName="isUsed" />
+                <ScalarProperty Name="expiration" ColumnName="expiration" />
+                <ScalarProperty Name="code" ColumnName="code" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="refreshTokens">
+            <EntityTypeMapping TypeName="Model1.refreshTokens">
+              <MappingFragment StoreEntitySet="refreshTokens">
+                <ScalarProperty Name="ReplacedByTokenHash" ColumnName="ReplacedByTokenHash" />
+                <ScalarProperty Name="IsRevoked" ColumnName="IsRevoked" />
+                <ScalarProperty Name="ExpiresAt" ColumnName="ExpiresAt" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="TokenHash" ColumnName="TokenHash" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DocumentInfraction">
+            <EntityTypeMapping TypeName="Model1.DocumentInfraction">
+              <MappingFragment StoreEntitySet="DocumentInfraction">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="PaymentAgreementId" ColumnName="PaymentAgreementId" />
+                <ScalarProperty Name="inspectoraReportId" ColumnName="inspectoraReportId" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="FineCalculationDetail">
+            <EntityTypeMapping TypeName="Model1.FineCalculationDetail">
+              <MappingFragment StoreEntitySet="FineCalculationDetail">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="SmldvValueAtCreation" ColumnName="SmldvValueAtCreation" />
+                <ScalarProperty Name="typeInfractionId" ColumnName="typeInfractionId" />
+                <ScalarProperty Name="valueSmldvId" ColumnName="valueSmldvId" />
+                <ScalarProperty Name="totalCalculation" ColumnName="totalCalculation" />
+                <ScalarProperty Name="formula" ColumnName="formula" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="InspectoraReport">
+            <EntityTypeMapping TypeName="Model1.InspectoraReport">
+              <MappingFragment StoreEntitySet="InspectoraReport">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="message" ColumnName="message" />
+                <ScalarProperty Name="total_fines" ColumnName="total_fines" />
+                <ScalarProperty Name="report_date" ColumnName="report_date" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="installmentSchedule">
+            <EntityTypeMapping TypeName="Model1.installmentSchedule">
+              <MappingFragment StoreEntitySet="installmentSchedule">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="PaymentAgreementId" ColumnName="PaymentAgreementId" />
+                <ScalarProperty Name="IsPaid" ColumnName="IsPaid" />
+                <ScalarProperty Name="RemainingBalance" ColumnName="RemainingBalance" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="PaymentDate" ColumnName="PaymentDate" />
+                <ScalarProperty Name="Number" ColumnName="Number" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="paymentAgreement">
+            <EntityTypeMapping TypeName="Model1.paymentAgreement">
+              <MappingFragment StoreEntitySet="paymentAgreement">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="LastInterestAppliedOn" ColumnName="LastInterestAppliedOn" />
+                <ScalarProperty Name="CoactiveActivatedOn" ColumnName="CoactiveActivatedOn" />
+                <ScalarProperty Name="IsCoactive" ColumnName="IsCoactive" />
+                <ScalarProperty Name="IsPaid" ColumnName="IsPaid" />
+                <ScalarProperty Name="MonthlyFee" ColumnName="MonthlyFee" />
+                <ScalarProperty Name="Installments" ColumnName="Installments" />
+                <ScalarProperty Name="OutstandingAmount" ColumnName="OutstandingAmount" />
+                <ScalarProperty Name="AccruedInterest" ColumnName="AccruedInterest" />
+                <ScalarProperty Name="BaseAmount" ColumnName="BaseAmount" />
+                <ScalarProperty Name="typePaymentId" ColumnName="typePaymentId" />
+                <ScalarProperty Name="paymentFrequencyId" ColumnName="paymentFrequencyId" />
+                <ScalarProperty Name="userInfractionId" ColumnName="userInfractionId" />
+                <ScalarProperty Name="AgreementEnd" ColumnName="AgreementEnd" />
+                <ScalarProperty Name="AgreementStart" ColumnName="AgreementStart" />
+                <ScalarProperty Name="Email" ColumnName="Email" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="expeditionCedula" ColumnName="expeditionCedula" />
+                <ScalarProperty Name="AgreementDescription" ColumnName="AgreementDescription" />
+                <ScalarProperty Name="neighborhood" ColumnName="neighborhood" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TypeInfraction">
+            <EntityTypeMapping TypeName="Model1.TypeInfraction">
+              <MappingFragment StoreEntitySet="TypeInfraction">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="typePayment">
+            <EntityTypeMapping TypeName="Model1.typePayment">
+              <MappingFragment StoreEntitySet="typePayment">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="paymentAgreementId" ColumnName="paymentAgreementId" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="userInfraction">
+            <EntityTypeMapping TypeName="Model1.userInfraction">
+              <MappingFragment StoreEntitySet="userInfraction">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="StatusCollection" ColumnName="StatusCollection" />
+                <ScalarProperty Name="paymentDue40Days" ColumnName="paymentDue40Days" />
+                <ScalarProperty Name="paymentDue30Days" ColumnName="paymentDue30Days" />
+                <ScalarProperty Name="paymentDue25Days" ColumnName="paymentDue25Days" />
+                <ScalarProperty Name="paymentDue15Days" ColumnName="paymentDue15Days" />
+                <ScalarProperty Name="paymentDue3Days" ColumnName="paymentDue3Days" />
+                <ScalarProperty Name="TotalToPay" ColumnName="TotalToPay" />
+                <ScalarProperty Name="DaysOfDelay" ColumnName="DaysOfDelay" />
+                <ScalarProperty Name="InitialAmount" ColumnName="InitialAmount" />
+                <ScalarProperty Name="AccruedInterest" ColumnName="AccruedInterest" />
+                <ScalarProperty Name="LastInterestAppliedOn" ColumnName="LastInterestAppliedOn" />
+                <ScalarProperty Name="CoactiveActivatedOn" ColumnName="CoactiveActivatedOn" />
+                <ScalarProperty Name="IsCoactive" ColumnName="IsCoactive" />
+                <ScalarProperty Name="DiscountLocked" ColumnName="DiscountLocked" />
+                <ScalarProperty Name="smldvValueAtCreation" ColumnName="smldvValueAtCreation" />
+                <ScalarProperty Name="amountToPay" ColumnName="amountToPay" />
+                <ScalarProperty Name="UserNotificationId" ColumnName="UserNotificationId" />
+                <ScalarProperty Name="numer_smldv" ColumnName="numer_smldv" />
+                <ScalarProperty Name="InfractionId" ColumnName="InfractionId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="InformationFine" ColumnName="InformationFine" />
+                <ScalarProperty Name="stateInfraction" ColumnName="stateInfraction" />
+                <ScalarProperty Name="dateInfraction" ColumnName="dateInfraction" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="userNotification">
+            <EntityTypeMapping TypeName="Model1.userNotification">
+              <MappingFragment StoreEntitySet="userNotification">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="shippingDate" ColumnName="shippingDate" />
+                <ScalarProperty Name="message" ColumnName="message" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="valueSmldv">
+            <EntityTypeMapping TypeName="Model1.valueSmldv">
+              <MappingFragment StoreEntitySet="valueSmldv">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="minimunWage" ColumnName="minimunWage" />
+                <ScalarProperty Name="Current_Year" ColumnName="Current_Year" />
+                <ScalarProperty Name="value_smldv" ColumnName="value_smldv" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="AuthSession">
+            <EntityTypeMapping TypeName="Model1.AuthSession">
+              <MappingFragment StoreEntitySet="AuthSession">
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="UserAgent" ColumnName="UserAgent" />
+                <ScalarProperty Name="Ip" ColumnName="Ip" />
+                <ScalarProperty Name="IsRevoked" ColumnName="IsRevoked" />
+                <ScalarProperty Name="AbsoluteExpiresAt" ColumnName="AbsoluteExpiresAt" />
+                <ScalarProperty Name="LastActivityAt" ColumnName="LastActivityAt" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="PersonId" ColumnName="PersonId" />
+                <ScalarProperty Name="SessionId" ColumnName="SessionId" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="form">
+            <EntityTypeMapping TypeName="Model1.form">
+              <MappingFragment StoreEntitySet="form">
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="Icon" ColumnName="Icon" />
+                <ScalarProperty Name="Route" ColumnName="Route" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="formmodule">
+            <EntityTypeMapping TypeName="Model1.formmodule">
+              <MappingFragment StoreEntitySet="formmodule">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="moduleid" ColumnName="moduleid" />
+                <ScalarProperty Name="formid" ColumnName="formid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="module">
+            <EntityTypeMapping TypeName="Model1.module">
+              <MappingFragment StoreEntitySet="module">
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="permission">
+            <EntityTypeMapping TypeName="Model1.permission">
+              <MappingFragment StoreEntitySet="permission">
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="person">
+            <EntityTypeMapping TypeName="Model1.person">
+              <MappingFragment StoreEntitySet="person">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="municipalityId" ColumnName="municipalityId" />
+                <ScalarProperty Name="tipoUsuario" ColumnName="tipoUsuario" />
+                <ScalarProperty Name="address" ColumnName="address" />
+                <ScalarProperty Name="phoneNumber" ColumnName="phoneNumber" />
+                <ScalarProperty Name="lastName" ColumnName="lastName" />
+                <ScalarProperty Name="firstName" ColumnName="firstName" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="rol">
+            <EntityTypeMapping TypeName="Model1.rol">
+              <MappingFragment StoreEntitySet="rol">
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="rolformpermission">
+            <EntityTypeMapping TypeName="Model1.rolformpermission">
+              <MappingFragment StoreEntitySet="rolformpermission">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="permissionid" ColumnName="permissionid" />
+                <ScalarProperty Name="formid" ColumnName="formid" />
+                <ScalarProperty Name="rolid" ColumnName="rolid" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="roluser">
+            <EntityTypeMapping TypeName="Model1.roluser">
+              <MappingFragment StoreEntitySet="roluser">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="rolId" ColumnName="rolId" />
+                <ScalarProperty Name="userId" ColumnName="userId" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="user">
+            <EntityTypeMapping TypeName="Model1.user">
+              <MappingFragment StoreEntitySet="user">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="EmailVerifiedAt" ColumnName="EmailVerifiedAt" />
+                <ScalarProperty Name="EmailVerificationExpiresAt" ColumnName="EmailVerificationExpiresAt" />
+                <ScalarProperty Name="EmailVerificationCode" ColumnName="EmailVerificationCode" />
+                <ScalarProperty Name="EmailVerified" ColumnName="EmailVerified" />
+                <ScalarProperty Name="documentNumber" ColumnName="documentNumber" />
+                <ScalarProperty Name="documentTypeId" ColumnName="documentTypeId" />
+                <ScalarProperty Name="PersonId" ColumnName="PersonId" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="PasswordHash" ColumnName="PasswordHash" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="department">
+            <EntityTypeMapping TypeName="Model1.department">
+              <MappingFragment StoreEntitySet="department">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="daneCode" ColumnName="daneCode" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="documentType">
+            <EntityTypeMapping TypeName="Model1.documentType">
+              <MappingFragment StoreEntitySet="documentType">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="abbreviation" ColumnName="abbreviation" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="municipality">
+            <EntityTypeMapping TypeName="Model1.municipality">
+              <MappingFragment StoreEntitySet="municipality">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="departmentId" ColumnName="departmentId" />
+                <ScalarProperty Name="daneCode" ColumnName="daneCode" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="paymentFrequency">
+            <EntityTypeMapping TypeName="Model1.paymentFrequency">
+              <MappingFragment StoreEntitySet="paymentFrequency">
+                <ScalarProperty Name="created_date" ColumnName="created_date" />
+                <ScalarProperty Name="is_deleted" ColumnName="is_deleted" />
+                <ScalarProperty Name="active" ColumnName="active" />
+                <ScalarProperty Name="IntervalValue" ColumnName="IntervalValue" />
+                <ScalarProperty Name="IntervalType" ColumnName="IntervalType" />
+                <ScalarProperty Name="intervalPage" ColumnName="intervalPage" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -650,6 +2197,8 @@
         <DesignerProperty Name="ValidateOnBuild" Value="true" />
         <DesignerProperty Name="EnablePluralization" Value="False" />
         <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="True" />
+        <DesignerProperty Name="UseLegacyProvider" Value="False" />
       </DesignerInfoPropertySet>
     </edmx:Options>
     <!-- Diagram content (shape and connector positions) -->
