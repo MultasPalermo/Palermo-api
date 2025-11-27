@@ -17,5 +17,7 @@ namespace Business.Interfaces.IBusinessImplements.Entities
         Task<bool> ApplyInterestToSingleInfractionAsync(int idUserInfraction,DateTime nowUtc,CancellationToken ct = default);
 
         Task<IEnumerable<UserInfractionSelectDto>> GetMultasAsync(int? documentTypeId,int? typeInfractionId, EstadoMulta? stateInfraction);
+
+        Task<bool> MarkAsPaidAsync(int infractionId);
     }
 }
