@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entity.DTOs.Default.Auth.RestPasword
+namespace Entity.Domain.Models.Implements.ModelSecurity
 {
     public class PasswordResetCode : BaseModel
     {

@@ -4,6 +4,7 @@
     {
         public int id { get; set; }
         public string? email { get; set; }
+        public string password { get; set; }
         public int? documentTypeId { get; set; }
         public string? TypeDocument { get; set; }
         public string? documentNumber { get; set; }

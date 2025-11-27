@@ -11,26 +11,21 @@ namespace Business.Mensajeria.Email.implements
     public class EmailBackgroundService : BackgroundService
     {
         private readonly EmailBackgroundQueue _queue;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<EmailBackgroundService> _logger;
-
-        // 🔥 Configurar número de workers concurrentes
         private readonly int _maxConcurrentJobs;
 
         public EmailBackgroundService(
             EmailBackgroundQueue queue,
-            IServiceProvider serviceProvider,
+            IServiceScopeFactory scopeFactory,
             ILogger<EmailBackgroundService> logger)
         {
             _queue = queue;
-            _serviceProvider = serviceProvider;
+            _scopeFactory = scopeFactory;   // ← cambia esto
             _logger = logger;
-
-            // 🔥 AJUSTAR SEGÚN TUS NECESIDADES
-            // Para pruebas locales: 10-20 workers
-            // Para producción: 50-100 workers
             _maxConcurrentJobs = 20;
         }
+
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -58,7 +53,7 @@ namespace Business.Mensajeria.Email.implements
 
         private async Task ProcessQueueAsync(int workerId, CancellationToken stoppingToken)
         {
-            _logger.LogInformation($"👷 Worker #{workerId} iniciado");
+            _logger.LogInformation($"worker {workerId} iniciado");
 
             try
             {
@@ -66,30 +61,21 @@ namespace Business.Mensajeria.Email.implements
                 {
                     try
                     {
-                        _logger.LogDebug($"👷 Worker #{workerId} procesando job...");
+                        using var scope = _scopeFactory.CreateScope(); // ← cambia esto
 
-                        // Crear scope de DI para servicios Scoped (DbContext, etc.)
-                        using var scope = _serviceProvider.CreateScope();
+                        var scopedProvider = scope.ServiceProvider;
 
-                        // Ejecutar la tarea
-                        await workItem();
-
-                        _logger.LogDebug($"✅ Worker #{workerId} completó job exitosamente");
+                        await workItem(scopedProvider); // ← pásale el provider
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, $"❌ Worker #{workerId} falló al ejecutar job");
-                        // No lanzar la excepción para que el worker continúe procesando
+                        _logger.LogError(ex, $"worker {workerId} falló");
                     }
                 }
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation($"🛑 Worker #{workerId} detenido");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"❌ Error crítico en Worker #{workerId}");
+                _logger.LogInformation($"worker {workerId} detenido");
             }
         }
     }
