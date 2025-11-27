@@ -12,13 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-<<<<<<<< HEAD:taller/Entity/Migrations/20251104044424_Initial.Designer.cs
-    [Migration("20251104044424_Initial")]
-    partial class Initial
-========
-    [Migration("20251112165634_sqlserver")]
-    partial class sqlserver
->>>>>>>> 30c2a48 (feat(notification): send emails for collections):taller/Entity/Migrations/20251112165634_sqlserver.Designer.cs
+    [Migration("20251114014744_AddUserInfractionPaymentColumns")]
+    partial class AddUserInfractionPaymentColumns
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

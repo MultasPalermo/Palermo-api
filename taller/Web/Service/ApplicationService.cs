@@ -105,6 +105,9 @@ namespace Web.Service
             services.AddScoped<IValueSmldvService, ValueSmldvService>();
             services.AddScoped<IInstallmentScheduleServices, InstallmentScheduleService>();
 
+            // Servicios de Pago
+            services.AddScoped<MercadoPagoService>();
+
             // Servicios PDF
             services.AddScoped<IPdfGeneratorService, PdfService>();
 

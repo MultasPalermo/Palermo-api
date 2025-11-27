@@ -12,6 +12,26 @@ namespace Web.Service
 
             public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
             {
+                // Validar configuración JWT
+                var jwtKey = configuration["Jwt:key"];
+                var jwtIssuer = configuration["Jwt:Issuer"];
+                var jwtAudience = configuration["Jwt:Audience"];
+
+                if (string.IsNullOrEmpty(jwtKey))
+                {
+                    throw new InvalidOperationException("La configuración 'Jwt:key' no está definida en appsettings.json");
+                }
+
+                if (string.IsNullOrEmpty(jwtIssuer))
+                {
+                    throw new InvalidOperationException("La configuración 'Jwt:Issuer' no está definida en appsettings.json");
+                }
+
+                if (string.IsNullOrEmpty(jwtAudience))
+                {
+                    throw new InvalidOperationException("La configuración 'Jwt:Audience' no está definida en appsettings.json");
+                }
+
                 services.AddAuthentication(config =>
                 {
                     config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -27,10 +47,10 @@ namespace Web.Service
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ClockSkew = TimeSpan.Zero,
-                        ValidIssuer = configuration["Jwt:Issuer"],
-                        ValidAudience = configuration["Jwt:Audience"],
+                        ValidIssuer = jwtIssuer,
+                        ValidAudience = jwtAudience,
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)
+                            Encoding.UTF8.GetBytes(jwtKey)
                         )
                     };
 
