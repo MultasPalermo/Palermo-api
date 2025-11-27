@@ -13,6 +13,7 @@ namespace Business.Interfaces.IBusinessImplements.Entities
 {
     public interface IInstallmentScheduleServices : IBusiness<InstallmentScheduleDto, InstallmentScheduleSelectDto>
     {
+        Task<bool> MarkInstallmentAsPaidAsync(int installmentId);
 
     }
 }
