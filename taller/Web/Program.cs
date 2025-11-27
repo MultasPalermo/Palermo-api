@@ -44,6 +44,8 @@ builder.Services.AddDatabase(builder.Configuration);
 // Auth JWT leyendo JwtSettings (options pattern)
 builder.Services.AddJwtAuthentication(builder.Configuration);
 
+builder.Services.AddMercadoPagoServices(builder.Configuration);
+
 // Autorización
 builder.Services.AddAuthorization();
 
