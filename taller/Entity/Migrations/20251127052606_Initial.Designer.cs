@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
+<<<<<<< HEAD:taller/Entity/Migrations/20251126230442_sqlserver.Designer.cs
 <<<<<<<< HEAD:taller/Entity/Migrations/20251114014744_AddUserInfractionPaymentColumns.Designer.cs
 <<<<<<<< HEAD:taller/Entity/Migrations/20251114014744_AddUserInfractionPaymentColumns.Designer.cs
 <<<<<<<< HEAD:taller/Entity/Migrations/20251114014744_AddUserInfractionPaymentColumns.Designer.cs
@@ -28,6 +29,10 @@ namespace Entity.Migrations
 >>>>>>>> d1786ba (feat(HU-07): Recuperar contraseña):taller/Entity/Migrations/20251126230442_sqlserver.Designer.cs
     partial class sqlserver
 >>>>>>>> 3ea7252 (feat: seguimiento a las multas):taller/Entity/Migrations/20251115175530_sqlserver.Designer.cs
+=======
+    [Migration("20251127052606_Initial")]
+    partial class Initial
+>>>>>>> e312cf3 (cambios  de parametros):taller/Entity/Migrations/20251127052606_Initial.Designer.cs
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
