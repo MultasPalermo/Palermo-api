@@ -16,7 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 // --------------------
 // Servicios
 // --------------------
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 
 builder.Services.AddSignalR();
 

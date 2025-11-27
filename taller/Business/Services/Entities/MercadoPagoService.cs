@@ -89,7 +89,7 @@ namespace Business.Services.Entities
                 external_reference = $"FINE-{multa.id}"
             };
 
-            return await SendPreferenceAsync(payload, amountToPay);
+            return await SendPreferenceAsync(payload, amountToPay, multa.id);
         }
 
 
@@ -150,7 +150,7 @@ namespace Business.Services.Entities
         // ============================================================
         // FUNCIÓN COMÚN PARA ENVIAR PREFERENCIA
         // ============================================================
-        private async Task<MercadoPagoPreferenceResult> SendPreferenceAsync(object payload, decimal amount)
+        private async Task<MercadoPagoPreferenceResult> SendPreferenceAsync(object payload, decimal amount, int infractionId = 0)
         {
             using var content = new StringContent(
                 JsonSerializer.Serialize(payload, _jsonOptions),
@@ -173,7 +173,10 @@ namespace Business.Services.Entities
                 PreferenceId = json.GetProperty("id").GetString()!,
                 InitPoint = json.GetProperty("init_point").GetString()!,
                 Amount = amount,
-                Currency = _settings.DefaultCurrency
+                Currency = _settings.DefaultCurrency,
+                ObligationId = infractionId,
+                ContractId = 0,
+                PaymentId = null
             };
         }
 
