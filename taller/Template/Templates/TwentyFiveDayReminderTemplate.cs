@@ -79,16 +79,17 @@ namespace Template.Templates
     <div class='content'>
       <p><strong>Municipio de Palermo - Huila</strong><br/>
       <strong>Secretaría de Hacienda Municipal</strong><br/>
-      <strong>Fecha:</strong> @FechaActual</p>
+      <strong>Fecha:</strong> {{fecha_emision}}</p>
 
-      <p><strong>ASUNTO:</strong> Último aviso antes de inicio de cobro coactivo - Resolución N.° <strong>@NumeroResolucion</strong></p>
+      <p><strong>ASUNTO:</strong> Último aviso antes de inicio de cobro coactivo </strong></p>
 
-      <p><strong>Respetado(a):</strong> @NombreCompleto</p>
+      <p><strong>Respetado(a):</strong> {{nombre_completo}}</p>
 
       <p>
-        Transcurridos veinticinco (25) días sin registrarse pago de la multa establecida mediante Resolución N.° 
-        <strong>@NumeroResolucion</strong>, le informamos que de no realizar el pago o suscribir un acuerdo dentro de 
-        los próximos cinco (5) días, se dará inicio al proceso de cobro coactivo.
+        Transcurridos veinticinco (25) días sin registrarse pago de la multa establecida mediante el 
+        Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016), 
+        le informamos que de no realizar el pago o suscribir un acuerdo dentro de los próximos cinco (5) días, 
+        se dará inicio al proceso de cobro coactivo.
       </p>
 
       <p>

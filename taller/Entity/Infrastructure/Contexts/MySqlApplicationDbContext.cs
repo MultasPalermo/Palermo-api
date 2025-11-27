@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Entity.Data.Seeds.parameters;
+﻿using Entity.Data.Seeds.parameters;
 using Entity.DataInit.dataInitModelSecurity;
 using Entity.DataInit.dataInitParameters;
 using Entity.DataInit.EntitiesDataInit;
@@ -9,9 +6,13 @@ using Entity.DataInit.parametersDataInit;
 using Entity.Domain.Interfaces;
 using Entity.Domain.Models.Implements.Entities;
 using Entity.Domain.Models.Implements.ModelSecurity;
+using Entity.Domain.Models.Implements.parameters;
 using Entity.relacionesModel.RelacionesEntities;
 using Entity.relacionesModel.RelacionesModelSecurity;
 using Entity.relacionesModel.RelacionesParameters;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 public class MySqlApplicationDbContext : DbContext
 {
@@ -31,7 +32,9 @@ public class MySqlApplicationDbContext : DbContext
         //_http = httpContextAccessor;
     }
 
-    // ========== DBSet Security ==========
+    ///<summary>
+    ///Implementación DBSet Model security
+    ///</summary>
     public DbSet<User> users { get; set; }
     public DbSet<Person> persons { get; set; }
     public DbSet<Rol> rols { get; set; }
@@ -41,8 +44,12 @@ public class MySqlApplicationDbContext : DbContext
     public DbSet<Permission> permissions { get; set; }
     public DbSet<RolFormPermission> rol_form_permissions { get; set; }
     public DbSet<FormModule> form_modules { get; set; }
+    //public DbSet<TouristicAttraction> TouristicAttraction { get; set; }
 
-    // ========== DBSet Entities ==========
+    ///<summary>
+    ///Implementación DBSet Model entities
+    ///</summary>
+
     public DbSet<Infraction> Infraction { get; set; }
     public DbSet<InspectoraReport> inspectoraReport { get; set; }
     public DbSet<ValueSmldv> valueSmldv { get; set; }
@@ -52,7 +59,23 @@ public class MySqlApplicationDbContext : DbContext
     public DbSet<UserInfraction> userInfraction { get; set; }
     public DbSet<FineCalculationDetail> fineCalculationDetail { get; set; }
     public DbSet<PaymentAgreement> paymentAgreement { get; set; }
+
+    public DbSet<InstallmentSchedule> installmentSchedule { get; set; }
+
+    public DbSet<AuthSession> AuthSessions { get; set; } = null!;
     public DbSet<RefreshToken> refreshTokens { get; set; }
+    public DbSet<PasswordResetCode> PasswordResetCodes { get; set; }
+
+
+    //parametros
+    public DbSet<documentType> documentTypes { get; set; }
+    public DbSet<department> Departments { get; set; }
+    public DbSet<municipality> Municipality { get; set; }
+    public DbSet<PaymentFrequency> paymentFrequency { get; set; }
+    public DbSet<NotificationSetting> notificationSetting { get; set; }
+
+
+    public DbSet<NotificationSetting> NotificationSetting { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -15,39 +15,37 @@ namespace Business.Mensajeria.Email.implements
         private readonly EmailBackgroundQueue _emailQueue;
         private readonly IServiceProvider _scopeFactory;
         private readonly VerificationCache _cache;
+        private readonly IServiceEmail _emailSender;
 
         public VerificationService(
             EmailBackgroundQueue emailQueue,
             IServiceProvider scopeFactory,
-            VerificationCache cache)
+            VerificationCache cache,    
+            IServiceEmail emailSender)
         {
             _emailQueue = emailQueue;
             _scopeFactory = scopeFactory;
             _cache = cache;
+            _emailSender = emailSender;
         }
 
-        public async Task SendVerificationAsync(string nombre, string email)
+        public async Task SendVerificationAsync(string email)
         {
             var code = CodeGenerator.GenerateNumericCode();
 
-            // Guardar en cache
-            _cache.SaveCode(email, code);
+            _cache.SaveCode($"verification:{email}", code);
 
-            // Mandar correo en segundo plano
-            await _emailQueue.QueueBackgroundWorkItemAsync(async () =>
+            await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
             {
-                using var scope = _scopeFactory.CreateScope();
+                using var scope = sp.CreateScope();
                 var emailService = scope.ServiceProvider.GetRequiredService<IVerificationService>();
 
-                var builder = new VerificacionEmailBuilder(nombre, code);
+                var builder = new VerificacionEmailBuilder(code);
                 await emailService.SendEmailAsync(email, builder);
             });
         }
 
-        public bool ValidateCode(string email, string code)
-        {
-            return _cache.ValidateCode(email, code);
-        }
+
 
         // 👉 este método lo pide el IVerificationService
         public async Task SendEmailAsync(string email, VerificacionEmailBuilder builder)
@@ -57,5 +55,43 @@ namespace Business.Mensajeria.Email.implements
             var emailSender = _scopeFactory.GetRequiredService<IServiceEmail>();
             await emailSender.SendEmailAsync(email, builder.GetSubject(), builder.GetBody());
         }
+
+        public async Task SendVerificationPasswordAsync(string email)
+        {
+            var code = CodeGenerator.GenerateNumericCode();
+
+            _cache.SaveCode($"passwordReset:{email}", code);
+
+            await _emailQueue.QueueBackgroundWorkItemAsync(async sp =>
+            {
+                using var scope = sp.CreateScope();
+                var emailSender = scope.ServiceProvider.GetRequiredService<IServiceEmail>();
+
+                var builder = new PasswordResetEmailBuilder(code);
+
+                await emailSender.SendEmailAsync(
+                    email,
+                    builder.GetSubject(),
+                    builder.GetBody()
+                );
+            });
+        }
+
+
+        public bool ValidateCode(string email, string code, string type)
+        {
+            return _cache.ValidateCode($"{type}:{email}", code);
+        }
+
+
+        public async Task SendEmailPasswordAsync(string email, PasswordResetEmailBuilder builder)
+        {
+            await _emailSender.SendEmailAsync(
+                email,
+                builder.GetSubject(),
+                builder.GetBody()
+            );
+        }
+
     }
 }

@@ -172,12 +172,7 @@ namespace Web.Controllers.Implements.Entities
         [HttpGet("{id}/pdf/3dias")]
         public async Task<IActionResult> DownloadReminder3DaysPdf(int id)
         {
-            var userInfraction = await _service.GetByIdAsyncPdf(id);
-            if (userInfraction == null)
-                return NotFound(new { message = $"No se encontró una infracción con id {id}" });
-
-            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, 3);
-            return File(pdfBytes, "application/pdf", $"Recordatorio_3dias_{userInfraction.id}.pdf");
+            return await GenerateAndReturnReminderPdf(id, 1, $"Recordatorio_3dias_{id}.pdf");
         }
 
         // ===========================================================
@@ -186,12 +181,7 @@ namespace Web.Controllers.Implements.Entities
         [HttpGet("{id}/pdf/15dias")]
         public async Task<IActionResult> DownloadReminder15DaysPdf(int id)
         {
-            var userInfraction = await _service.GetByIdAsyncPdf(id);
-            if (userInfraction == null)
-                return NotFound(new { message = $"No se encontró una infracción con id {id}" });
-
-            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, 15);
-            return File(pdfBytes, "application/pdf", $"Recordatorio_15dias_{userInfraction.id}.pdf");
+            return await GenerateAndReturnReminderPdf(id, 2, $"Recordatorio_15dias_{id}.pdf");
         }
 
         // ===========================================================
@@ -200,12 +190,38 @@ namespace Web.Controllers.Implements.Entities
         [HttpGet("{id}/pdf/25dias")]
         public async Task<IActionResult> DownloadReminder25DaysPdf(int id)
         {
+            return await GenerateAndReturnReminderPdf(id, 3, $"Recordatorio_25dias_{id}.pdf");
+        }
+
+        // ===========================================================
+        // 📄 Descargar recordatorio de 30 días (cobro jurídico)
+        // ===========================================================
+        [HttpGet("{id}/pdf/cobroJuridico")]
+        public async Task<IActionResult> DownloadReminder30DaysPdf(int id)
+        {
+            return await GenerateAndReturnReminderPdf(id, 4, $"CobroJuridico_{id}.pdf");
+        }
+
+
+
+        // ===========================================================
+        // MÉTODO INTERNO REUTILIZABLE (SRP)
+        // ===========================================================
+        private async Task<IActionResult> GenerateAndReturnReminderPdf(int id, int reminderId, string fileName)
+        {
             var userInfraction = await _service.GetByIdAsyncPdf(id);
+
             if (userInfraction == null)
                 return NotFound(new { message = $"No se encontró una infracción con id {id}" });
 
-            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, 25);
-            return File(pdfBytes, "application/pdf", $"Recordatorio_25dias_{userInfraction.id}.pdf");
+            // Generate PDF using your new service and logic
+            var pdfBytes = await _pdfService.GenerateReminderPdfAsync(userInfraction, reminderId);
+
+            // Si el recordatorio NO tiene PDF configurado en GetReminderTemplateById()
+            if (pdfBytes == null)
+                return BadRequest(new { message = "Este tipo de recordatorio no genera PDF." });
+
+            return File(pdfBytes, "application/pdf", fileName);
         }
 
         [HttpPost("simulate-interest")]
@@ -232,6 +248,7 @@ namespace Web.Controllers.Implements.Entities
                 simulatedDate
             });
         }
+
 
 
 

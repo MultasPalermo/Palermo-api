@@ -1013,7 +1013,13 @@ namespace Entity.Migrations
                     b.Property<DateTime?>("paymentDue25Days")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("paymentDue30Days")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("paymentDue3Days")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("paymentDue40Days")
                         .HasColumnType("datetime2");
 
                     b.Property<decimal?>("smldvValueAtCreation")
@@ -1726,15 +1732,6 @@ namespace Entity.Migrations
                         },
                         new
                         {
-                            id = 18,
-                            active = false,
-                            created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            formid = 21,
-                            is_deleted = false,
-                            moduleid = 5
-                        },
-                        new
-                        {
                             id = 19,
                             active = false,
                             created_date = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -1824,6 +1821,42 @@ namespace Entity.Migrations
                             is_deleted = false,
                             name = "modulo de parametro"
                         });
+                });
+
+            modelBuilder.Entity("Entity.Domain.Models.Implements.ModelSecurity.PasswordResetCode", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<bool>("active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("created_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("expiration")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("isUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("is_deleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("id");
+
+                    b.ToTable("PasswordResetCodes");
                 });
 
             modelBuilder.Entity("Entity.Domain.Models.Implements.ModelSecurity.Permission", b =>
@@ -2167,7 +2200,11 @@ namespace Entity.Migrations
                         });
                 });
 
+<<<<<<< HEAD
             modelBuilder.Entity("Entity.Domain.Models.Implements.Notificacion.Notification", b =>
+=======
+            modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.NotificationSetting", b =>
+>>>>>>> 3ea7252 (feat: seguimiento a las multas)
                 {
                     b.Property<int>("id")
                         .ValueGeneratedOnAdd()
@@ -2175,6 +2212,7 @@ namespace Entity.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
 
+<<<<<<< HEAD
                     b.Property<string>("ActionRoute")
                         .HasColumnType("nvarchar(max)");
 
@@ -2203,6 +2241,24 @@ namespace Entity.Migrations
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
+=======
+                    b.Property<int>("Days")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TimeUnit")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+>>>>>>> 3ea7252 (feat: seguimiento a las multas)
 
                     b.Property<bool>("active")
                         .HasColumnType("bit");
@@ -2215,9 +2271,70 @@ namespace Entity.Migrations
 
                     b.HasKey("id");
 
+<<<<<<< HEAD
                     b.HasIndex("RecipientUserId");
 
                     b.ToTable("notifications");
+=======
+                    b.ToTable("notificationSetting");
+
+                    b.HasData(
+                        new
+                        {
+                            id = 1,
+                            Days = 30,
+                            Description = "Primer recordatorio después de la infracción.",
+                            Name = "Recordatorio 30 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 2,
+                            Days = 60,
+                            Description = "Segundo recordatorio después de la infracción.",
+                            Name = "Recordatorio 60 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 3,
+                            Days = 80,
+                            Description = "Tercer recordatorio después de la infracción.",
+                            Name = "Recordatorio 80 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 4,
+                            Days = 100,
+                            Description = "cobrojuridico recordatorio después de la infracción",
+                            Name = "Recordatorio 100 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        },
+                        new
+                        {
+                            id = 5,
+                            Days = 120,
+                            Description = "CobroCoactivo recordatorio después de la infracción.",
+                            Name = "Recordatorio 120 segundos",
+                            TimeUnit = "SECONDS",
+                            active = true,
+                            created_date = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            is_deleted = false
+                        });
+>>>>>>> 3ea7252 (feat: seguimiento a las multas)
                 });
 
             modelBuilder.Entity("Entity.Domain.Models.Implements.parameters.PaymentFrequency", b =>

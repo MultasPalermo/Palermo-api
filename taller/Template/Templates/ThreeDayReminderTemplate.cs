@@ -79,15 +79,15 @@ namespace Template.Templates
     <div class='content'>
       <p><strong>Municipio de Palermo - Huila</strong><br/>
       <strong>Secretaría de Hacienda Municipal</strong><br/>
-      <strong>Fecha:</strong> @FechaActual</p>
+      <strong>Fecha:</strong> {{fecha_emision}}</p>
 
-      <p><strong>ASUNTO:</strong> Recordatorio de pago de multa - Resolución N.° <strong>@NumeroResolucion</strong></p>
+      <p><strong>ASUNTO:</strong> Recordatorio de pago de multa</p>
 
-      <p><strong>Respetado(a):</strong> @NombreCompleto</p>
+      <p><strong>Respetado(a):</strong> {{nombre_completo}}</p>
 
       <p>
-        De acuerdo con la Resolución N.° <strong>@NumeroResolucion</strong> del <strong>@FechaResolucion</strong>, 
-        mediante la cual se impuso una multa tipo <strong>@TipoMulta</strong>, 
+        De acuerdo con el Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016)
+        mediante la cual se impuso una multa tipo <strong>{{tipo_multa}}</strong>, 
         le recordamos que el término para realizar el pago voluntario se encuentra próximo a vencer.
       </p>
 
