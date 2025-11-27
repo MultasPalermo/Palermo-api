@@ -454,6 +454,27 @@ public class UserInfractionServices
         return first != null ? _mapper.Map<UserInfractionSelectDto>(first) : null;
     }
 
+    public async Task<bool> MarkAsPaidAsync(int infractionId)
+    {
+        var entity = await _repo.GetByIdAsync(infractionId);
+
+        if (entity == null)
+            throw new BusinessException($"La infracción {infractionId} no existe.");
+
+        // Si ya está pagada, no hacer nada
+        if (entity.stateInfraction == EstadoMulta.Pagada)
+            return true;
+
+        entity.stateInfraction = EstadoMulta.Pagada;
+        entity.IsCoactive = false;
+        entity.AccruedInterest = 0;
+        entity.TotalToPay = 0;
+        entity.amountToPay = 0;
+
+        await _repo.UpdateAsync(entity);
+        return true;
+    }
+
 
 
     //public async Task<IEnumerable<UserInfractionSelectDto>> FilterAsync(UserInfractionFilterDto filter)
