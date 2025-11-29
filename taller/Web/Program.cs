@@ -97,6 +97,6 @@ app.UseAuthorization();       // luego autorización
 app.MapControllers();
 
 // Migraciones
-MigrationManager.MigrateAllDatabases(app.Services, builder.Configuration);
+//MigrationManager.MigrateAllDatabases(app.Services, builder.Configuration);
 
 app.Run();

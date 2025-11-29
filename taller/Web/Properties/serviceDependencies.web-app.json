@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql1": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.App/containerApps/web-app/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsSqlServer_1355A3840C",
+      "secretStore": "AzureContainerApp",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/alcaldiatech/databases/AlcaldiaTech-Web",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:SqlServer",
+      "dynamicId": null
+    }
+  }
+}
