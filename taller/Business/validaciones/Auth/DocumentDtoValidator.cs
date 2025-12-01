@@ -20,15 +20,6 @@ namespace Business.validaciones.Auth
             .NotEmpty().WithMessage("El número de documento es obligatorio.")
             .Matches(@"^\d+$").WithMessage("El número de documento solo debe contener números.")
             .Length(10).WithMessage("El número de documento debe tener exactamente 10 dígitos.");
-
-
-            RuleFor(x => x.RecaptchaToken)
-                .NotEmpty().WithMessage("El token de reCAPTCHA es obligatorio.");
-
-            // Si quieres exigir que el action sea "documento":
-            RuleFor(x => x.RecaptchaAction)
-                .Must(a => string.IsNullOrWhiteSpace(a) || a == "documento")
-                .WithMessage("La acción de reCAPTCHA no es válida.");
         }
     }
 }

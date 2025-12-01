@@ -1,5 +1,5 @@
 ﻿using Business.Custom;
-using Business.ExternalServices.Recaptcha;
+
 using Business.Interfaces.IBusinessImplements;
 using Business.Interfaces.IBusinessImplements.Entities;
 using Business.Interfaces.IBusinessImplements.parameters;
@@ -30,7 +30,7 @@ using Data.Services.Notificacion;
 using Data.Services.Parameters;
 using Data.Services.Security;
 using Entity.Domain.Models.Implements.ModelSecurity;
-using Entity.Domain.Models.Implements.Recaptcha;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -144,13 +144,6 @@ namespace Web.Service
             services.AddSingleton<IReminderScheduler, EmailScheduler>();
 
             services.AddScoped<EmailOrchestrator>();
-
-
-
-
-            // Recaptcha
-            services.Configure<RecaptchaOptions>(configuration.GetSection("Recaptcha"));
-            services.AddHttpClient<IRecaptchaVerifier, RecaptchaVerifier>();
 
             // Identity y Tokens
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

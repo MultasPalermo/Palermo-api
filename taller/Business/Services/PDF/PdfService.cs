@@ -76,6 +76,7 @@ namespace Business.Services.PDF
         }
 
 
+
         public async Task<byte[]> GeneratePdfAsync(UserInfractionSelectDto dto)
         {
             var html = BuildHtml(dto);
@@ -154,7 +155,7 @@ namespace Business.Services.PDF
             var template = InspectoraTemplate.Html;
 
             // ✅ Ruta física absoluta de la imagen
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Template", "images", "marcaAgua.png");
+            var imagePath = Path.Combine(AppContext.BaseDirectory, "Template", "images", "marcaAgua.png");
             imagePath = Path.GetFullPath(imagePath);
 
             Console.WriteLine("Ruta imagen: " + imagePath);
@@ -198,7 +199,7 @@ namespace Business.Services.PDF
             var culture = new CultureInfo("es-CO");
 
             // ✅ Cargar la imagen del encabezado
-            var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Template", "images", "marcaAgua.png");
+            var imagePath = Path.Combine(AppContext.BaseDirectory, "Template", "images", "marcaAgua.png");
             imagePath = Path.GetFullPath(imagePath);
             Console.WriteLine("Ruta imagen: " + imagePath);
             Console.WriteLine("Existe: " + File.Exists(imagePath));
@@ -311,9 +312,9 @@ namespace Business.Services.PDF
 
                 var culture = new CultureInfo("es-ES");
 
-                // Marca de agua
-                var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Template", "images", "marcaAgua.png");
-                imagePath = Path.GetFullPath(imagePath);
+            // Marca de agua
+            var imagePath = Path.Combine(AppContext.BaseDirectory, "Template", "images", "marcaAgua.png");
+            imagePath = Path.GetFullPath(imagePath);
 
                 string imageBase64 = string.Empty;
                 if (File.Exists(imagePath))

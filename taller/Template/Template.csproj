@@ -10,4 +10,10 @@
     <Folder Include="images\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="images\marcaAgua.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

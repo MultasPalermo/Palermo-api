@@ -11,8 +11,6 @@ namespace Entity.DTOs.Default.LoginDto
         public int DocumentTypeId { get; set; }
         public string DocumentNumber { get; set; } = null!;
 
-        public string RecaptchaToken { get; set; } 
-        public string RecaptchaAction { get; set; } 
 
     }
 }

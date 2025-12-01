@@ -5,7 +5,6 @@ using Business.Mensajeria.Email.@interface;
 using Business.Repository;
 using Data.Interfaces.IDataImplement.Security;
 using Entity.Domain.Models.Implements.ModelSecurity;
-using Entity.DTOs.Default.LoginDto.response.RegisterReponseDto;
 using Entity.DTOs.Default.ModelSecurityDto;
 using Entity.DTOs.Default.RegisterRequestDto;
 using Entity.DTOs.Select.ModelSecuritySelectDto;
@@ -49,67 +48,67 @@ namespace Business.Services.Security
         }
 
         // ========= Registro (Person + User + Rol por defecto) =========
-        public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
-        {
-            // 0) Validación de unicidad
-            var existing = await _dataUser.FindEmail(dto.email);
-            if (existing != null && !existing.is_deleted)
-                throw new InvalidOperationException("Ya existe una cuenta con ese email.");
+        //public async Task<RegisterResponseDto> RegisterAsync(RegisterRequestDto dto)
+        //{
+        //    // 0) Validación de unicidad
+        //    var existing = await _dataUser.FindEmail(dto.email);
+        //    if (existing != null && !existing.is_deleted)
+        //        throw new InvalidOperationException("Ya existe una cuenta con ese email.");
 
-            await using var tx = await _db.Database.BeginTransactionAsync();
-            try
-            {
-                // 1) Crear Person
-                var person = _mapper.Map<Person>(dto);
-                person.InitializeLogicalState();
-                var personCreated = await _people.CreateAsync(person);
+        //    await using var tx = await _db.Database.BeginTransactionAsync();
+        //    try
+        //    {
+        //        // 1) Crear Person
+        //        var person = _mapper.Map<Person>(dto);
+        //        person.InitializeLogicalState();
+        //        var personCreated = await _people.CreateAsync(person);
 
-                // 2) Crear User
-                var user = _mapper.Map<User>(dto);
-                user.PersonId = personCreated.id;
-                user.InitializeLogicalState();
+        //        // 2) Crear User
+        //        var user = _mapper.Map<User>(dto);
+        //        user.PersonId = personCreated.id;
+        //        user.InitializeLogicalState();
 
-                // 2.1) Generar código de verificación
-                var code = new Random().Next(100000, 999999).ToString();
-                user.EmailVerified = false;
-                user.EmailVerificationCode = code;
-                user.EmailVerificationExpiresAt = DateTime.UtcNow.AddMinutes(15);
+        //        // 2.1) Generar código de verificación
+        //        var code = new Random().Next(100000, 999999).ToString();
+        //        user.EmailVerified = false;
+        //        user.EmailVerificationCode = code;
+        //        user.EmailVerificationExpiresAt = DateTime.UtcNow.AddMinutes(15);
 
-                var userCreated = await _dataUser.CreateAsync(user);
+        //        var userCreated = await _dataUser.CreateAsync(user);
 
-                await _db.SaveChangesAsync();
-                await tx.CommitAsync();
+        //        await _db.SaveChangesAsync();
+        //        await tx.CommitAsync();
 
-                // 3) Asignar rol por defecto (no bloqueante)
-                _ = _rolUserService.AsignateUserRTo(userCreated);
+        //        // 3) Asignar rol por defecto (no bloqueante)
+        //        _ = _rolUserService.AsignateUserRTo(userCreated);
 
-                // 4) Enviar email con código (no bloquear respuesta)
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        var builder = new VerificacionEmailBuilder(code);
+        //        // 4) Enviar email con código (no bloquear respuesta)
+        //        _ = Task.Run(async () =>
+        //        {
+        //            try
+        //            {
+        //                var builder = new VerificacionEmailBuilder(code);
 
-                        await _email.SendEmailAsyncVerificacion(dto.email, builder);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "No se pudo enviar código de verificación a {Email}", dto.email);
-                    }
-                });
+        //                await _email.SendEmailAsyncVerificacion(dto.email, builder);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                _logger.LogError(ex, "No se pudo enviar código de verificación a {Email}", dto.email);
+        //            }
+        //        });
 
-                return new RegisterResponseDto
-                {
-                    IsSuccess = true,
-                    Message = "Registro completado. Revisa tu correo para ingresar el código de verificación."
-                };
-            }
-            catch
-            {
-                await tx.RollbackAsync();
-                throw;
-            }
-        }
+        //        return new RegisterResponseDto
+        //        {
+        //            IsSuccess = true,
+        //            Message = "Registro completado. Revisa tu correo para ingresar el código de verificación."
+        //        };
+        //    }
+        //    catch
+        //    {
+        //        await tx.RollbackAsync();
+        //        throw;
+        //    }
+        //}
 
         // UserService.cs
         public async Task<bool> VerifyCodeAsync(string code)

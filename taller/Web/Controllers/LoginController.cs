@@ -1,9 +1,7 @@
-﻿using Business.ExternalServices.Recaptcha;
-using Business.Interfaces.IBusinessImplements.Security;
+﻿using Business.Interfaces.IBusinessImplements.Security;
 using Business.Interfaces.IJWT;
 using Entity.DTOs.Default.Email;
 using Entity.DTOs.Default.LoginDto.response.LoginResultDto;
-using Entity.DTOs.Default.LoginDto.response.RegisterReponseDto;
 using Entity.DTOs.Default.LoginDto;
 using Entity.DTOs.Default.RegisterRequestDto;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +21,6 @@ namespace Web.Controllers
         private readonly IUserService _userService;
         private readonly ILogger<LoginController> _logger;
         private readonly EncriptePassword _utilities;
-        private readonly IRecaptchaVerifier _recaptcha;
         private readonly IAuthSessionService _svc;   // ADD: servicio de sesiones
         private readonly ISystemClock _clock;              // ADD: reloj (tu wrapper)
 
@@ -33,7 +30,6 @@ namespace Web.Controllers
         public LoginController(
             EncriptePassword utilities,
             IToken token,
-            IRecaptchaVerifier recaptcha,
             ILogger<LoginController> logger,
             IUserService userService,
             IAuthSessionService svc,    // ADD
@@ -46,7 +42,6 @@ namespace Web.Controllers
             _userService = userService;
             _logger = logger;
             _utilities = utilities;
-            _recaptcha = recaptcha;
             _svc = svc;                // ADD
             _clock = clock;            // ADD
             //_serviceEmail = serviceEmail;
@@ -119,53 +114,43 @@ namespace Web.Controllers
         [ProducesResponseType(typeof(LoginResultDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> LoginDocumento([FromBody] DocumentLoginDto login)
+        public async Task<IActionResult> logindocumento([FromBody] DocumentLoginDto login)
         {
             try
             {
-                // 1) Verificar reCAPTCHA v3
+                // -------------------------
+                // 1. validar recapcha
+                // -------------------------
                 var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
-                var (ok, reason, score) = await _recaptcha.VerifyAsync(
-                    login.RecaptchaToken,
-                    login.RecaptchaAction ?? "documento",
-                    ip
-                );
 
-                if (!ok)
-                {
-                    // BadRequest con el mismo tipo de respuesta
-                    return BadRequest(new LoginResultDto
-                    {
-                        IsSuccess = false,
-                        Message = $"reCAPTCHA inválido: {reason} (score: {score:F2})"
-                    });
-                }
-
-                // (Opcional) Aplica umbral local de score si quieres ser más estricto
-                // if (score < 0.5) return BadRequest(new LoginResultDto { IsSuccess = false, Message = "Acceso bloqueado por sospecha de bot." });
-
-                // 2) (Opcional) Validar existencia/obtención de persona
+                // -------------------------
+                // 2. lógica de usuario/sesión
+                // -------------------------
                 long? personId = null;
                 // personId = await _userService.GetPersonIdByDocAsync(login.DocumentTypeId, login.DocumentNumber);
 
-                // 3) Crear sesión (Business) y setear cookie HttpOnly
                 var ua = Request.Headers.UserAgent.ToString();
-                var sess = await _svc.CreateSessionAsync(personId, ip ?? "-", ua); // _svc: tu servicio de sesiones
+                var sess = await _svc.CreateSessionAsync(personId, ip ?? "-", ua);
 
+                // -------------------------
+                // 3. cookie http-only
+                // -------------------------
                 Response.Cookies.Append("ph_session", sess.SessionId.ToString(), new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = true,                 // PRODUCCIÓN: true (requiere HTTPS). En dev puedes poner false.
-                    SameSite = SameSiteMode.None,  // Si el front está en otro origen/puerto; si es mismo origen, Lax está bien.
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
                     IsEssential = true,
-                    Expires = sess.AbsoluteExpiresAt.Date
+                    Expires = sess.AbsoluteExpiresAt
                 });
 
-                // 4) Responder éxito (sin JWT)
+                // -------------------------
+                // 4. respuesta final
+                // -------------------------
                 return Ok(new LoginResultDto
                 {
-                    IsSuccess = true,                 // no usamos JWT en este flujo
-                    Message = "Sesión iniciada"
+                    IsSuccess = true,
+                    Message = "sesión iniciada"
                 });
             }
             catch (UnauthorizedAccessException)
@@ -173,13 +158,13 @@ namespace Web.Controllers
                 return Unauthorized(new LoginResultDto
                 {
                     IsSuccess = false,
-                    Message = "Credenciales inválidas."
+                    Message = "credenciales inválidas."
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error en LoginDocumento");
-                return StatusCode(500, new { isSuccess = false, message = "Error interno." });
+                _logger.LogError(ex, "error en logindocumento");
+                return StatusCode(500, new { isSuccess = false, message = "error interno." });
             }
         }
 

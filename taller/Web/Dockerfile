@@ -1,5 +1,5 @@
-# Imagen base correcta para una API ASP.NET Core
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+# Etapa base (CON PLAYWRIGHT — ESTA ES LA BUENA)
+FROM mcr.microsoft.com/playwright/dotnet:v1.54.0-jammy AS final-base
 WORKDIR /app
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://*:8080
@@ -25,10 +25,12 @@ RUN dotnet build "Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Publicar
 FROM build AS publish
-RUN dotnet publish "Web.csproj" -c "${BUILD_CONFIGURATION:-Release}" -o /app/publish /p:UseAppHost=false
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet publish "Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Imagen final
-FROM base AS final
+# Imagen final (runtime + Playwright + Chromium)
+FROM final-base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Web.dll"]
+

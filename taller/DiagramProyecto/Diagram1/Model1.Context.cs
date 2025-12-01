@@ -36,25 +36,25 @@ namespace Diagram1
         public virtual DbSet<FineCalculationDetail> FineCalculationDetail { get; set; }
         public virtual DbSet<InspectoraReport> InspectoraReport { get; set; }
         public virtual DbSet<installmentSchedule> installmentSchedule { get; set; }
-        public virtual DbSet<paymentAgreement> paymentAgreement { get; set; }
+        public virtual DbSet<PaymentAgreement> paymentAgreement { get; set; }
         public virtual DbSet<TypeInfraction> TypeInfraction { get; set; }
-        public virtual DbSet<typePayment> typePayment { get; set; }
-        public virtual DbSet<userInfraction> userInfraction { get; set; }
-        public virtual DbSet<userNotification> userNotification { get; set; }
+        public virtual DbSet<TypePayment> typePayment { get; set; }
+        public virtual DbSet<UserInfraction> userInfraction { get; set; }
+        public virtual DbSet<UserNotification> userNotification { get; set; }
         public virtual DbSet<valueSmldv> valueSmldv { get; set; }
         public virtual DbSet<AuthSession> AuthSession { get; set; }
-        public virtual DbSet<form> form { get; set; }
+        public virtual DbSet<Form> form { get; set; }
         public virtual DbSet<formmodule> formmodule { get; set; }
-        public virtual DbSet<module> module { get; set; }
-        public virtual DbSet<permission> permission { get; set; }
+        public virtual DbSet<Module> module { get; set; }
+        public virtual DbSet<Permission> permission { get; set; }
         public virtual DbSet<person> person { get; set; }
-        public virtual DbSet<rol> rol { get; set; }
-        public virtual DbSet<rolformpermission> rolformpermission { get; set; }
-        public virtual DbSet<roluser> roluser { get; set; }
-        public virtual DbSet<user> user { get; set; }
+        public virtual DbSet<Rol> rol { get; set; }
+        public virtual DbSet<RolFormPermission> rolformpermission { get; set; }
+        public virtual DbSet<RolUser> roluser { get; set; }
+        public virtual DbSet<User> user { get; set; }
         public virtual DbSet<department> department { get; set; }
         public virtual DbSet<documentType> documentType { get; set; }
         public virtual DbSet<municipality> municipality { get; set; }
-        public virtual DbSet<paymentFrequency> paymentFrequency { get; set; }
+        public virtual DbSet<PaymentFrequency> paymentFrequency { get; set; }
     }
 }
