@@ -51,7 +51,7 @@ namespace Web.Controllers.Implements.Entities
 
             var pref = await _mercadoPagoService.CreateCheckoutForInfractionAsync(multa, usuario);
 
-            return Ok(pref);
+            return Ok(new { url = pref.InitPoint });
         }
 
         // ============================================================
