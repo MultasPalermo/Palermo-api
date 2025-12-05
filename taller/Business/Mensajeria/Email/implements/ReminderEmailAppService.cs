@@ -358,7 +358,7 @@ namespace Business.Mensajeria.Email.implements
             body +=
                 $"<p>fecha de la infracción: <b>{dto.dateInfraction:dd 'de' MMMM 'de' yyyy}</b></p>" +
                 $"<p>monto a pagar: <b>${dto.amountToPay:N0}</b></p>" +
-                "<p>atentamente,<br/>secretaría de tránsito municipal</p>";
+                "<p>atentamente,<br/>tesoreria de la Alcaldia de Palermo-Huila</p>";
 
             return (subject, body);
         }
