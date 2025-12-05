@@ -155,11 +155,11 @@ namespace Business.Services.PDF
             var template = InspectoraTemplate.Html;
 
             // ✅ Ruta física absoluta de la imagen
-            var imagePath = Path.Combine(AppContext.BaseDirectory, "Template", "images", "marcaAgua.png");
-            imagePath = Path.GetFullPath(imagePath);
+            var imagePath = GetTemplatePath("marcaAgua.png");
 
-            Console.WriteLine("Ruta imagen: " + imagePath);
-            Console.WriteLine("Existe: " + File.Exists(imagePath));
+            Console.WriteLine("ruta imagen final: " + imagePath);
+            Console.WriteLine("existe: " + File.Exists(imagePath));
+
 
             string imageBase64 = string.Empty;
 
@@ -186,11 +186,6 @@ namespace Business.Services.PDF
                 .Replace("@DescripcionInfraccion", HttpUtility.HtmlEncode(dto.observations))
                 .Replace("@numer_smldv", HttpUtility.HtmlEncode(dto.numer_smldv));
 
-            // 🧪 Guardar HTML temporal para verificar si se ve la imagen
-            var debugPath = Path.Combine(Directory.GetCurrentDirectory(), "debug_inspectora.html");
-            File.WriteAllText(debugPath, html);
-            Console.WriteLine($"🧩 HTML de depuración guardado en: {debugPath}");
-
             return html;
         }
 
@@ -198,11 +193,11 @@ namespace Business.Services.PDF
         {
             var culture = new CultureInfo("es-CO");
 
-            // ✅ Cargar la imagen del encabezado
-            var imagePath = Path.Combine(AppContext.BaseDirectory, "Template", "images", "marcaAgua.png");
-            imagePath = Path.GetFullPath(imagePath);
-            Console.WriteLine("Ruta imagen: " + imagePath);
-            Console.WriteLine("Existe: " + File.Exists(imagePath));
+            var imagePath = GetTemplatePath("marcaAgua.png");
+
+            Console.WriteLine("ruta imagen final: " + imagePath);
+            Console.WriteLine("existe: " + File.Exists(imagePath));
+
 
             string imageBase64 = string.Empty;
             if (File.Exists(imagePath))
@@ -278,10 +273,6 @@ namespace Business.Services.PDF
                     : "")
                 .Replace("@TablaCuotas", cuotasHtml.ToString());
 
-            // 🧪 Guardar HTML temporal para verificar si se ve la imagen
-            var debugPath = Path.Combine(Directory.GetCurrentDirectory(), "debug_payment_agreement.html");
-            File.WriteAllText(debugPath, html);
-            Console.WriteLine($"🧩 HTML de depuración guardado en: {debugPath}");
 
             return html;
         }
@@ -312,11 +303,13 @@ namespace Business.Services.PDF
 
                 var culture = new CultureInfo("es-ES");
 
-            // Marca de agua
-            var imagePath = Path.Combine(AppContext.BaseDirectory, "Template", "images", "marcaAgua.png");
-            imagePath = Path.GetFullPath(imagePath);
+            var imagePath = GetTemplatePath("marcaAgua.png");
 
-                string imageBase64 = string.Empty;
+            Console.WriteLine("ruta imagen final: " + imagePath);
+            Console.WriteLine("existe: " + File.Exists(imagePath));
+
+
+            string imageBase64 = string.Empty;
                 if (File.Exists(imagePath))
                 {
                     byte[] imageBytes = File.ReadAllBytes(imagePath);
@@ -338,5 +331,16 @@ namespace Business.Services.PDF
                     .Replace("{{valor_multa}}", dto.amountToPay.ToString("N0", culture))
                     .Replace("{{total}}", totalAdeudado.ToString("N0", culture));
             }
+        private static string GetTemplatePath(string fileName)
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+
+            for (int i = 0; i < 4; i++)
+                dir = dir.Parent ?? throw new DirectoryNotFoundException(
+                    "no se pudo resolver la ruta del directorio raíz del proyecto.");
+
+            return Path.Combine(dir.FullName, "Template", "images", fileName);
+        }
+
     }
 }

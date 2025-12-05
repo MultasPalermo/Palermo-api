@@ -19,14 +19,14 @@ namespace Template.Templates
       position: relative;
     }
     
-    /* ✅ Encabezado en la parte superior - solo primera página */
     .header-watermark {
-      display: block;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: auto;
       max-height: 150px;
-      margin: 0;
-      padding: 0;
+      z-index: -1;
+      opacity: 1;
     }
     
     /* Contenedor principal con márgenes normales */
@@ -89,10 +89,6 @@ namespace Template.Templates
     
     /* ✅ Estilos para impresión/PDF */
     @media print {
-      .header-watermark {
-        display: block;
-        page-break-after: avoid;
-      }
       .page-content {
         page-break-inside: avoid;
       }

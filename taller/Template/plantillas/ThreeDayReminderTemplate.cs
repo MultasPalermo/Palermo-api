@@ -2,7 +2,7 @@
 
 namespace Template.Templates
 {
-    public static class TwentyFiveDayReminderTemplate
+    public static class ThreeDayReminderTemplate
     {
         public static readonly string Html = @"
 <!DOCTYPE html>
@@ -26,8 +26,9 @@ namespace Template.Templates
       top: 0;
       left: 0;
       width: 100%;
-      opacity: 0.1;
+      max-height: 150px;
       z-index: -1;
+      opacity: 1;
     }
 
     .page-content {
@@ -36,13 +37,6 @@ namespace Template.Templates
       z-index: 1;
     }
 
-    .titulo {
-      text-align: center;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 30px;
-      font-size: 14pt;
-    }
 
     .content p {
       margin-bottom: 10px;
@@ -59,9 +53,6 @@ namespace Template.Templates
     }
 
     @media print {
-      .header-watermark {
-        position: fixed;
-      }
       .page-content {
         page-break-inside: avoid;
       }
@@ -72,28 +63,24 @@ namespace Template.Templates
   <img src='@WatermarkBase64' class='header-watermark' alt='Marca de agua' />
 
   <div class='page-content'>
-    <div class='titulo'>
-      <h2>Tercer recordatorio persuasivo de pago</h2>
-    </div>
-
     <div class='content'>
       <p><strong>Municipio de Palermo - Huila</strong><br/>
       <strong>Secretaría de Hacienda Municipal</strong><br/>
       <strong>Fecha:</strong> {{fecha_emision}}</p>
 
-      <p><strong>ASUNTO:</strong> Último aviso antes de inicio de cobro coactivo </strong></p>
+      <p><strong>ASUNTO:</strong> Recordatorio de pago de multa</p>
 
       <p><strong>Respetado(a):</strong> {{nombre_completo}}</p>
 
       <p>
-        Transcurridos veinticinco (25) días sin registrarse pago de la multa establecida mediante el 
-        Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016), 
-        le informamos que de no realizar el pago o suscribir un acuerdo dentro de los próximos cinco (5) días, 
-        se dará inicio al proceso de cobro coactivo.
+        De acuerdo con el Código Nacional de Seguridad y Convivencia Ciudadana (Ley 1801 de 2016)
+        mediante la cual se impuso una multa tipo <strong>{{tipo_multa}}</strong>, 
+        le recordamos que el término para realizar el pago voluntario se encuentra próximo a vencer.
       </p>
 
       <p>
-        Evite sanciones adicionales y costos procesales pagando voluntariamente.
+        Evite el inicio del proceso de cobro coactivo efectuando el pago dentro de los próximos días. 
+        Para mayor información puede comunicarse con la Secretaría de Hacienda Municipal.
       </p>
     </div>
 

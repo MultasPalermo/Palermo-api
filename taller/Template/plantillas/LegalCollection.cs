@@ -34,22 +34,15 @@ namespace Template.Templates
       top: 0;
       left: 0;
       width: 100%;
-      opacity: 0.1;
+      max-height: 150px;
       z-index: -1;
+      opacity: 1;
     }
 
     .page-content {
       margin: 120px 60px 100px 60px;
       position: relative;
       z-index: 1;
-    }
-
-    .titulo {
-      text-align: center;
-      text-transform: uppercase;
-      font-weight: bold;
-      margin-bottom: 30px;
-      font-size: 14pt;
     }
 
     .content p {
@@ -67,9 +60,6 @@ namespace Template.Templates
     }
 
     @media print {
-      .header-watermark {
-        position: fixed;
-      }
       .page-content {
         page-break-inside: avoid;
       }
@@ -80,9 +70,6 @@ namespace Template.Templates
   <img src='@WatermarkBase64' class='header-watermark' alt='Marca de agua' />
 
   <div class='page-content'>
-    <div class='titulo'>
-      <h2>Aviso de traslado a cobro jurídico</h2>
-    </div>
 
     <div class='content'>
       <p><strong>Entidad:</strong> Alcaldía Municipal de Palermo – Secretaría de Hacienda<br/>
